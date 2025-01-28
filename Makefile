@@ -1,6 +1,6 @@
 MAKEFLAGS += -s
 
-NAME = btc
+NAME = ircserv
 
 CC = c++ -g
 CCFLAGS = -Wall -Werror -Wextra -std=c++98
