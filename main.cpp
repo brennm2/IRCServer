@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:56 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/01/28 18:46:36 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/01/29 12:17:03 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,12 +80,12 @@ int main(int ac, char **av)
 	(void) av; //#TODO Debug
 	if (ac == 3)
 	{
-		std::cout << "NAO FODASE" << "\n";
 		Ircserv Server;
 		try
 		{
 			checkArguments(av, Server);
 			Server.createServer();
+			Server.acceptClients();
 		}
 		catch(const std::exception& e)
 		{

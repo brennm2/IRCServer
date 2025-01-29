@@ -3,7 +3,7 @@ MAKEFLAGS += -s
 NAME = ircserv
 
 CC = c++ -g
-CCFLAGS = -Wall -Werror -Wextra -std=c++98
+CCFLAGS = -Wall -Werror -Wextra 
 RM = rm
 RMFLAGS= -f
 GREEN=\033[0;32m
@@ -13,6 +13,7 @@ NC=\033[0m
 
 SRC = main.cpp \
 	Ircserv.cpp\
+	debugFuncions.cpp \
 
 
 OBJ = $(SRC:.cpp=.o)
