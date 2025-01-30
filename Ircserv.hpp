@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/01/29 18:50:46 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/01/30 17:45:21 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,12 +31,21 @@
 #define reset "\033[0m"
 
 
+struct Client
+{
+	std::string _nickName;
+	std::string _userName;
+	std::string _realName;
+};
+
+
+
 class Ircserv 
 {
 private:
 	// nome do canal - FDs dos usuarios
 	std::map<std::string, std::vector<int> > _channels;
-	std::map<int, std::string> _users;
+	std::map<int, Client> _clientsMap;
 
 
 
@@ -51,6 +60,7 @@ private:
 public:
 	void createServer();
 	void acceptClients();
+	void broadcastMessage(const std::string& message, int sender_fd);
 
 	//Lida com as mensagens
 	void bufferReader(char *buffer);
@@ -58,11 +68,14 @@ public:
 
 	//Commands
 	void commandJoin(const std::string &channel);
+	void commandNick(int clientFd, const std::string &str);
+	void commandUser(std::istringstream &lineStream);
 
 
 
 	//Debug
 	void debugShowChannelInfo();
+	void debugShowLastClient(void);
 
 
 	//Visual Functions

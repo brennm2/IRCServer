@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/01/29 18:52:48 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/01/30 18:28:34 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ void Ircserv::acceptClients()
 			continue;
 		}
 		else
-			std::cout << green << "Client Connected!" << "\n" << reset;
+			std::cout << green << "Client Connected!\nID: " << _clientFd << "\n" << reset;
 		
 		//Mensagem de boas vindas
 		//"\x03" -> indica que e um codigo de cor
@@ -106,23 +106,37 @@ void Ircserv::acceptClients()
 void Ircserv::bufferReader(char *buffer)
 {
 	std::istringstream stringSplit(buffer);
-	std::string command;
-	std::string channel;
+	std::string line;
 
-
-	stringSplit >> command;
-	stringSplit >> channel;
-
-
-	if (command == "JOIN")
+	while (std::getline(stringSplit, line))
 	{
-		std::cout << "JOIN CHANNEL" << "\n";
-		commandJoin(channel);
-	}
-	else if (command == "NICK");
-	{
-		// getNick(channel);
-		;
+		if (line.empty())
+			continue;
+
+		std::istringstream lineStream(line);
+		std::string command;
+		lineStream >> command;
+
+		std::cout << "Comando: " << command << "\n";
+		// std::cout << "str: " << str << "\n";
+
+		if (command == "JOIN")
+		{
+			std::string channelName;
+			lineStream >> channelName;
+			std::cout << "JOIN CHANNEL" << "\n";
+			commandJoin(channelName);
+		}
+		else if (command == "NICK")
+		{
+			std::string nickName;
+			lineStream >> nickName;
+			commandNick(_clientFd, nickName);
+		}
+		else if (command == "USER")
+		{
+			commandUser(lineStream);
+		}
 	}
 	// if (stringSplit == "JOIN")
 
@@ -136,19 +150,89 @@ void Ircserv::commandJoin(const std::string &channel)
 	//Se nao existir, cria um novo
 	if (_channels.find(channel) == _channels.end())
 	{
+		std::cout << "Nao existe channel, criado um novo" << "\n";
 		_channels.insert(std::pair<std::string, int>(channel, 0));
 	}
-	_channels[channel].push_back(_clientFd);
+	else
+	{
+		std::cout << "Ja existe canal, adicionado no canal" << "\n";
+		_channels[channel].push_back(_clientFd);
+	}
 
 	std::string joinMsg;
-	//joinMsg = "\r\n";
-	joinMsg = std::to_string(_clientFd) + " joined " + channel + "!\r\n";
-	send(_clientFd, joinMsg.c_str(), joinMsg.size(), 0);
+	joinMsg = _clientsMap[_clientFd]._nickName + " joined" + channel + "!\r\n";
+	broadcastMessage(joinMsg, 0);
 	// joinMsg = "teste mensagem\r\n";
 
 	// debugShowChannelInfo();
 }
 
+
+void Ircserv::commandNick(int clientFd, const std::string &nickName)
+{
+	for (std::map<int, Client>::const_iterator it = _clientsMap.begin(); it != _clientsMap.end(); ++it)
+	{
+		const Client& client = it->second;
+		if (client._nickName == nickName)
+		{
+			std::string errMsg = ":ircserver 433 *" + nickName + " NICKNAME\r\n";
+			send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+			return ;
+		}
+	}
+	//Se ja nao existir, cria um novo;
+	this->_clientsMap[clientFd]._nickName = nickName;
+
+	std::cout << "Registrado o client: " << green << nickName << reset << "\n";
+
+	// //Debug para ver qual o ultimo usario cadastrado
+	// std::map<int, Client>::const_iterator it = _clientsMap.end();
+	// it--;
+	// std::cout << "first: " << it->first << "\n";
+	// std::cout << "second: " << it->second._nickName << "\n";
+	// // -----------------
+
+
+	std::string nickConfirmation;
+	nickConfirmation = nickName + "\x03" + "12 : Welcome to the server!\r\n";
+	send(_clientFd, nickConfirmation.c_str(), nickConfirmation.size(), 0);
+}
+
+void Ircserv::commandUser(std::istringstream &lineStream)
+{
+	// Separa as strings
+	std::string userName, realName;
+	lineStream >> userName;
+	lineStream.ignore(256, ':');
+	std::getline(lineStream, realName);
+	// std::cout << "Real name: " << realName << "\n";
+
+	// Guarda os nicks
+	_clientsMap[_clientFd]._userName = userName;
+	_clientsMap[_clientFd]._realName = realName;
+
+
+	//Debug para ver qual o ultimo usario cadastrado
+	debugShowLastClient();
+	// // -----------------
+}
+
+
+void Ircserv::broadcastMessage(const std::string& message, int senderFd)
+{
+	(void) senderFd;
+	for (std::map<int, Client>::iterator it = _clientsMap.begin(); it != _clientsMap.end(); ++it) 
+	{
+		int clientFd = it->first;				// Pega o file descriptor do cliente
+		Client client = it->second;		// Pega o objeto Client
+
+		// if (clientFd != senderFd)			// Não envia para o próprio cliente
+		// {
+			// send(clientFd, message.c_str(), message.size(), 0);
+		// }
+		send(clientFd, message.c_str(), message.size(), 0);
+	}
+}
 
 
 
@@ -166,9 +250,6 @@ void Ircserv::visualLoadingServer(void)
 	sleep(1);
 	std::cout << "\n";
 }
-
-
-//Debug Functions
 
 
 
