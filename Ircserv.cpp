@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/03 15:42:30 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/03 18:59:19 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,36 +165,64 @@ void Ircserv::commandJoin(const std::string &channel)
 		std::cout << green << "Nao existe channel, criado um novo" << "\n" << reset;
 		_channels.insert(std::pair<std::string, int>(channel, 0));
 		_channels[channel].push_back(_clientFd);
+
+		//Mensagem de retorno para o cliente para criar o channel
+		std::string testeMsg = ":" + _clientsMap[_clientFd]._nickName + "!" + _clientsMap[_clientFd]._userName + "@localhost JOIN " + channel + "\r\n";
+		send(_clientFd, testeMsg.c_str(), testeMsg.size(), 0);
+
+		std::string joinMsg;
+		joinMsg = _clientsMap[_clientFd]._nickName + " joined " + channel + "!\r\n";
+		broadcastMessage(joinMsg, 0);
+
+
+		//Construindo a lista de nomes no channel
+		std::string nameList = ":ircserver 353 " + _clientsMap[_clientFd]._nickName + " = " + channel + " :";
+		for (std::map<int, Client>::const_iterator it = _clientsMap.begin(); it != _clientsMap.end(); ++it)
+		{
+			nameList+= it->second._nickName;
+		}
+		nameList += "\r\n";
+
+
+		// Enviar a lista de usarios para o cliente que acabou de entrar
+		send(_clientFd, nameList.c_str(), nameList.size(), 0);
+
+		std::string endOfNames = ":ircserver 366 " + _clientsMap[_clientFd]._nickName + " " + channel + " :End of /NAMES list.\r\n";
+		send(_clientFd, endOfNames.c_str(), endOfNames.size(), 0);
 	}
 	else
 	{
+		// Se ja existir o canal...
 		std::cout << red << "Ja existe canal, adicionado no canal" << "\n" << reset;
-		
-		_channels[channel].push_back(_clientFd);
+
+		//Verifica se ja existe o clientFd igual no server, caso nao tenha, coloque na lista
+		if (!checkIfClientInServer(_channels, channel, _clientFd))
+		{
+			std::cout << red <<"Nao existe esse cliente no server" << "\n" << reset;
+			_channels[channel].push_back(_clientFd);
+		}
+
+		//Como ja existe o canal, envia a mensagem do Topico
+		std::string msgTopic = ":ircserver 332 " + _clientsMap[_clientFd]._nickName + " " + channel + " :My cool server yay!\r\n";
+		send(_clientFd, msgTopic.c_str(), msgTopic.size(), 0);
+
+
+		std::string nameList = ":ircserver 353 " + _clientsMap[_clientFd]._nickName + " @ " + channel + " :";
+		for (std::map<int, Client>::const_iterator it = _clientsMap.begin(); it != _clientsMap.end(); ++it)
+		{
+			nameList+= it->second._nickName;
+		}
+		nameList += "\r\n";
+		std::cout << "DEBUG DO nameList:" << nameList << "\n";
+		send(_clientFd, nameList.c_str(), nameList.size(), 0);
+
+		std::string endOfNames = ":ircserver 366 " + _clientsMap[_clientFd]._nickName + " " + channel + " :End of /NAMES list.\r\n";
+		send(_clientFd, endOfNames.c_str(), endOfNames.size(), 0);
+
+
+		return ;
 	}
 
-	std::string testeMsg = ":" + _clientsMap[_clientFd]._nickName + "!" + _clientsMap[_clientFd]._userName + "@localhost JOIN " + channel + "\r\n";
-	send(_clientFd, testeMsg.c_str(), testeMsg.size(), 0);
-
-	std::string joinMsg;
-	joinMsg = _clientsMap[_clientFd]._nickName + " joined " + channel + "!\r\n";
-	broadcastMessage(joinMsg, 0);
-
-
-	//Construindo a lista de nomes no channel
-	std::string nameList = ":ircserver 353 " + _clientsMap[_clientFd]._nickName + " = " + channel + " :";
-	for (std::map<int, Client>::const_iterator it = _clientsMap.begin(); it != _clientsMap.end(); ++it)
-	{
-		nameList+= it->second._nickName;
-	}
-	nameList += "\r\n";
-
-
-	// Enviar a lista de usarios para o cliente que acabou de entrar
-	send(_clientFd, nameList.c_str(), nameList.size(), 0);
-
-	std::string endOfNames = ":ircserver 366 " + _clientsMap[_clientFd]._nickName + " " + channel + " :End of /NAMES list.\r\n";
-	send(_clientFd, endOfNames.c_str(), endOfNames.size(), 0);
 	// debugShowChannelInfo();
 }
 
@@ -206,8 +234,12 @@ void Ircserv::commandNick(int clientFd, const std::string &nickName)
 		const Client& client = it->second;
 		if (client._nickName == nickName)
 		{
+			
 			std::string errMsg = ":ircserver 433 *" + nickName + " NICKNAME\r\n";
 			send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+
+			std::cout << "New nick:" << nickName << "\n";
+			std::string changeNickMsg = ":" + _clientsMap[clientFd]._nickName + "!" +  _clientsMap[clientFd]._userName + "@localhost NICK" + nickName +  "\r\n";
 			return ;
 		}
 	}

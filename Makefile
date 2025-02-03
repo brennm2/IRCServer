@@ -14,6 +14,7 @@ NC=\033[0m
 SRC = main.cpp \
 	Ircserv.cpp\
 	debugFuncions.cpp \
+	helpFunctions.cpp \
 
 
 OBJ = $(SRC:.cpp=.o)
