@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/01/30 17:45:21 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/03 15:43:20 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,11 +71,15 @@ public:
 	void commandNick(int clientFd, const std::string &str);
 	void commandUser(std::istringstream &lineStream);
 
+	//Help Functions
+	bool checkIfClientInServer(std::map<std::string, std::vector<int> > channelMap, \
+		std::string channel, int clientFd);
 
 
 	//Debug
 	void debugShowChannelInfo();
 	void debugShowLastClient(void);
+	void debugShowAllClients(void);
 
 
 	//Visual Functions

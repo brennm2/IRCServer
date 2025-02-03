@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/01/30 18:28:34 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/03 15:42:30 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,6 +137,11 @@ void Ircserv::bufferReader(char *buffer)
 		{
 			commandUser(lineStream);
 		}
+		else if (command == "DDEBUG")
+		{
+			debugShowAllClients();
+			debugShowChannelInfo();
+		}
 	}
 	// if (stringSplit == "JOIN")
 
@@ -147,23 +152,49 @@ void Ircserv::bufferReader(char *buffer)
 //Commands
 void Ircserv::commandJoin(const std::string &channel)
 {
+	if (channel.empty() || channel[0] != '#')
+	{
+		std::string errMsg = ":ircserver 461 * JOIN: Invalid Channel!\r\n";
+		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+		return ;
+	}
+
 	//Se nao existir, cria um novo
 	if (_channels.find(channel) == _channels.end())
 	{
-		std::cout << "Nao existe channel, criado um novo" << "\n";
+		std::cout << green << "Nao existe channel, criado um novo" << "\n" << reset;
 		_channels.insert(std::pair<std::string, int>(channel, 0));
+		_channels[channel].push_back(_clientFd);
 	}
 	else
 	{
-		std::cout << "Ja existe canal, adicionado no canal" << "\n";
+		std::cout << red << "Ja existe canal, adicionado no canal" << "\n" << reset;
+		
 		_channels[channel].push_back(_clientFd);
 	}
 
-	std::string joinMsg;
-	joinMsg = _clientsMap[_clientFd]._nickName + " joined" + channel + "!\r\n";
-	broadcastMessage(joinMsg, 0);
-	// joinMsg = "teste mensagem\r\n";
+	std::string testeMsg = ":" + _clientsMap[_clientFd]._nickName + "!" + _clientsMap[_clientFd]._userName + "@localhost JOIN " + channel + "\r\n";
+	send(_clientFd, testeMsg.c_str(), testeMsg.size(), 0);
 
+	std::string joinMsg;
+	joinMsg = _clientsMap[_clientFd]._nickName + " joined " + channel + "!\r\n";
+	broadcastMessage(joinMsg, 0);
+
+
+	//Construindo a lista de nomes no channel
+	std::string nameList = ":ircserver 353 " + _clientsMap[_clientFd]._nickName + " = " + channel + " :";
+	for (std::map<int, Client>::const_iterator it = _clientsMap.begin(); it != _clientsMap.end(); ++it)
+	{
+		nameList+= it->second._nickName;
+	}
+	nameList += "\r\n";
+
+
+	// Enviar a lista de usarios para o cliente que acabou de entrar
+	send(_clientFd, nameList.c_str(), nameList.size(), 0);
+
+	std::string endOfNames = ":ircserver 366 " + _clientsMap[_clientFd]._nickName + " " + channel + " :End of /NAMES list.\r\n";
+	send(_clientFd, endOfNames.c_str(), endOfNames.size(), 0);
 	// debugShowChannelInfo();
 }
 
