@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Ircserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/04 12:21:07 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/04 17:24:28 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,45 +61,86 @@ void Ircserv::createServer(void)
 
 void Ircserv::acceptClients()
 {
+	std::vector<pollfd> poll_fds;
+	
+	// Add server socket to poll list
+	pollfd server_pollfd;
+	server_pollfd.fd = _serverFd;
+	server_pollfd.events = POLLIN; // Listen for incoming connections
+	poll_fds.push_back(server_pollfd);
+
+	std::cout << green << "Server is listening for connections...\n" << reset;
+	
 	while (true)
 	{
-		sockaddr_in client_addr;
-		socklen_t client_len = sizeof(client_addr);
-		this->_clientFd = accept(this->_serverFd, (struct sockaddr*)&client_addr, &client_len);
-		if (_clientFd < 0)
+		int poll_count = poll(poll_fds.data(), poll_fds.size(), -1);
+		if (poll_count == -1)
 		{
-			std::cerr << red << "Error while accepting connection" << "\n" << reset;
+			std::cerr << red << "Poll error!\n" << reset;
 			continue;
 		}
-		else
-			std::cout << green << "Client Connected!\nID: " << _clientFd << "\n" << reset;
-		
-		//Mensagem de boas vindas
-		//"\x03" -> indica que e um codigo de cor
-		//"01,02Teste" -> primeiro numero e a cor da letra e o segundo e a cor de fundo
-		// obs: nao precisa ter cor de fundo
-		const char *welcomeMsg = "\x03""04,01Welcome test!\n";
-		send(_clientFd, welcomeMsg, strlen(welcomeMsg), 0);
 
-		//Receber mensagens
-		char buffer[512];
-		while(true)
+		// Iterate through all file descriptors
+		for (size_t i = 0; i < poll_fds.size(); i++)
 		{
-			std::memset(buffer, 0, sizeof(buffer));
-			ssize_t bytes_received = recv(_clientFd, buffer, sizeof(buffer) - 1, 0);
-			if (bytes_received <= 0)
+			if (poll_fds[i].revents & POLLIN) // Check if there's incoming data
 			{
-				std::cout << red << "User disconected!" << "\n" << reset;
-				break ;
-			}
-			std::cout << green << "Recebido: " << reset << buffer;
+				if (poll_fds[i].fd == _serverFd)
+				{
+					// Accept new client
+					sockaddr_in client_addr;
+					socklen_t client_len = sizeof(client_addr);
+					_clientFd = accept(_serverFd, (struct sockaddr*)&client_addr, &client_len);
+					if (_clientFd < 0)
+					{
+						std::cerr << red << "Error accepting client\n" << reset;
+						continue;
+					}
+					
+					std::cout << green << "New client connected! FD: " << _clientFd << reset;
+					
+					//Mensagem de boas vindas
+					//"\x03" -> indica que e um codigo de cor
+					//"01,02Teste" -> primeiro numero e a cor da letra e o segundo e a cor de fundo
+					// obs: nao precisa ter cor de fundo
+					const char *welcomeMsg = "\x03""04,01Welcome test!\n";
+					send(_clientFd, welcomeMsg, strlen(welcomeMsg), 0);
 
-			bufferReader(buffer);
-			
+					// Add new client to poll list
+					pollfd client_pollfd;
+					client_pollfd.fd = _clientFd;
+					client_pollfd.events = POLLIN; // Ready to read
+					poll_fds.push_back(client_pollfd);
+
+					// Add client to map
+					_clientsMap[_clientFd] = Client(); // Initialize empty client
+				}
+				else
+				{
+					// Existing client sent data
+					char buffer[512];
+					memset(buffer, 0, sizeof(buffer));
+					ssize_t bytes_received = recv(poll_fds[i].fd, buffer, sizeof(buffer) - 1, 0);
+					
+					if (bytes_received <= 0)
+					{
+						std::cout << red << "Client disconnected: " << poll_fds[i].fd << "\n" << reset;
+						close(poll_fds[i].fd);
+						_clientsMap.erase(poll_fds[i].fd);
+						poll_fds.erase(poll_fds.begin() + i);
+						--i; // Adjust index after removal
+						continue;
+					}
+
+					std::cout << green << "Received from " << poll_fds[i].fd << ": " << reset << buffer;
+					
+					// Process the message
+					bufferReader(buffer);
+				}
+			}
 		}
-		close (_clientFd);
+
 	}
-	close (_serverFd);
 }
 
 
@@ -118,8 +159,7 @@ void Ircserv::bufferReader(char *buffer)
 		lineStream >> command;
 
 		std::cout << "Comando: " << command << "\n";
-		// std::cout << "str: " << str << "\n";
-
+		std::cout << "FD: " << _clientFd << "\n";
 		if (command == "JOIN")
 		{
 			std::string channelName;
@@ -195,7 +235,8 @@ void Ircserv::commandJoin(const std::string &channel)
 		std::string nameList = ":ircserver 353 " + _clientsMap[_clientFd]._nickName + " = " + channel + " :";
 		for (std::map<int, Client>::const_iterator it = _clientsMap.begin(); it != _clientsMap.end(); ++it)
 		{
-			nameList+= it->second._nickName;
+			nameList+= it->second._nickName + " ";
+			std::cout << "teste" << std::endl;
 		}
 		nameList += "\r\n";
 
@@ -230,7 +271,8 @@ void Ircserv::commandJoin(const std::string &channel)
 		std::string nameList = ":ircserver 353 " + _clientsMap[_clientFd]._nickName + " @ " + channel + " :";
 		for (std::map<int, Client>::const_iterator it = _clientsMap.begin(); it != _clientsMap.end(); ++it)
 		{
-			nameList+= it->second._nickName;
+			nameList+= it->second._nickName + " ";
+			std::cout << "teste2" << std::endl;
 		}
 		nameList += "\r\n";
 		std::cout << "DEBUG DO nameList:" << nameList << "\n";
