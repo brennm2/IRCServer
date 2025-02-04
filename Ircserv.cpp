@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/04 16:01:49 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/04 18:51:25 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,6 @@ void Ircserv::bufferReader(char *buffer)
 		lineStream >> command;
 
 		std::cout << "Comando: " << command << "\n";
-		// std::cout << "str: " << str << "\n";
 
 		if (command == "JOIN")
 		{
@@ -143,7 +142,6 @@ void Ircserv::bufferReader(char *buffer)
 			debugShowChannelsInfo();
 		}
 	}
-	// if (stringSplit == "JOIN")
 
 }
 
@@ -206,18 +204,42 @@ void Ircserv::commandNick(int clientFd, const std::string &nickName)
 		}
 	}
 
-	// Ensure the Client object is properly initialized
 	//Procura no _clientMap pelo clientFD, se existir, retorna a estrutura Client,
 	// se nao existir, cria uma nova
-	Client& client = _clientsMap[clientFd];
-	client._nickName = nickName;
-	client._fd = clientFd;
+	if(checkIfClientInServer(clientFd))
+	{
+		Client& client = _clientsMap[clientFd];
+		client._nickName = nickName;
+		client._fd = clientFd;
+
+		std::string nickConfirmation;
+		nickConfirmation = ":ircserver 001 " + nickName + " " + nickName + " Has a new Nick!\r\n";
+
+		broadcastMessage(nickConfirmation, 0);
+
+		// #TODO talvez fazer uma mensagem para avisar a todos que N pessou mudou para o Nick Y
+
+	}
+	else
+	{
+		Client& client = _clientsMap[clientFd];
+		client._nickName = nickName;
+		client._fd = clientFd;
+		
+		std::string nickConfirmation;
+		nickConfirmation = ":ircserver 001 " + nickName + " Welcome to the server!\r\n";
+		broadcastMessage(nickConfirmation, 0);
+		// send(_clientFd, nickConfirmation.c_str(), nickConfirmation.size(), 0);
+	}
 
 	std::cout << "Registrado o client: " << green << nickName << reset << "\n";
 
-	std::string nickConfirmation;
-	nickConfirmation = ":ircserver 001 " + nickName + " : Welcome to the server!\r\n";
-	send(_clientFd, nickConfirmation.c_str(), nickConfirmation.size(), 0);
+	// if (!checkIfClientInServer(clientFd))
+	// {
+	// 	std::string nickConfirmation;
+	// 	nickConfirmation = ":ircserver 001 " + nickName + " Welcome to the server!\r\n";
+	// 	send(_clientFd, nickConfirmation.c_str(), nickConfirmation.size(), 0);
+	// }
 }
 
 void Ircserv::commandUser(std::istringstream &lineStream)
@@ -236,27 +258,7 @@ void Ircserv::commandUser(std::istringstream &lineStream)
 
 	//Debug para ver qual o ultimo usario cadastrado
 	debugShowLastClient();
-	// // -----------------
 }
-
-
-void Ircserv::broadcastMessage(const std::string& message, int senderFd)
-{
-	(void) senderFd;
-	for (std::map<int, Client>::iterator it = _clientsMap.begin(); it != _clientsMap.end(); ++it) 
-	{
-		int clientFd = it->first;				// Pega o file descriptor do cliente
-		Client client = it->second;		// Pega o objeto Client
-
-		// if (clientFd != senderFd)			// Não envia para o próprio cliente
-		// {
-			// send(clientFd, message.c_str(), message.size(), 0);
-		// }
-		send(clientFd, message.c_str(), message.size(), 0);
-	}
-}
-
-
 
 
 // Visual Functions

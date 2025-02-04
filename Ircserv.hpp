@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/04 15:35:08 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/04 18:01:56 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,6 @@ private:
 public:
 	void createServer();
 	void acceptClients();
-	void broadcastMessage(const std::string& message, int sender_fd);
 
 	//Lida com as mensagens
 	void bufferReader(char *buffer);
@@ -75,8 +74,14 @@ public:
 	//Help Functions
 	bool checkIfClientInChannel(std::map<std::string, std::vector<Client> > channelMap, \
 		std::string channel, int clientFd);
+	bool checkIfClientInServer(int clientFd);
 	Client returnClientStruct(int clientFd);
 	void makeUserList(std::string channel);
+
+
+
+	void broadcastMessageToChannel(const std::string& message, std::string channel);
+	void broadcastMessage(const std::string& message, int sender_fd);
 
 
 	//Debug
