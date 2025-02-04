@@ -6,23 +6,37 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/29 17:14:04 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/03 15:20:20 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/04 15:48:10 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Ircserv.hpp"
 
-void Ircserv::debugShowChannelInfo()
+void Ircserv::debugShowChannelsInfo()
 {
-	for (std::map<std::string, std::vector<int> >::const_iterator channel = _channels.begin(); channel != _channels.end(); ++channel)
+	std::map<std::string, std::vector<Client> >::const_iterator channel = _channels.begin();
+
+	if(channel != _channels.end())
 	{
-		std::cout << "Channel: " << channel->first << std::endl;
-		std::cout << "User FD: ";
-		for (std::vector<int>::const_iterator userFd = channel->second.begin(); userFd != channel->second.end(); ++userFd)
+		for (std::map<std::string, std::vector<Client> >::const_iterator channel = _channels.begin(); channel != _channels.end(); ++channel)
 		{
-			std::cout << *userFd << " ";
+			std::cout << cyan << "-- Start of Channel -- " << "\n" << reset;
+
+			std::cout << "Channel: " << channel->first << std::endl;
+			for (std::vector<Client>::const_iterator clients = channel->second.begin(); \
+				clients != channel->second.end(); ++clients)
+			{
+				std::cout << "Client FD: " << clients->_fd << "\n";
+				std::cout << "Client Nick: " << clients->_nickName << "\n";
+				std::cout << yellow << "-- Next --" << "\n" << reset;
+			}
+			
+			std::cout << cyan << "-- End of Channel -- " << "\n";
 		}
-		std::cout << std::endl;
+	}
+	else
+	{
+		std::cout << red << "No Channels to show" << "\n" << reset;
 	}
 }
 
@@ -48,5 +62,5 @@ void Ircserv::debugShowAllClients(void)
 		std::cout << "Real Name: " << it->second._realName << "\n";
 		std::cout << yellow << "\n⫘⫘⫘⫘⫘⫘  " << "END OF CLIENT" << "  ⫘⫘⫘⫘⫘⫘" << "\n" << reset;
 	}
-	std::cout << cyan << "END OF DEBUG!" << "\n" << reset;
+	std::cout << cyan << "END OF CLIENTS DEBUG!" << "\n" << reset;
 }

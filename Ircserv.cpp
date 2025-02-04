@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/04 12:21:07 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/04 16:01:49 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,7 +140,7 @@ void Ircserv::bufferReader(char *buffer)
 		else if (command == "DDEBUG")
 		{
 			debugShowAllClients();
-			debugShowChannelInfo();
+			debugShowChannelsInfo();
 		}
 	}
 	// if (stringSplit == "JOIN")
@@ -159,91 +159,36 @@ void Ircserv::commandJoin(const std::string &channel)
 		return ;
 	}
 
-	// if (_channels.find(channel) == _channels.end())
-	// {
-	// 	std::cout << green << "Nao existe channel, criado um novo" << "\n" << reset;
-	// 	_channels.insert(std::pair<std::string, int>(channel, 0));
-	// 	_channels[channel].push_back(_clientFd);
-	// }
-	// else
-	// {
-	// 	//Verifica se ja existe o clientFd igual no server, caso nao tenha, coloque na lista
-	// 	if (!checkIfClientInServer(_channels, channel, _clientFd))
-	// 	{
-	// 		std::cout << red <<"Nao existe esse cliente no server" << "\n" << reset;
-	// 		_channels[channel].push_back(_clientFd);
-	// 	}
-	// }
-
-	//Se nao existir, cria um novo
+	//Se nao existir, cria um novo canal
 	if (_channels.find(channel) == _channels.end())
 	{
 		std::cout << green << "Nao existe channel, criado um novo" << "\n" << reset;
-		_channels.insert(std::pair<std::string, int>(channel, 0));
-		_channels[channel].push_back(_clientFd);
-
-		//Mensagem de retorno para o cliente para criar o channel
-		std::string testeMsg = ":" + _clientsMap[_clientFd]._nickName + "!" + _clientsMap[_clientFd]._userName + "@localhost JOIN " + channel + "\r\n";
-		send(_clientFd, testeMsg.c_str(), testeMsg.size(), 0);
-
-		std::string joinMsg;
-		joinMsg = _clientsMap[_clientFd]._nickName + " joined " + channel + "!\r\n";
-		broadcastMessage(joinMsg, 0);
-
-
-		//Construindo a lista de nomes no channel
-		std::string nameList = ":ircserver 353 " + _clientsMap[_clientFd]._nickName + " = " + channel + " :";
-		for (std::map<int, Client>::const_iterator it = _clientsMap.begin(); it != _clientsMap.end(); ++it)
-		{
-			nameList+= it->second._nickName;
-		}
-		nameList += "\r\n";
-
-
-		// Enviar a lista de usarios para o cliente que acabou de entrar
-		send(_clientFd, nameList.c_str(), nameList.size(), 0);
-
-		std::string endOfNames = ":ircserver 366 " + _clientsMap[_clientFd]._nickName + " " + channel + " :End of /NAMES list.\r\n";
-		send(_clientFd, endOfNames.c_str(), endOfNames.size(), 0);
+		_channels.insert(std::make_pair(channel, std::vector<Client>()));
+		_channels[channel].push_back(returnClientStruct(_clientFd));
 	}
 	else
 	{
-		// Se ja existir o canal...
-		std::cout << red << "Ja existe canal, adicionado no canal" << "\n" << reset;
-
-		//Verifica se ja existe o clientFd igual no server, caso nao tenha, coloque na lista
-		if (!checkIfClientInServer(_channels, channel, _clientFd))
+		//Verifica se ja existe o clientFd igual no canal, caso nao tenha, coloque na lista
+		if (!checkIfClientInChannel(_channels, channel, _clientFd))
 		{
-			std::cout << red <<"Nao existe esse cliente no server" << "\n" << reset;
-			_channels[channel].push_back(_clientFd);
+			std::cout << red << "Nao existe esse cliente no server" << "\n" << reset;
+			_channels[channel].push_back(returnClientStruct(_clientFd));
 		}
-		
-		std::string testeMsg = ":" + _clientsMap[_clientFd]._nickName + "!" + _clientsMap[_clientFd]._userName + "@localhost JOIN " + channel + "\r\n";
-		send(_clientFd, testeMsg.c_str(), testeMsg.size(), 0);
-
-		//Como ja existe o canal, envia a mensagem do Topico
-		std::string msgTopic = ":ircserver 332 " + _clientsMap[_clientFd]._nickName + " " + channel + " :My cool server yay!\r\n";
-		send(_clientFd, msgTopic.c_str(), msgTopic.size(), 0);
-
-
-
-		std::string nameList = ":ircserver 353 " + _clientsMap[_clientFd]._nickName + " @ " + channel + " :";
-		for (std::map<int, Client>::const_iterator it = _clientsMap.begin(); it != _clientsMap.end(); ++it)
-		{
-			nameList+= it->second._nickName;
-		}
-		nameList += "\r\n";
-		std::cout << "DEBUG DO nameList:" << nameList << "\n";
-		send(_clientFd, nameList.c_str(), nameList.size(), 0);
-
-		std::string endOfNames = ":ircserver 366 " + _clientsMap[_clientFd]._nickName + " " + channel + " :End of /NAMES list.\r\n";
-		send(_clientFd, endOfNames.c_str(), endOfNames.size(), 0);
-
-
-		return ;
 	}
-}
+	
+	//Mensagem de confirmacao para dar JOIN
+	std::string testeMsg = ":" + _clientsMap[_clientFd]._nickName + "!" + _clientsMap[_clientFd]._userName + "@localhost JOIN " + channel + "\r\n";
+	send(_clientFd, testeMsg.c_str(), testeMsg.size(), 0);
 
+	//Como ja existe o canal, envia a mensagem do Topico
+	std::string msgTopic = ":ircserver 332 " + _clientsMap[_clientFd]._nickName + " " + channel + " :My cool server yay!\r\n";
+	send(_clientFd, msgTopic.c_str(), msgTopic.size(), 0);
+
+
+	makeUserList(channel);
+
+	return ;
+}
 
 void Ircserv::commandNick(int clientFd, const std::string &nickName)
 {
@@ -260,13 +205,18 @@ void Ircserv::commandNick(int clientFd, const std::string &nickName)
 			return ;
 		}
 	}
-	//Se ja nao existir, cria um novo;
-	this->_clientsMap[clientFd]._nickName = nickName;
+
+	// Ensure the Client object is properly initialized
+	//Procura no _clientMap pelo clientFD, se existir, retorna a estrutura Client,
+	// se nao existir, cria uma nova
+	Client& client = _clientsMap[clientFd];
+	client._nickName = nickName;
+	client._fd = clientFd;
 
 	std::cout << "Registrado o client: " << green << nickName << reset << "\n";
 
 	std::string nickConfirmation;
-	nickConfirmation = ":127.0.0.1 001 " + nickName + " : Welcome to the server!\r\n";
+	nickConfirmation = ":ircserver 001 " + nickName + " : Welcome to the server!\r\n";
 	send(_clientFd, nickConfirmation.c_str(), nickConfirmation.size(), 0);
 }
 

@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/03 15:43:20 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/04 15:35:08 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@
 
 struct Client
 {
+	int			_fd;
 	std::string _nickName;
 	std::string _userName;
 	std::string _realName;
@@ -44,7 +45,7 @@ class Ircserv
 {
 private:
 	// nome do canal - FDs dos usuarios
-	std::map<std::string, std::vector<int> > _channels;
+	std::map<std::string, std::vector<Client> > _channels;
 	std::map<int, Client> _clientsMap;
 
 
@@ -72,12 +73,14 @@ public:
 	void commandUser(std::istringstream &lineStream);
 
 	//Help Functions
-	bool checkIfClientInServer(std::map<std::string, std::vector<int> > channelMap, \
+	bool checkIfClientInChannel(std::map<std::string, std::vector<Client> > channelMap, \
 		std::string channel, int clientFd);
+	Client returnClientStruct(int clientFd);
+	void makeUserList(std::string channel);
 
 
 	//Debug
-	void debugShowChannelInfo();
+	void debugShowChannelsInfo();
 	void debugShowLastClient(void);
 	void debugShowAllClients(void);
 
