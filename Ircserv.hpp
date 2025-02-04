@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/04 14:25:14 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/02/04 17:55:49 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ public:
 	void broadcastMessage(const std::string& message, int sender_fd);
 
 	//Lida com as mensagens
-	void bufferReader(char *buffer);
+	void bufferReader(int clientFd, char *buffer);
 
 
 	//Commands

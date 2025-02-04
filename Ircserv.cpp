@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/04 17:24:28 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/02/04 18:36:40 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,30 +90,31 @@ void Ircserv::acceptClients()
 					// Accept new client
 					sockaddr_in client_addr;
 					socklen_t client_len = sizeof(client_addr);
-					_clientFd = accept(_serverFd, (struct sockaddr*)&client_addr, &client_len);
-					if (_clientFd < 0)
+					int clientFd = accept(_serverFd, (struct sockaddr*)&client_addr, &client_len);
+					std::cout << "New client FD: " << clientFd << std::endl;
+					if (clientFd < 0)
 					{
 						std::cerr << red << "Error accepting client\n" << reset;
 						continue;
 					}
 					
-					std::cout << green << "New client connected! FD: " << _clientFd << reset;
+					std::cout << green << "New client connected! FD: " << clientFd << reset;
 					
 					//Mensagem de boas vindas
 					//"\x03" -> indica que e um codigo de cor
 					//"01,02Teste" -> primeiro numero e a cor da letra e o segundo e a cor de fundo
 					// obs: nao precisa ter cor de fundo
 					const char *welcomeMsg = "\x03""04,01Welcome test!\n";
-					send(_clientFd, welcomeMsg, strlen(welcomeMsg), 0);
+					send(clientFd, welcomeMsg, strlen(welcomeMsg), 0);
 
 					// Add new client to poll list
 					pollfd client_pollfd;
-					client_pollfd.fd = _clientFd;
+					client_pollfd.fd = clientFd;
 					client_pollfd.events = POLLIN; // Ready to read
 					poll_fds.push_back(client_pollfd);
 
 					// Add client to map
-					_clientsMap[_clientFd] = Client(); // Initialize empty client
+					_clientsMap[clientFd] = Client(); // Initialize empty client
 				}
 				else
 				{
@@ -135,7 +136,7 @@ void Ircserv::acceptClients()
 					std::cout << green << "Received from " << poll_fds[i].fd << ": " << reset << buffer;
 					
 					// Process the message
-					bufferReader(buffer);
+					bufferReader(poll_fds[i].fd, buffer);
 				}
 			}
 		}
@@ -144,7 +145,7 @@ void Ircserv::acceptClients()
 }
 
 
-void Ircserv::bufferReader(char *buffer)
+void Ircserv::bufferReader(int clientFd, char *buffer)
 {
 	std::istringstream stringSplit(buffer);
 	std::string line;
@@ -158,12 +159,21 @@ void Ircserv::bufferReader(char *buffer)
 		std::string command;
 		lineStream >> command;
 
-		std::cout << "Comando: " << command << "\n";
-		std::cout << "FD: " << _clientFd << "\n";
+		std::cout << "Command: " << command << "\n";
+		std::cout << "FD: " << clientFd << "\n";
+		_clientFd = clientFd;
+		
 		if (command == "JOIN")
 		{
 			std::string channelName;
 			lineStream >> channelName;
+			
+			if (channelName.empty())
+			{
+				send(clientFd, "Error: JOIN command requires a channel name.\n", 45, 0);
+				continue;
+			}
+			
 			std::cout << "JOIN CHANNEL" << "\n";
 			commandJoin(channelName);
 		}
@@ -171,17 +181,41 @@ void Ircserv::bufferReader(char *buffer)
 		{
 			std::string nickName;
 			lineStream >> nickName;
-			commandNick(_clientFd, nickName);
+
+			if (nickName.empty())
+			{
+				send(clientFd, "Error: NICK command requires a nickname.\n", 40, 0);
+				continue;
+			}
+			
+			commandNick(clientFd, nickName);
 		}
 		else if (command == "USER")
 		{
-			commandUser(lineStream);
+			commandUser(lineStream); // Process the full user info
+		}
+		else if (command == "PRIVMSG")
+		{
+			std::string target, message;
+			lineStream >> target;
+			std::getline(lineStream, message);
+
+			if (target.empty() || message[0] == ' ')
+				message.erase(0, 1);
+
+			std::cout << "Sending message to " << target << ": " << message << "\n";
+			// TODO: Implement message delivery function
 		}
 		else if (command == "DDEBUG")
 		{
 			debugShowAllClients();
 			debugShowChannelInfo();
 		}
+		// else
+		// {
+		// 	std::string errorMsg = "Error: Unknown command " + command + "\n";
+		// 	send(clientFd, errorMsg.c_str(), errorMsg.length(), 0);
+		// }
 	}
 	// if (stringSplit == "JOIN")
 
