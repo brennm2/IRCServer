@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Ircserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diogosan <diogosan@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/05 11:27:20 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/05 17:36:07 by diogosan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,71 +35,76 @@
 #define reset "\033[0m"
 
 
-struct Client
-{
-	int			_fd;
-	std::string _nickName;
-	std::string _userName;
-	std::string _realName;
-};
-
 
 class Ircserv 
 {
-private:
-	// nome do canal - FDs dos usuarios
-	std::map<std::string, std::vector<Client> > _channels;
-	std::map<int, Client> _clientsMap;
-
-
-
-	std::string		_password = "colhapos";
-	unsigned int	_port;
-
-
-
-	int				_clientFd;
-	int				_serverFd;
-
-	bool _checkStartPass(const std::string& pass);
-	bool _checkStartPort(const unsigned int port);
-
-
-
-public:
-	void createServer(const std::string& pass, unsigned int port);
-	void acceptClients();
-
-	//Lida com as mensagens
-	void bufferReader(int clientFd, char *buffer);
-
-
-	//Commands
-	void commandJoin(const std::string &channel);
-	void commandNick(int clientFd, const std::string &str);
-	void commandUser(std::istringstream &lineStream);
-
-	//Help Functions
-	bool checkIfClientInChannel(std::map<std::string, std::vector<Client> > channelMap, \
-		std::string channel, int clientFd);
-	bool checkIfClientInServer(int clientFd);
-	Client returnClientStruct(int clientFd);
-	void makeUserList(std::string channel);
-
-
-
-	void broadcastMessageToChannel(const std::string& message, std::string channel);
-	void broadcastMessage(const std::string& message, int sender_fd);
-
-
-	//Debug
-	void debugShowChannelsInfo();
-	void debugShowLastClient(void);
-	void debugShowAllClients(void);
-
-
-	//Visual Functions
-	void visualLoadingServer(void);
-
 	
+	private:
+		// nome do canal - FDs dos usuarios
+		
+		struct Client
+		{
+			int			_fd;
+			std::string _nickName;
+			std::string _userName;
+			std::string _realName;
+		};
+		
+		std::map<std::string, std::vector<Client> > _channels;
+		std::map<int, Client> _clientsMap;
+
+		std::string		_password;
+		unsigned int	_port;
+
+		int				_clientFd;
+		int				_serverFd;
+
+		bool _checkStartPass(const std::string& pass);
+		bool _checkStartPort(const unsigned int port);
+
+	public:
+
+
+		void createServer(const std::string& pass, unsigned int port);
+		void acceptClients();
+
+		//Lida com as mensagens
+		void bufferReader(int clientFd, char *buffer);
+
+
+		//Commands
+		void commandJoin(const std::string &channel);
+		void commandNick(int clientFd, const std::string &str);
+		void commandUser(std::istringstream &lineStream);
+		//-------------------mudkip------------------
+		void commandPart(std::string &channelName); 
+		void checkCommandPart(std::istringstream &lineStream);
+		void updateUserList(std::string channel);
+
+		//Help Functions
+		bool checkIfClientInChannel(std::map<std::string, std::vector<Client> > channelMap, \
+			std::string channel, int clientFd);
+		bool checkIfClientInServer(int clientFd);
+		Client returnClientStruct(int clientFd);
+		void makeUserList(std::string channel);
+
+
+
+		void broadcastMessageToChannel(const std::string& message, std::string channel);
+		void broadcastMessage(const std::string& message, int sender_fd);
+
+
+		//Debug
+		void debugShowChannelsInfo();
+		void debugShowLastClient(void);
+		void debugShowAllClients(void);
+
+
+		//Visual Functions
+		void visualLoadingServer(void);
+
+		//utils diogo
+		std::vector<Client>::const_iterator LookClientInChannel(std::string channel);
+
+		
 } ;

@@ -15,6 +15,8 @@ SRC = main.cpp \
 	Ircserv.cpp\
 	debugFuncions.cpp \
 	helpFunctions.cpp \
+	channelControl.cpp\
+	utils.cpp \
 
 
 OBJ = $(SRC:.cpp=.o)

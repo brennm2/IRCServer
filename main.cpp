@@ -6,7 +6,7 @@
 /*   By: diogosan <diogosan@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:56 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/03 18:12:04 by diogosan         ###   ########.fr       */
+/*   Updated: 2025/02/05 15:22:03 by diogosan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ int main(int ac, char **av)
 		}
 		catch(const std::exception& e)
 		{
-			std::cerr << red << e.what() << '\n';
+			std::cerr << e.what() << '\n';
 		}
 	}
 	else

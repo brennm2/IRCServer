@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Ircserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diogosan <diogosan@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/05 11:27:00 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/05 16:37:26 by diogosan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,7 @@
 void Ircserv::createServer(const std::string& pass, unsigned int port)
 {
 	//visualLoadingServer();
-	if (!_checkStartPass(pass))
-		throw std::runtime_error("Wrong Password");
+	_password = pass;
 
 	_port = port;
 	//Create server
@@ -180,6 +179,10 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 			std::cout << "JOIN CHANNEL" << "\n";
 			commandJoin(channelName);
 		}
+		else if (command == "PART")
+		{
+			checkCommandPart(lineStream); //do all that PART has to do
+		}
 		else if (command == "NICK")
 		{
 			std::string nickName;
@@ -293,8 +296,8 @@ void Ircserv::commandNick(int clientFd, const std::string &nickName)
 		std::string nickConfirmation;
 		nickConfirmation = ":ircserver 001 " + nickName + " " + nickName + " Has a new Nick!\r\n";
 
-		broadcastMessage(nickConfirmation, 0);
-
+		//broadcastMessage(nickConfirmation, 0);
+		send(clientFd, nickConfirmation.c_str(), nickConfirmation.size(), 0);
 		// #TODO talvez fazer uma mensagem para avisar a todos que N pessou mudou para o Nick Y
 
 	}
@@ -306,7 +309,8 @@ void Ircserv::commandNick(int clientFd, const std::string &nickName)
 		
 		std::string nickConfirmation;
 		nickConfirmation = ":ircserver 001 " + nickName + " Welcome to the server!\r\n";
-		broadcastMessage(nickConfirmation, 0);
+		//broadcastMessage(nickConfirmation, 0);
+		send(clientFd, nickConfirmation.c_str(), nickConfirmation.size(), 0);
 		// send(_clientFd, nickConfirmation.c_str(), nickConfirmation.size(), 0);
 	}
 

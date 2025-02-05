@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   helpFunctions.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diogosan <diogosan@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/04 18:42:24 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/05 17:48:03 by diogosan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,12 +71,10 @@ void Ircserv::makeUserList(std::string channel)
 
 	}
 	else
-		throw std::runtime_error("No server was founded!");
+		throw std::runtime_error("No server was found!");
 }
 
-
-
-Client Ircserv::returnClientStruct(int clientFd)
+Ircserv::Client Ircserv::returnClientStruct(int clientFd)
 {
 	// Procura o cliente no mapa
 	std::map<int, Client>::iterator it = _clientsMap.find(clientFd);
