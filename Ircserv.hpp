@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/04 18:01:56 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/05 11:17:10 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <sstream>
 #include <map>
 #include <vector>
+#include <poll.h>
 
 // COLORS //
 #define blue "\033[34m"
@@ -63,7 +64,7 @@ public:
 	void acceptClients();
 
 	//Lida com as mensagens
-	void bufferReader(char *buffer);
+	void bufferReader(int clientFd, char *buffer);
 
 
 	//Commands

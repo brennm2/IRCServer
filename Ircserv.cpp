@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/04 18:51:25 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/05 11:16:26 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,49 +61,91 @@ void Ircserv::createServer(void)
 
 void Ircserv::acceptClients()
 {
+	std::vector<pollfd> poll_fds;
+	
+	// Add server socket to poll list
+	pollfd server_pollfd;
+	server_pollfd.fd = _serverFd;
+	server_pollfd.events = POLLIN; // Listen for incoming connections
+	poll_fds.push_back(server_pollfd);
+
+	std::cout << green << "Server is listening for connections...\n" << reset;
+	
 	while (true)
 	{
-		sockaddr_in client_addr;
-		socklen_t client_len = sizeof(client_addr);
-		this->_clientFd = accept(this->_serverFd, (struct sockaddr*)&client_addr, &client_len);
-		if (_clientFd < 0)
+		int poll_count = poll(poll_fds.data(), poll_fds.size(), -1);
+		if (poll_count == -1)
 		{
-			std::cerr << red << "Error while accepting connection" << "\n" << reset;
+			std::cerr << red << "Poll error!\n" << reset;
 			continue;
 		}
-		else
-			std::cout << green << "Client Connected!\nID: " << _clientFd << "\n" << reset;
-		
-		//Mensagem de boas vindas
-		//"\x03" -> indica que e um codigo de cor
-		//"01,02Teste" -> primeiro numero e a cor da letra e o segundo e a cor de fundo
-		// obs: nao precisa ter cor de fundo
-		const char *welcomeMsg = "\x03""04,01Welcome test!\n";
-		send(_clientFd, welcomeMsg, strlen(welcomeMsg), 0);
 
-		//Receber mensagens
-		char buffer[512];
-		while(true)
+		// Iterate through all file descriptors
+		for (size_t i = 0; i < poll_fds.size(); i++)
 		{
-			std::memset(buffer, 0, sizeof(buffer));
-			ssize_t bytes_received = recv(_clientFd, buffer, sizeof(buffer) - 1, 0);
-			if (bytes_received <= 0)
+			if (poll_fds[i].revents & POLLIN) // Check if there's incoming data
 			{
-				std::cout << red << "User disconected!" << "\n" << reset;
-				break ;
-			}
-			std::cout << green << "Recebido: " << reset << buffer;
+				if (poll_fds[i].fd == _serverFd)
+				{
+					// Accept new client
+					sockaddr_in client_addr;
+					socklen_t client_len = sizeof(client_addr);
+					int clientFd = accept(_serverFd, (struct sockaddr*)&client_addr, &client_len);
+					std::cout << "New client FD: " << clientFd << std::endl;
+					if (clientFd < 0)
+					{
+						std::cerr << red << "Error accepting client\n" << reset;
+						continue;
+					}
+					
+					std::cout << green << "New client connected! FD: " << clientFd << reset;
+					
+					//Mensagem de boas vindas
+					//"\x03" -> indica que e um codigo de cor
+					//"01,02Teste" -> primeiro numero e a cor da letra e o segundo e a cor de fundo
+					// obs: nao precisa ter cor de fundo
+					const char *welcomeMsg = "\x03""04,01Welcome test!\n";
+					send(clientFd, welcomeMsg, strlen(welcomeMsg), 0);
 
-			bufferReader(buffer);
-			
+					// Add new client to poll list
+					pollfd client_pollfd;
+					client_pollfd.fd = clientFd;
+					client_pollfd.events = POLLIN; // Ready to read
+					poll_fds.push_back(client_pollfd);
+
+					// Add client to map
+					_clientsMap[clientFd] = Client(); // Initialize empty client
+				}
+				else
+				{
+					// Existing client sent data
+					char buffer[512];
+					memset(buffer, 0, sizeof(buffer));
+					ssize_t bytes_received = recv(poll_fds[i].fd, buffer, sizeof(buffer) - 1, 0);
+					
+					if (bytes_received <= 0)
+					{
+						std::cout << red << "Client disconnected: " << poll_fds[i].fd << "\n" << reset;
+						close(poll_fds[i].fd);
+						_clientsMap.erase(poll_fds[i].fd);
+						poll_fds.erase(poll_fds.begin() + i);
+						--i; // Adjust index after removal
+						continue;
+					}
+
+					std::cout << green << "Received from " << poll_fds[i].fd << ": " << reset << buffer;
+					
+					// Process the message
+					bufferReader(poll_fds[i].fd, buffer);
+				}
+			}
 		}
-		close (_clientFd);
+
 	}
-	close (_serverFd);
 }
 
 
-void Ircserv::bufferReader(char *buffer)
+void Ircserv::bufferReader(int clientFd, char *buffer)
 {
 	std::istringstream stringSplit(buffer);
 	std::string line;
@@ -117,12 +159,21 @@ void Ircserv::bufferReader(char *buffer)
 		std::string command;
 		lineStream >> command;
 
-		std::cout << "Comando: " << command << "\n";
-
+		std::cout << "Command: " << command << "\n";
+		std::cout << "FD: " << clientFd << "\n";
+		_clientFd = clientFd;
+		
 		if (command == "JOIN")
 		{
 			std::string channelName;
 			lineStream >> channelName;
+			
+			if (channelName.empty())
+			{
+				send(clientFd, "Error: JOIN command requires a channel name.\n", 45, 0);
+				continue;
+			}
+			
 			std::cout << "JOIN CHANNEL" << "\n";
 			commandJoin(channelName);
 		}
@@ -130,17 +181,41 @@ void Ircserv::bufferReader(char *buffer)
 		{
 			std::string nickName;
 			lineStream >> nickName;
-			commandNick(_clientFd, nickName);
+
+			if (nickName.empty())
+			{
+				send(clientFd, "Error: NICK command requires a nickname.\n", 40, 0);
+				continue;
+			}
+			
+			commandNick(clientFd, nickName);
 		}
 		else if (command == "USER")
 		{
-			commandUser(lineStream);
+			commandUser(lineStream); // Process the full user info
+		}
+		else if (command == "PRIVMSG")
+		{
+			std::string target, message;
+			lineStream >> target;
+			std::getline(lineStream, message);
+
+			if (target.empty() || message[0] == ' ')
+				message.erase(0, 1);
+
+			std::cout << "Sending message to " << target << ": " << message << "\n";
+			// TODO: Implement message delivery function
 		}
 		else if (command == "DDEBUG")
 		{
 			debugShowAllClients();
 			debugShowChannelsInfo();
 		}
+		// else
+		// {
+		// 	std::string errorMsg = "Error: Unknown command " + command + "\n";
+		// 	send(clientFd, errorMsg.c_str(), errorMsg.length(), 0);
+		// }
 	}
 
 }
