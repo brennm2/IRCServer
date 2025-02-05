@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/04 18:42:24 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/05 17:57:14 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,19 @@ bool Ircserv::checkIfClientInServer(int clientFd)
 	{
 		return (false);
 	}
+}
+
+bool Ircserv::checkIfClientInServerByNick(std::string clientNick)
+{
+	std::map<int, Client>::const_iterator clientIt = _clientsMap.begin();
+	while (clientIt != _clientsMap.end())
+	{
+		Client tempclient = clientIt->second;
+		if (tempclient._nickName == clientNick)
+			return (true);
+		clientIt++;
+	}
+	return (false);
 }
 
 bool Ircserv::checkIfClientInChannel(std::map<std::string, std::vector<Client> > channelMap, std::string channel, int clientFd)
@@ -88,6 +101,26 @@ Client Ircserv::returnClientStruct(int clientFd)
 	
 }
 
+int Ircserv::returnClientFd(std::string clientNick)
+{
+	std::map<int, Client>::iterator clientIt = _clientsMap.begin();
+
+	if (clientIt != _clientsMap.end())
+	{
+		while(clientIt != _clientsMap.end())
+		{
+			if (clientNick == clientIt->second._nickName)
+				return(clientIt->second._fd);
+			clientIt++;
+		}
+		//Se nao encontrar nick name no ClientsMap, entao da throw
+		throw std::runtime_error("No nickName found in function returnClientFd");
+	}
+	else
+		throw std::runtime_error("No client map in function returnClientFd");
+}
+
+
 
 void Ircserv::broadcastMessageToChannel(const std::string& message, std::string channel)
 {
@@ -123,4 +156,22 @@ void Ircserv::broadcastMessage(const std::string& message, int senderFd)
 		// }
 		send(clientFd, message.c_str(), message.size(), 0);
 	}
+}
+
+void Ircserv::broadcastMessagePrivate(const std::string &message, const std::string &target)
+{
+	Client clientSender = returnClientStruct(_clientFd);
+	Client clientTarget = returnClientStruct(returnClientFd(target));
+
+	std::string nickNameSender = clientSender._nickName;
+
+	// std::cout << "MESSAGE: " << message << "\n";
+	std::string targetMessage = ":" + nickNameSender + " PRIVMSG " + target + " :" + message + "\r\n";
+	//	std::string senderMessage = ":" + clientTarget._nickName + " PRIVMSG " + target + " :" + message + "\r\n";
+
+	send(clientTarget._fd, targetMessage.c_str(), targetMessage.size(), 0);
+	//std::cout << "Mensagem enviada:" << "\n";
+	//std::cout << targetMessage << "\n";
+
+//	send(clientSender._fd, senderMessage.c_str(), senderMessage.size(), 0);
 }

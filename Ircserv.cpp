@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/05 11:27:00 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/05 18:17:24 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,15 +199,9 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 		}
 		else if (command == "PRIVMSG")
 		{
-			std::string target, message;
-			lineStream >> target;
-			std::getline(lineStream, message);
+			commandPrivMSG(lineStream);
 
-			if (target.empty() || message[0] == ' ')
-				message.erase(0, 1);
-
-			std::cout << "Sending message to " << target << ": " << message << "\n";
-			// TODO: Implement message delivery function
+			// // TODO: Implement message delivery function
 		}
 		else if (command == "DDEBUG")
 		{
@@ -292,8 +286,9 @@ void Ircserv::commandNick(int clientFd, const std::string &nickName)
 
 		std::string nickConfirmation;
 		nickConfirmation = ":ircserver 001 " + nickName + " " + nickName + " Has a new Nick!\r\n";
+		send(clientFd, nickConfirmation.c_str(), nickConfirmation.size(), 0);
 
-		broadcastMessage(nickConfirmation, 0);
+		//broadcastMessage(nickConfirmation, 0);
 
 		// #TODO talvez fazer uma mensagem para avisar a todos que N pessou mudou para o Nick Y
 
@@ -306,7 +301,9 @@ void Ircserv::commandNick(int clientFd, const std::string &nickName)
 		
 		std::string nickConfirmation;
 		nickConfirmation = ":ircserver 001 " + nickName + " Welcome to the server!\r\n";
-		broadcastMessage(nickConfirmation, 0);
+		send(clientFd, nickConfirmation.c_str(), nickConfirmation.size(), 0);
+
+		//broadcastMessage(nickConfirmation, 0);
 		// send(_clientFd, nickConfirmation.c_str(), nickConfirmation.size(), 0);
 	}
 
@@ -338,6 +335,61 @@ void Ircserv::commandUser(std::istringstream &lineStream)
 	debugShowLastClient();
 	// // -----------------
 }
+
+void Ircserv::commandPrivMSG(std::istringstream &lineStream)
+{
+	std::string target, message, firstWord;
+	lineStream >> target;
+	// lineStream.ignore(256, ':');
+
+	lineStream >> firstWord;
+	std::getline(lineStream, message);
+
+	std::cout << "First Word: " << firstWord << "\n";
+	std::cout << "message:" << message << "\n";
+	// lineStream >> message;
+
+	//Se for mensagem direta para um client
+	if (target[0] != '#')
+	{
+		if (!checkIfClientInServerByNick(target))
+		{
+			std::string noNickMsg = ":ircserver 401 " + target + " :No such nick/channel\r\n";
+			send(_clientFd, noNickMsg.c_str(), noNickMsg.size(), 0);
+			return ;
+		}
+		else if (firstWord[0] != ':')
+		{
+			Client client = returnClientStruct(_clientFd);
+			std::string errMsg = ":ircserver 412 " + client._nickName + " :" + "\x03" + "04Sintax Error (/PRIVMSG NICK :MESSAGE)\r\n";
+			send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+			return ;
+		}
+		// else if ()
+		else
+		{
+			//Envia para a mesma mensagem para a pessoa que enviou e para o target
+			broadcastMessagePrivate(message, target);
+
+	
+		}
+
+
+		//#TODO ERR_NORECIPIENT (411)
+
+		//#TODO  ERR_NOTEXTTOSEND (412) 
+
+		//#TODO RPL_AWAY (301) 
+	}
+	else
+	{
+		//#TODO ERR_NOSUCHSERVER (402), maybe?
+
+		//#TODO ERR_CANNOTSENDTOCHAN (404) (depende dos MODES)
+		;
+	}
+}
+
 
 bool Ircserv::_checkStartPass(const std::string& pass)
 {

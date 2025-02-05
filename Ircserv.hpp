@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/05 11:27:20 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/05 17:31:08 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,18 +78,22 @@ public:
 	void commandJoin(const std::string &channel);
 	void commandNick(int clientFd, const std::string &str);
 	void commandUser(std::istringstream &lineStream);
+	void commandPrivMSG(std::istringstream &lineStream);
 
 	//Help Functions
 	bool checkIfClientInChannel(std::map<std::string, std::vector<Client> > channelMap, \
 		std::string channel, int clientFd);
 	bool checkIfClientInServer(int clientFd);
+	bool checkIfClientInServerByNick(std::string clientNick);
 	Client returnClientStruct(int clientFd);
 	void makeUserList(std::string channel);
+	int  returnClientFd(std::string clientNick);
 
 
 
 	void broadcastMessageToChannel(const std::string& message, std::string channel);
 	void broadcastMessage(const std::string& message, int sender_fd);
+	void broadcastMessagePrivate(const std::string &message, const std::string &target);
 
 
 	//Debug
