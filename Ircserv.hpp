@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Ircserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diogosan <diogosan@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/03 15:43:20 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/05 11:07:50 by diogosan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
 
 #include <iostream>
 #include <sys/socket.h>
@@ -20,6 +21,8 @@
 #include <sstream>
 #include <map>
 #include <vector>
+#include <sstream>
+
 
 // COLORS //
 #define blue "\033[34m"
@@ -39,7 +42,6 @@ struct Client
 };
 
 
-
 class Ircserv 
 {
 private:
@@ -49,7 +51,7 @@ private:
 
 
 
-	std::string		_password;
+	std::string		_password = "colhapos";
 	unsigned int	_port;
 
 
@@ -57,8 +59,13 @@ private:
 	int				_clientFd;
 	int				_serverFd;
 
+	bool _checkStartPass(const std::string& pass);
+	bool _checkStartPort(const unsigned int port);
+
+
+
 public:
-	void createServer();
+	void createServer(const std::string& pass, unsigned int port);
 	void acceptClients();
 	void broadcastMessage(const std::string& message, int sender_fd);
 
@@ -84,4 +91,6 @@ public:
 
 	//Visual Functions
 	void visualLoadingServer(void);
+
+	
 } ;

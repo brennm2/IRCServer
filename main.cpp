@@ -3,39 +3,45 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diogosan <diogosan@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:56 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/01/29 12:17:03 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/03 18:12:04 by diogosan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Ircserv.hpp"
+#include <climits>
+#include <stdexcept>
 
 //isprintable para password
 // talvez tamanho de 8
 
-void checkIfValidPort(char **av, Ircserv Server)
+bool isNumber(std::string &str)
 {
-	(void) Server; //debug
-	std::string tempAv1 = av[1];
-	std::string tempAv2 = av[2];
+	std::string::iterator it = str.begin();
 
-	//check Av1
-	if (!tempAv1.empty())
+	while (it != str.end())
 	{
-		for (size_t i = 0; i < tempAv1.size() ; i++)
-		{
-			/* code */
-		}
+		if (!std::isdigit(*it))
+			return false;
+		it++;
 	}
+	return true;
+}
+
+void checkIfValidPort(std::string arg)
+{
+	std::string port = arg;
+
+	if (!isNumber(port))
+		throw std::runtime_error("Port must be a number");
+
+	if (std::atoi(arg.c_str()) > 65535 || std::atof(arg.c_str()) > INT_MAX)
+		throw std::runtime_error("Port not available in system range");
 	
 }
 
-void checkArguments(char **av, Ircserv Server)
-{
-	checkIfValidPort(av, Server);
-}
 
 // void server(void)
 // {
@@ -83,8 +89,8 @@ int main(int ac, char **av)
 		Ircserv Server;
 		try
 		{
-			checkArguments(av, Server);
-			Server.createServer();
+			checkIfValidPort(av[1]);
+			Server.createServer(av[2], std::atoi(av[1]));
 			Server.acceptClients();
 		}
 		catch(const std::exception& e)

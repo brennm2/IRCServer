@@ -3,23 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   Ircserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diogosan <diogosan@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/03 15:42:30 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/03 18:57:21 by diogosan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Ircserv.hpp"
 
 
-void Ircserv::createServer(void)
+void Ircserv::createServer(const std::string& pass, unsigned int port)
 {
 	//visualLoadingServer();
+	if (!_checkStartPass(pass))
+		throw std::runtime_error("Wrong Password");
 
-
-	_port = 0; // esta aqui apenas para tirar error das flags de compilacao
-
+	_port = port;
 	//Create server
 	this->_serverFd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_serverFd == -1)
@@ -39,14 +39,17 @@ void Ircserv::createServer(void)
 	sockaddr_in server_addr;
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_addr.s_addr = INADDR_ANY; //Aceita qualquer tipo de endereco
-	server_addr.sin_port = htons(6667); //#TODO Porta que vai ser utilizada, Server->_port;
+	std::cout << _port << std::endl;
+	server_addr.sin_port = htons(_port);
 
 
 	// Bind the server to the socket
 	if (bind(_serverFd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0)
 	{
 		close (_serverFd);
-		throw std::runtime_error("Error while binding server to the socket!");
+		std::ostringstream textMsg;
+		textMsg << "Error while binding server to the socket number: " << _port;
+		throw std::runtime_error(textMsg.str());
 	}
 
 	// Listen for connections
@@ -78,8 +81,8 @@ void Ircserv::acceptClients()
 		//"\x03" -> indica que e um codigo de cor
 		//"01,02Teste" -> primeiro numero e a cor da letra e o segundo e a cor de fundo
 		// obs: nao precisa ter cor de fundo
-		const char *welcomeMsg = "\x03""04,01Welcome test!\n";
-		send(_clientFd, welcomeMsg, strlen(welcomeMsg), 0);
+		std::string welcomeMsg = "\x03""04,01Welcome test!\n";
+		send(_clientFd, welcomeMsg.c_str(), welcomeMsg.size(), 0);
 
 		//Receber mensagens
 		char buffer[512];
@@ -265,7 +268,10 @@ void Ircserv::broadcastMessage(const std::string& message, int senderFd)
 	}
 }
 
-
+bool Ircserv::_checkStartPass(const std::string& pass)
+{
+	return pass == _password;
+}
 
 
 // Visual Functions
