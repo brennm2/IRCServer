@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/05 15:10:58 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/02/06 15:20:14 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,11 +79,14 @@ void Ircserv::acceptClients()
 		int poll_count = poll(poll_fds.data(), poll_fds.size(), -1);
 		if (poll_count == -1)
 		{
-			std::cerr << red << "Poll error!\n" << reset;
-			continue;
+			if (errno == EINTR)
+				continue; // Retry if interrupted my a signal
+			std::cerr << red << "Poll error: " << strerror(errno) << "\n" << reset;
+			break; // Stop server on unexpected error
 		}
 
 		// Iterate through all file descriptors
+		std::vector<int> removeIndices;
 		for (size_t i = 0; i < poll_fds.size(); i++)
 		{
 			if (poll_fds[i].revents & POLLIN) // Check if there's incoming data
@@ -94,7 +97,6 @@ void Ircserv::acceptClients()
 					sockaddr_in client_addr;
 					socklen_t client_len = sizeof(client_addr);
 					int clientFd = accept(_serverFd, (struct sockaddr*)&client_addr, &client_len);
-					std::cout << "New client FD: " << clientFd << std::endl;
 					if (clientFd < 0)
 					{
 						std::cerr << red << "Error accepting client\n" << reset;
@@ -131,8 +133,7 @@ void Ircserv::acceptClients()
 						std::cout << red << "Client disconnected: " << poll_fds[i].fd << "\n" << reset;
 						close(poll_fds[i].fd);
 						_clientsMap.erase(poll_fds[i].fd);
-						poll_fds.erase(poll_fds.begin() + i);
-						--i; // Adjust index after removal
+						removeIndices.push_back(i);
 						continue;
 					}
 
@@ -143,7 +144,9 @@ void Ircserv::acceptClients()
 				}
 			}
 		}
-
+		// Remove disconnected clients **after** iterating
+		for (int i = removeIndices.size() - 1; i >= 0; --i)
+			poll_fds.erase(poll_fds.begin() + removeIndices[i]);
 	}
 }
 
