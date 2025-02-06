@@ -6,7 +6,7 @@
 /*   By: diogosan <diogosan@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/05 16:37:26 by diogosan         ###   ########.fr       */
+/*   Updated: 2025/02/06 15:27:15 by diogosan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,6 +183,10 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 		{
 			checkCommandPart(lineStream); //do all that PART has to do
 		}
+		else if (command == "TOPIC")
+		{
+			checkCommandTopic(lineStream);
+		}
 		else if (command == "NICK")
 		{
 			std::string nickName;
@@ -226,8 +230,6 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 
 }
 
-
-
 //Commands
 void Ircserv::commandJoin(const std::string &channel)
 {
@@ -241,16 +243,24 @@ void Ircserv::commandJoin(const std::string &channel)
 	//Se nao existir, cria um novo canal
 	if (_channels.find(channel) == _channels.end())
 	{
-		std::cout << green << "Nao existe channel, criado um novo" << "\n" << reset;
+		std::cout << green << "Nao existe channel, criado um novo" << channel << "\n" << reset;
 		_channels.insert(std::make_pair(channel, std::vector<Client>()));
 		_channels[channel].push_back(returnClientStruct(_clientFd));
+
+		std::string testeMsg = ":" + _clientsMap[_clientFd]._nickName + "!" + _clientsMap[_clientFd]._userName + "@localhost JOIN " + channel + "\r\n";
+		send(_clientFd, testeMsg.c_str(), testeMsg.size(), 0);
+
+		std::string msgTopic = ":ircserver 332 " + _clientsMap[_clientFd]._nickName + " " + channel + " :My cool server yay!\r\n";
+		send(_clientFd, msgTopic.c_str(), msgTopic.size(), 0);
+
+		_channelTopics.insert(std::make_pair(channel ,"My cool server yay!"));
+		return ;
 	}
 	else
 	{
 		//Verifica se ja existe o clientFd igual no canal, caso nao tenha, coloque na lista
 		if (!checkIfClientInChannel(_channels, channel, _clientFd))
 		{
-			std::cout << red << "Nao existe esse cliente no server" << "\n" << reset;
 			_channels[channel].push_back(returnClientStruct(_clientFd));
 		}
 	}
@@ -259,10 +269,9 @@ void Ircserv::commandJoin(const std::string &channel)
 	std::string testeMsg = ":" + _clientsMap[_clientFd]._nickName + "!" + _clientsMap[_clientFd]._userName + "@localhost JOIN " + channel + "\r\n";
 	send(_clientFd, testeMsg.c_str(), testeMsg.size(), 0);
 
-	//Como ja existe o canal, envia a mensagem do Topico
-	std::string msgTopic = ":ircserver 332 " + _clientsMap[_clientFd]._nickName + " " + channel + " :My cool server yay!\r\n";
-	send(_clientFd, msgTopic.c_str(), msgTopic.size(), 0);
 
+	std::string msgTopic = ":ircserver 332 " + _clientsMap[_clientFd]._nickName + " " + channel + " :" + _getChannelTopic(channel) + "\r\n";
+	send(_clientFd, msgTopic.c_str(), msgTopic.size(), 0);
 
 	makeUserList(channel);
 

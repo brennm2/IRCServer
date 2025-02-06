@@ -6,7 +6,7 @@
 /*   By: diogosan <diogosan@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/05 17:36:07 by diogosan         ###   ########.fr       */
+/*   Updated: 2025/02/06 15:29:06 by diogosan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,11 @@ class Ircserv
 			std::string _realName;
 		};
 		
+		
 		std::map<std::string, std::vector<Client> > _channels;
+		
+		std::map<std::string, std::string > _channelTopics;
+		
 		std::map<int, Client> _clientsMap;
 
 		std::string		_password;
@@ -61,6 +65,9 @@ class Ircserv
 
 		bool _checkStartPass(const std::string& pass);
 		bool _checkStartPort(const unsigned int port);
+
+		std::string _getChannelTopic(std::string channel);
+		void 		_changeChannelTopic(std::string &channel, std::string &newTopic);
 
 	public:
 
@@ -79,7 +86,8 @@ class Ircserv
 		//-------------------mudkip------------------
 		void commandPart(std::string &channelName); 
 		void checkCommandPart(std::istringstream &lineStream);
-		void updateUserList(std::string channel);
+		void commandTopic(std::string &channelName, std::string &newTopic);
+		void checkCommandTopic(std::istringstream &lineStream);
 
 		//Help Functions
 		bool checkIfClientInChannel(std::map<std::string, std::vector<Client> > channelMap, \
@@ -105,6 +113,8 @@ class Ircserv
 
 		//utils diogo
 		std::vector<Client>::const_iterator LookClientInChannel(std::string channel);
+		
+	
 
 		
 } ;

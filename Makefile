@@ -29,6 +29,10 @@ $(NAME): $(OBJ)
 	@echo "${YELLOW}| ${GREEN}All files are compiled ${YELLOW}|"
 	@echo "${YELLOW}--------------------------${NC}\n"
 
+go:
+	make re;
+	./ircserv 6667 asd
+	
 clean: 
 	$(RM) $(RMFLAGS) $(OBJ)
 	$(RM) $(RMFLAGS) -r

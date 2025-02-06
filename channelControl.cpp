@@ -6,7 +6,7 @@
 /*   By: diogosan <diogosan@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:07:24 by diogosan          #+#    #+#             */
-/*   Updated: 2025/02/05 18:21:07 by diogosan         ###   ########.fr       */
+/*   Updated: 2025/02/06 15:29:53 by diogosan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,36 +34,7 @@ void Ircserv::checkCommandPart(std::istringstream &lineStream)
 		if (!channelName.empty())
 			commandPart(channelName);
 	}
-	
-	
 }
-
-void Ircserv::updateUserList(std::string channel)
-{
-	std::map<std::string, std::vector<Client>>::const_iterator channelIt = _channels.find(channel);
-	if (channelIt != _channels.end())
-	{
-		const std::vector<Client>& clients = channelIt->second;
-
-		std::string nameList = ":ircserver 353 " + _clientsMap[_clientFd]._nickName + " @ " + channel + " :";
-		for (std::vector<Client>::const_iterator itVector = clients.begin(); itVector != clients.end(); ++itVector)
-		{
-			nameList+= itVector->_nickName + " ";
-		}
-		nameList += "\r\n";
-		broadcastMessageToChannel(nameList, channel);
-		// send(_clientFd, nameList.c_str(), nameList.size(), 0);
-
-		std::string endOfNames = ":ircserver 366 " + _clientsMap[_clientFd]._nickName + " " + channel + " :End of /NAMES list.\r\n";
-		send(_clientFd, endOfNames.c_str(), endOfNames.size(), 0);
-
-	}
-	else
-		throw std::runtime_error("No server was found!");
-}
-
-
-
 
 void Ircserv::commandPart(std::string &channelName)
 {
@@ -96,4 +67,46 @@ void Ircserv::commandPart(std::string &channelName)
 
 
 
+void Ircserv::checkCommandTopic(std::istringstream &lineStream)
+{
+	std::string channelName;
+	std::string newTopic;
+	lineStream >> channelName;
+	lineStream >> newTopic;
+	
 
+	if (channelName.empty())
+	{
+		std::string errMsg = ":ircserver 461 " + channelName + " :Not enough parameters\r\n";
+		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+		return ;
+	}
+
+	if (newTopic.empty())
+		return ;
+	
+	commandTopic(channelName, newTopic);
+}
+
+void Ircserv::commandTopic(std::string &channelName, std::string &newTopic)
+{
+	std::map<std::string, std::vector<Client>>::const_iterator It = _channels.find(channelName);
+	if (channelName.empty()|| channelName[0] != '#' || It == _channels.end())
+	{
+		std::string errMsg = ":ircserver 403 " + channelName + " :No such channel!\r\n";
+		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+		return ;
+	}
+
+	std::vector<Client>::const_iterator client = LookClientInChannel(channelName);
+	if (client == std::vector<Ircserv::Client>::const_iterator())
+	{
+		std::string errMsg = ":ircserver 442 " + channelName + " :User is not in the channel!\r\n";
+		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+		return ;
+	}
+	newTopic.erase(0,1);
+	std::string topicChange = ":" + client->_nickName + "!" + client->_userName + "@localhost TOPIC " + channelName + " :" + newTopic + "\r\n";
+	broadcastMessageToChannel(topicChange, channelName);
+	_changeChannelTopic(channelName, newTopic);
+}

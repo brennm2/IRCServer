@@ -6,7 +6,7 @@
 /*   By: diogosan <diogosan@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/05 17:48:03 by diogosan         ###   ########.fr       */
+/*   Updated: 2025/02/06 14:46:32 by diogosan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ bool Ircserv::checkIfClientInChannel(std::map<std::string, std::vector<Client> >
 		}
 	}
 	// std::cout << "Client FD: " << clientFd << " not found in channel: " << channel << "\n";
-	std::cout << red << "NENHUM CLIENTE ENCONTRADO NO CHANNEL" << "\n" << reset ;
+	//std::cout << red << "NENHUM CLIENTE ENCONTRADO NO CHANNEL" << "\n" << reset ;
 	return false;
 }
 

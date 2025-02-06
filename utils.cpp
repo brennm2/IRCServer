@@ -6,11 +6,14 @@
 /*   By: diogosan <diogosan@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:30:28 by diogosan          #+#    #+#             */
-/*   Updated: 2025/02/05 17:36:01 by diogosan         ###   ########.fr       */
+/*   Updated: 2025/02/06 15:30:59 by diogosan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Ircserv.hpp"
+#include <cstddef>
+#include <string>
+#include <vector>
 
 std::vector<Ircserv::Client>::const_iterator Ircserv::LookClientInChannel(std::string channel)
 {
@@ -28,4 +31,29 @@ std::vector<Ircserv::Client>::const_iterator Ircserv::LookClientInChannel(std::s
 		}
 	}
 	return std::vector<Ircserv::Client>::const_iterator();
+}
+
+std::string Ircserv::_getChannelTopic(std::string channel)
+{
+	std::map<std::string, std::string>::const_iterator It = _channelTopics.find(channel);
+	
+	if (It != _channelTopics.end())
+	{
+		if (It->first == channel)
+			return It->second;
+	}
+	return NULL;
+}
+
+
+void Ircserv::_changeChannelTopic(std::string &channel, std::string &newTopic)
+{
+	std::map<std::string, std::string>::iterator It = _channelTopics.find(channel);
+	
+	if (It != _channelTopics.end())
+	{
+		if (It->first == channel)
+			It->second = newTopic;
+	}
+
 }
