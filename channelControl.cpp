@@ -6,11 +6,12 @@
 /*   By: diogosan <diogosan@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:07:24 by diogosan          #+#    #+#             */
-/*   Updated: 2025/02/06 15:29:53 by diogosan         ###   ########.fr       */
+/*   Updated: 2025/02/06 16:10:57 by diogosan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Ircserv.hpp"
+#include <cstddef>
 #include <string>
 
 
@@ -72,8 +73,8 @@ void Ircserv::checkCommandTopic(std::istringstream &lineStream)
 	std::string channelName;
 	std::string newTopic;
 	lineStream >> channelName;
-	lineStream >> newTopic;
 	
+	std::getline(lineStream, newTopic);
 
 	if (channelName.empty())
 	{
@@ -81,10 +82,15 @@ void Ircserv::checkCommandTopic(std::istringstream &lineStream)
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return ;
 	}
-
 	if (newTopic.empty())
-		return ;
-	
+	{
+		std::string topic = _getChannelTopic(channelName);
+		if (topic.empty())
+			topic = "No topic is set";
+		std::cout << "the topic on " << channelName << " is " << topic << std::endl;
+		return;
+	}
+
 	commandTopic(channelName, newTopic);
 }
 
