@@ -6,12 +6,21 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/05 17:57:14 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/06 15:55:54 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Ircserv.hpp"
 
+bool Ircserv::checkIfChannelExist(std::string channel)
+{
+	std::map<std::string, std::vector<Client> >::const_iterator channelIt = _channels.find(channel);
+
+	if (channelIt != _channels.end())
+		return (true);
+	else
+		return (false);
+}
 
 bool Ircserv::checkIfClientInServer(int clientFd)
 {
@@ -137,10 +146,27 @@ void Ircserv::broadcastMessageToChannel(const std::string& message, std::string 
 		}
 	}
 	else
-		throw std::runtime_error("No server found in the Broad Cast Message");
+		throw std::runtime_error("No server found in the broadcastMessageToChannel");
 }
 
+void Ircserv::broadcastMessageToChannelExceptSender(const std::string& message, std::string channel, int senderFd)
+{
+	std::map<std::string, std::vector<Client>>::const_iterator channelIt = _channels.find(channel);
 
+	if(channelIt != _channels.end())
+	{
+		const std::vector<Client>& clients = channelIt->second;
+		for (std::vector<Client>::const_iterator clientIt = clients.begin(); \
+			clientIt != clients.end(); ++clientIt)
+		{
+			int clientFd = clientIt->_fd;				// Pega o file descriptor do cliente
+			if (clientFd != senderFd)
+				send(clientFd, message.c_str(), message.size(), 0);
+		}
+	}
+	else
+		throw std::runtime_error("No server found in the Broad Cast Message");
+}
 
 void Ircserv::broadcastMessage(const std::string& message, int senderFd)
 {

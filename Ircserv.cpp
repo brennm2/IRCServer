@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/05 18:17:24 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/06 15:56:13 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -340,14 +340,19 @@ void Ircserv::commandPrivMSG(std::istringstream &lineStream)
 {
 	std::string target, message, firstWord;
 	lineStream >> target;
-	// lineStream.ignore(256, ':');
-
 	lineStream >> firstWord;
 	std::getline(lineStream, message);
 
 	std::cout << "First Word: " << firstWord << "\n";
 	std::cout << "message:" << message << "\n";
-	// lineStream >> message;
+
+	if (target[0] == ':')
+	{
+		Client client = returnClientStruct(_clientFd);
+		std::string errMsg = ":ircserver 411 " + client._nickName + " :" + "\x03" + "04No recipient given\r\n";
+		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+		return ;
+	}
 
 	//Se for mensagem direta para um client
 	if (target[0] != '#')
@@ -361,29 +366,50 @@ void Ircserv::commandPrivMSG(std::istringstream &lineStream)
 		else if (firstWord[0] != ':')
 		{
 			Client client = returnClientStruct(_clientFd);
-			std::string errMsg = ":ircserver 412 " + client._nickName + " :" + "\x03" + "04Sintax Error (/PRIVMSG NICK :MESSAGE)\r\n";
+			std::string errMsg = ":ircserver 407 " + client._nickName + " :" + "\x03" + "04Sintax Error (/PRIVMSG NICK :MESSAGE)\r\n";
+			send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+			return ;
+		}
+		else if (firstWord[0] == ':' && firstWord[1] == '\0')
+		{
+			Client client = returnClientStruct(_clientFd);
+			std::string errMsg = ":ircserver 412 " + client._nickName + " :" + "\x03" + "04No text to send\r\n";
 			send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 			return ;
 		}
 		// else if ()
 		else
 		{
+			firstWord.erase(0, 1);
+			std::string sendMsg = firstWord + message;
 			//Envia para a mesma mensagem para a pessoa que enviou e para o target
-			broadcastMessagePrivate(message, target);
-
-	
+			broadcastMessagePrivate(sendMsg, target);
 		}
 
-
-		//#TODO ERR_NORECIPIENT (411)
-
-		//#TODO  ERR_NOTEXTTOSEND (412) 
 
 		//#TODO RPL_AWAY (301) 
 	}
 	else
 	{
-		//#TODO ERR_NOSUCHSERVER (402), maybe?
+		if (!checkIfChannelExist(target))
+		{
+			Client client = returnClientStruct(_clientFd);
+			std::string errMsg = ":ircserver 402 " + client._nickName + " " + target + " :" + "\x03" + "No such server\r\n";
+			send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+		}
+
+		else
+		{
+			Client client = returnClientStruct(_clientFd);
+
+			firstWord.erase(0, 1);
+			std::string sendMsg = firstWord + message;
+
+			std::string channelMessage = ":" + client._nickName + "!" + client._userName + "@" + "localhost" + " PRIVMSG " \
+				+ target + " :" + sendMsg + "\r\n";
+			broadcastMessageToChannelExceptSender(channelMessage, target, _clientFd);
+			
+		}
 
 		//#TODO ERR_CANNOTSENDTOCHAN (404) (depende dos MODES)
 		;

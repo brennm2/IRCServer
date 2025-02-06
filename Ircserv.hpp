@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/05 17:31:08 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/06 15:55:04 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,8 @@ public:
 		std::string channel, int clientFd);
 	bool checkIfClientInServer(int clientFd);
 	bool checkIfClientInServerByNick(std::string clientNick);
+
+	bool checkIfChannelExist(std::string channel);
 	Client returnClientStruct(int clientFd);
 	void makeUserList(std::string channel);
 	int  returnClientFd(std::string clientNick);
@@ -92,6 +94,7 @@ public:
 
 
 	void broadcastMessageToChannel(const std::string& message, std::string channel);
+	void broadcastMessageToChannelExceptSender(const std::string& message, std::string channel, int senderFd);
 	void broadcastMessage(const std::string& message, int sender_fd);
 	void broadcastMessagePrivate(const std::string &message, const std::string &target);
 
