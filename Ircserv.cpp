@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/06 15:20:14 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/02/06 15:48:00 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,14 @@ void Ircserv::createServer(const std::string& pass, unsigned int port)
 	{
 		close(_serverFd);
 		throw std::runtime_error("Error while setting socket options!");
+	}
+
+	// Set non-blocking mode for the server socket
+	int flags = fcntl(_serverFd, F_GETFL, 0);
+	if (flags == -1 || fcntl(_serverFd, F_SETFL, flags | O_NONBLOCK) == -1)
+	{
+		close(_serverFd);
+		throw std::runtime_error("Error setting server socket to non-blocking mode!");
 	}
 
 	// Server config
@@ -80,7 +88,7 @@ void Ircserv::acceptClients()
 		if (poll_count == -1)
 		{
 			if (errno == EINTR)
-				continue; // Retry if interrupted my a signal
+				continue; // Retry if interrupted by a signal
 			std::cerr << red << "Poll error: " << strerror(errno) << "\n" << reset;
 			break; // Stop server on unexpected error
 		}
@@ -89,7 +97,7 @@ void Ircserv::acceptClients()
 		std::vector<int> removeIndices;
 		for (size_t i = 0; i < poll_fds.size(); i++)
 		{
-			if (poll_fds[i].revents & POLLIN) // Check if there's incoming data
+			if (poll_fds[i].revents & (POLLIN | POLLHUP)) // Check if there's incoming data
 			{
 				if (poll_fds[i].fd == _serverFd)
 				{
@@ -102,8 +110,17 @@ void Ircserv::acceptClients()
 						std::cerr << red << "Error accepting client\n" << reset;
 						continue;
 					}
+
+					// Set non-blocking mode for the client socket
+					int flags = fcntl(clientFd, F_GETFL, 0);
+					if (flags == -1 || fcntl(clientFd, F_SETFL, flags | O_NONBLOCK) == -1)
+					{
+						std::cerr << red << "Error setting client socket to non-blocking mode!\n" << reset;
+						close(clientFd);
+						continue;
+					}
 					
-					std::cout << green << "New client connected! FD: " << clientFd << reset;
+					std::cout << green << "New client connected! FD: " << clientFd << "\n" << reset;
 					
 					//Mensagem de boas vindas
 					//"\x03" -> indica que e um codigo de cor
