@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/06 15:55:54 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/10 16:43:42 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ bool Ircserv::checkIfClientInServerByNick(std::string clientNick)
 bool Ircserv::checkIfClientInChannel(std::map<std::string, std::vector<Client> > channelMap, std::string channel, int clientFd)
 {
 	// Verifica se o canal existe no channelMap
-	std::map<std::string, std::vector<Client>>::const_iterator channelIt = channelMap.find(channel);
+	std::map<std::string, std::vector<Client> >::const_iterator channelIt = channelMap.find(channel);
 	if (channelIt != channelMap.end())
 	{
 		const std::vector<Client>& clients = channelIt->second;
@@ -72,7 +72,7 @@ bool Ircserv::checkIfClientInChannel(std::map<std::string, std::vector<Client> >
 
 void Ircserv::makeUserList(std::string channel)
 {
-	std::map<std::string, std::vector<Client>>::const_iterator channelIt = _channels.find(channel);
+	std::map<std::string, std::vector<Client> >::const_iterator channelIt = _channels.find(channel);
 	if (channelIt != _channels.end())
 	{
 		const std::vector<Client>& clients = channelIt->second;
@@ -133,7 +133,7 @@ int Ircserv::returnClientFd(std::string clientNick)
 
 void Ircserv::broadcastMessageToChannel(const std::string& message, std::string channel)
 {
-	std::map<std::string, std::vector<Client>>::const_iterator channelIt = _channels.find(channel);
+	std::map<std::string, std::vector<Client> >::const_iterator channelIt = _channels.find(channel);
 
 	if(channelIt != _channels.end())
 	{
@@ -151,7 +151,7 @@ void Ircserv::broadcastMessageToChannel(const std::string& message, std::string 
 
 void Ircserv::broadcastMessageToChannelExceptSender(const std::string& message, std::string channel, int senderFd)
 {
-	std::map<std::string, std::vector<Client>>::const_iterator channelIt = _channels.find(channel);
+	std::map<std::string, std::vector<Client> >::const_iterator channelIt = _channels.find(channel);
 
 	if(channelIt != _channels.end())
 	{
@@ -200,4 +200,88 @@ void Ircserv::broadcastMessagePrivate(const std::string &message, const std::str
 	//std::cout << targetMessage << "\n";
 
 //	send(clientSender._fd, senderMessage.c_str(), senderMessage.size(), 0);
+}
+
+
+bool Ircserv::privMsgSintaxCheck(std::string firstWord, std::string target)
+{
+	if (target[0] == ':')
+	{
+		Client client = returnClientStruct(_clientFd);
+		std::string errMsg = ":ircserver 411 " + client._nickName + " :" + "\x03" + "04No recipient given\r\n";
+		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+		return false;
+	}
+	//Se a primeira letra nao for ':', entao retorna error de sintax (esse error nao existe no IRC, error 407 (too many targets))
+	else if (firstWord[0] != ':')
+	{
+		Client client = returnClientStruct(_clientFd);
+		std::string errMsg = ":ircserver 407 " + client._nickName + " :" + "\x03" + "04Sintax Error (/PRIVMSG NICK :MESSAGE)\r\n";
+		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+		return (false);
+	}
+	//Se a primeira letra for ':' e nao existir mais nada a frente, entao nao existe texto (error 412)
+	else if (firstWord[0] == ':' && firstWord[1] == '\0')
+	{
+		Client client = returnClientStruct(_clientFd);
+		std::string errMsg = ":ircserver 412 " + client._nickName + " :" + "\x03" + "04No text to send\r\n";
+		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+		return (false);
+	}
+	else
+		return true;
+}
+
+
+void Ircserv::nickReplyMsg001(Client &client, std::string nickName, int clientFd)
+{
+	client._nickName = nickName;
+	client._fd = clientFd;
+
+	std::string msgConfirmation;
+	msgConfirmation = ":ircserver 001 " + nickName + " Welcome to the server, " + nickName + "!\r\n";
+	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
+	client.isFirstTime = false;
+}
+
+void Ircserv::nickReplyMsg002(std::string nickName, int clientFd)
+{
+	std::string msgConfirmation;
+	msgConfirmation = ":ircserver 002 " + nickName + " Your host is localhost, running version 1.0!\r\n";
+	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
+}
+
+void Ircserv::nickReplyMsg003(std::string nickName, int clientFd)
+{
+	std::string msgConfirmation;
+	std::string timer = to_string(now->tm_mday ) + '-' \
+		+ to_string(now->tm_mon + 1) + '-' \
+		+ to_string(now->tm_year + 1900) + " at " \
+		+ to_string(now->tm_hour) + ':' \
+		+ to_string(now->tm_min);
+	msgConfirmation = ":ircserver 003 " + nickName + " This server was created " + timer + " \r\n";
+	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
+}
+
+void Ircserv::nickReplyMsg004(std::string nickName, int clientFd)
+{
+	std::string msgConfirmation;
+
+	msgConfirmation = ":ircserver 004 " + nickName + " localhost 1.0 o iklt\r\n";
+	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
+}
+
+void Ircserv::nickReplyMsg005(std::string nickName, int clientFd)
+{
+	std::string msgConfirmation;
+
+	msgConfirmation = ":ircserver 005 " + nickName + " I, T, K, O, L :are supported by this server\r\n";
+	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
+}
+
+std::string Ircserv::to_string(int value)
+{
+	std::ostringstream oss;
+	oss << value;
+	return oss.str();
 }

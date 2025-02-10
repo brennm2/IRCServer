@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/06 15:56:13 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/10 18:15:50 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,14 @@
 
 void Ircserv::createServer(const std::string& pass, unsigned int port)
 {
+	_startTimer = std::time(0);
+	now = std::localtime(&_startTimer);
+
+	_password = "123";
+	(void) pass;
 	//visualLoadingServer();
-	if (!_checkStartPass(pass))
-		throw std::runtime_error("Wrong Password");
+	// if (!_checkStartPass(pass))
+	// 	throw std::runtime_error("Wrong Password");
 
 	_port = port;
 	//Create server
@@ -101,7 +106,7 @@ void Ircserv::acceptClients()
 						continue;
 					}
 					
-					std::cout << green << "New client connected! FD: " << clientFd << reset;
+					std::cout << green << "New client connected! FD: " << clientFd << reset << "\n";
 					
 					//Mensagem de boas vindas
 					//"\x03" -> indica que e um codigo de cor
@@ -163,33 +168,28 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 		lineStream >> command;
 
 		std::cout << "Command: " << command << "\n";
-		std::cout << "FD: " << clientFd << "\n";
+		// std::cout << "FD: " << clientFd << "\n";
 		_clientFd = clientFd;
 		
 		if (command == "JOIN")
 		{
+			if (!clientCanUseCommands(clientFd))
+				continue ;
 			std::string channelName;
 			lineStream >> channelName;
 			
-			if (channelName.empty())
-			{
-				send(clientFd, "Error: JOIN command requires a channel name.\n", 45, 0);
-				continue;
-			}
+			// if (channelName.empty())
+			// {
+			// 	send(clientFd, "Error: JOIN command requires a channel name.\n", 45, 0);
+			// 	continue;
+			// }
 			
-			std::cout << "JOIN CHANNEL" << "\n";
 			commandJoin(channelName);
 		}
 		else if (command == "NICK")
 		{
 			std::string nickName;
 			lineStream >> nickName;
-
-			if (nickName.empty())
-			{
-				send(clientFd, "Error: NICK command requires a nickname.\n", 40, 0);
-				continue;
-			}
 			
 			commandNick(clientFd, nickName);
 		}
@@ -199,9 +199,22 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 		}
 		else if (command == "PRIVMSG")
 		{
+			if (!clientCanUseCommands(clientFd))
+				continue ;
 			commandPrivMSG(lineStream);
-
-			// // TODO: Implement message delivery function
+		}
+		else if (command == "PASS")
+		{
+			std::string password;
+			lineStream >> password;
+			if(!commandPass(password))
+				return ;
+		}
+		else if (command == "PING")
+		{
+			std::string token;
+			lineStream >> token;
+			commandPing(token);
 		}
 		else if (command == "DDEBUG")
 		{
@@ -213,6 +226,8 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 		// 	std::string errorMsg = "Error: Unknown command " + command + "\n";
 		// 	send(clientFd, errorMsg.c_str(), errorMsg.length(), 0);
 		// }
+
+		lineStream.clear();
 	}
 
 }
@@ -276,45 +291,28 @@ void Ircserv::commandNick(int clientFd, const std::string &nickName)
 		}
 	}
 
-	//Procura no _clientMap pelo clientFD, se existir, retorna a estrutura Client,
-	// se nao existir, cria uma nova
-	if(checkIfClientInServer(clientFd))
+	Client &client = _clientsMap[clientFd];
+	if (client.isFirstTime == false)
 	{
-		Client& client = _clientsMap[clientFd];
+		std::string oldNick = client._nickName;
 		client._nickName = nickName;
 		client._fd = clientFd;
 
-		std::string nickConfirmation;
-		nickConfirmation = ":ircserver 001 " + nickName + " " + nickName + " Has a new Nick!\r\n";
-		send(clientFd, nickConfirmation.c_str(), nickConfirmation.size(), 0);
-
-		//broadcastMessage(nickConfirmation, 0);
-
-		// #TODO talvez fazer uma mensagem para avisar a todos que N pessou mudou para o Nick Y
-
+		std::string nickUpdate;
+		nickUpdate = ":" + oldNick + "!~b@localhost NICK :" + nickName +"\r\n";
+		broadcastMessage(nickUpdate, 0);
 	}
 	else
 	{
-		Client& client = _clientsMap[clientFd];
-		client._nickName = nickName;
-		client._fd = clientFd;
-		
-		std::string nickConfirmation;
-		nickConfirmation = ":ircserver 001 " + nickName + " Welcome to the server!\r\n";
-		send(clientFd, nickConfirmation.c_str(), nickConfirmation.size(), 0);
-
-		//broadcastMessage(nickConfirmation, 0);
-		// send(_clientFd, nickConfirmation.c_str(), nickConfirmation.size(), 0);
+		nickReplyMsg001(client, nickName, clientFd);
+		nickReplyMsg002(nickName, clientFd);
+		nickReplyMsg003(nickName, clientFd);
+		nickReplyMsg004(nickName, clientFd);
+		nickReplyMsg005(nickName, clientFd);
 	}
-
 	std::cout << "Registrado o client: " << green << nickName << reset << "\n";
 
-	// if (!checkIfClientInServer(clientFd))
-	// {
-	// 	std::string nickConfirmation;
-	// 	nickConfirmation = ":ircserver 001 " + nickName + " Welcome to the server!\r\n";
-	// 	send(_clientFd, nickConfirmation.c_str(), nickConfirmation.size(), 0);
-	// }
+
 }
 
 void Ircserv::commandUser(std::istringstream &lineStream)
@@ -332,7 +330,7 @@ void Ircserv::commandUser(std::istringstream &lineStream)
 
 
 	//Debug para ver qual o ultimo usario cadastrado
-	debugShowLastClient();
+	//debugShowLastClient();
 	// // -----------------
 }
 
@@ -343,61 +341,37 @@ void Ircserv::commandPrivMSG(std::istringstream &lineStream)
 	lineStream >> firstWord;
 	std::getline(lineStream, message);
 
-	std::cout << "First Word: " << firstWord << "\n";
-	std::cout << "message:" << message << "\n";
-
-	if (target[0] == ':')
-	{
-		Client client = returnClientStruct(_clientFd);
-		std::string errMsg = ":ircserver 411 " + client._nickName + " :" + "\x03" + "04No recipient given\r\n";
-		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-		return ;
-	}
-
+	if (!privMsgSintaxCheck(firstWord, target))
+		return;
 	//Se for mensagem direta para um client
 	if (target[0] != '#')
 	{
+		//Verifica se ha esse cliente ou server, se nao, retorna error 401
 		if (!checkIfClientInServerByNick(target))
 		{
 			std::string noNickMsg = ":ircserver 401 " + target + " :No such nick/channel\r\n";
 			send(_clientFd, noNickMsg.c_str(), noNickMsg.size(), 0);
 			return ;
 		}
-		else if (firstWord[0] != ':')
-		{
-			Client client = returnClientStruct(_clientFd);
-			std::string errMsg = ":ircserver 407 " + client._nickName + " :" + "\x03" + "04Sintax Error (/PRIVMSG NICK :MESSAGE)\r\n";
-			send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-			return ;
-		}
-		else if (firstWord[0] == ':' && firstWord[1] == '\0')
-		{
-			Client client = returnClientStruct(_clientFd);
-			std::string errMsg = ":ircserver 412 " + client._nickName + " :" + "\x03" + "04No text to send\r\n";
-			send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-			return ;
-		}
-		// else if ()
 		else
 		{
 			firstWord.erase(0, 1);
 			std::string sendMsg = firstWord + message;
-			//Envia para a mesma mensagem para a pessoa que enviou e para o target
+			//Envia para a mensagem para a pessoa que enviou e para o target
 			broadcastMessagePrivate(sendMsg, target);
 		}
-
-
-		//#TODO RPL_AWAY (301) 
+		//#TODO RPL_AWAY (301)
 	}
 	else
 	{
+		//Verifica se existe o server, se nao, error 402
 		if (!checkIfChannelExist(target))
 		{
 			Client client = returnClientStruct(_clientFd);
 			std::string errMsg = ":ircserver 402 " + client._nickName + " " + target + " :" + "\x03" + "No such server\r\n";
 			send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		}
-
+		//Se tudo passar, envia a mensagem para o canal
 		else
 		{
 			Client client = returnClientStruct(_clientFd);
@@ -408,9 +382,7 @@ void Ircserv::commandPrivMSG(std::istringstream &lineStream)
 			std::string channelMessage = ":" + client._nickName + "!" + client._userName + "@" + "localhost" + " PRIVMSG " \
 				+ target + " :" + sendMsg + "\r\n";
 			broadcastMessageToChannelExceptSender(channelMessage, target, _clientFd);
-			
 		}
-
 		//#TODO ERR_CANNOTSENDTOCHAN (404) (depende dos MODES)
 		;
 	}

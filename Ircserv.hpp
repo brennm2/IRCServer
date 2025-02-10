@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/06 15:55:04 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/10 18:15:11 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,8 @@
 #include <map>
 #include <vector>
 #include <poll.h>
-#include <sstream>
+#include <ctime>
+#include <stdlib.h>
 
 
 // COLORS //
@@ -40,7 +41,14 @@ struct Client
 	int			_fd;
 	std::string _nickName;
 	std::string _userName;
-	std::string _realName;
+	std::string _realName;	
+	bool		isFirstTime;
+	bool		hasPass;
+	bool		hasUser;
+
+	Client() :_fd(-1), _nickName(), \
+		_userName(), _realName(), isFirstTime(true), \
+		hasPass(false), hasUser(false) {}
 };
 
 
@@ -53,16 +61,21 @@ private:
 
 
 
-	std::string		_password = "colhapos";
+	std::string		_password;
 	unsigned int	_port;
 
 
 
 	int				_clientFd;
 	int				_serverFd;
+	time_t			_startTimer;
+	std::tm*		now;
+
+
 
 	bool _checkStartPass(const std::string& pass);
 	bool _checkStartPort(const unsigned int port);
+	
 
 
 
@@ -76,7 +89,6 @@ public:
 
 	//Commands
 	void commandJoin(const std::string &channel);
-	void commandNick(int clientFd, const std::string &str);
 	void commandUser(std::istringstream &lineStream);
 	void commandPrivMSG(std::istringstream &lineStream);
 
@@ -91,6 +103,7 @@ public:
 	void makeUserList(std::string channel);
 	int  returnClientFd(std::string clientNick);
 
+	bool privMsgSintaxCheck(std::string firstWord, std::string target);
 
 
 	void broadcastMessageToChannel(const std::string& message, std::string channel);
@@ -98,11 +111,30 @@ public:
 	void broadcastMessage(const std::string& message, int sender_fd);
 	void broadcastMessagePrivate(const std::string &message, const std::string &target);
 
+	std::string to_string(int value);
+
+
+	//CommandNick----
+	void commandNick(int clientFd, const std::string &str);
+	void nickReplyMsg001(Client &client, std::string nickName, int clientFd);
+	void nickReplyMsg002(std::string nickName, int clientFd);
+	void nickReplyMsg003(std::string nickName, int clientFd);
+	void nickReplyMsg004(std::string nickName, int clientFd);
+	void nickReplyMsg005(std::string nickName, int clientFd);
+
+	//Command PASS
+	bool commandPass(std::string password);
+	bool clientCanUseCommands(int clientFd);
+
+	//Command Ping
+	void commandPing(std::string token);
+	
 
 	//Debug
 	void debugShowChannelsInfo();
 	void debugShowLastClient(void);
 	void debugShowAllClients(void);
+	void debugShowSpecificClient(Client client);
 
 
 	//Visual Functions

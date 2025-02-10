@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: diogosan <diogosan@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:56 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/03 18:12:04 by diogosan         ###   ########.fr       */
+/*   Updated: 2025/02/10 16:38:37 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void checkIfValidPort(std::string arg)
 	if (!isNumber(port))
 		throw std::runtime_error("Port must be a number");
 
-	if (std::atoi(arg.c_str()) > 65535 || std::atof(arg.c_str()) > INT_MAX)
+	if (atoi(arg.c_str()) > 65535 || atof(arg.c_str()) > INT_MAX)
 		throw std::runtime_error("Port not available in system range");
 	
 }

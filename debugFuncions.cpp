@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/29 17:14:04 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/04 15:48:10 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/10 16:24:28 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,4 +63,16 @@ void Ircserv::debugShowAllClients(void)
 		std::cout << yellow << "\n⫘⫘⫘⫘⫘⫘  " << "END OF CLIENT" << "  ⫘⫘⫘⫘⫘⫘" << "\n" << reset;
 	}
 	std::cout << cyan << "END OF CLIENTS DEBUG!" << "\n" << reset;
+}
+
+void Ircserv::debugShowSpecificClient(Client client)
+{
+	std::cout << yellow << "\n⫘⫘⫘⫘⫘⫘  " << "START OF CLIENT" << "  ⫘⫘⫘⫘⫘⫘" << "\n" << reset;
+	std::cout << "fd: " << client._fd << "\n";
+	std::cout << "Nick Name: " << client._nickName << "\n";
+	std::cout << "User Name: " << client._userName << "\n";
+	std::cout << "Real Name: " << client._realName << "\n";
+	std::cout << "IsFirstTIme: " << client.isFirstTime << "\n";
+	std::cout << yellow << "\n⫘⫘⫘⫘⫘⫘  " << "END OF CLIENT" << "  ⫘⫘⫘⫘⫘⫘" << "\n" << reset;
+
 }
