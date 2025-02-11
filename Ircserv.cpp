@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/11 11:31:35 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/11 11:35:22 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,14 @@ void Ircserv::createServer(const std::string& pass, unsigned int port)
 	{
 		close(_serverFd);
 		throw std::runtime_error("Error while setting socket options!");
+	}
+
+	// Set non-blocking mode for the server socket
+	int flags = fcntl(_serverFd, F_GETFL, 0);
+	if (flags == -1 || fcntl(_serverFd, F_SETFL, flags | O_NONBLOCK) == -1)
+	{
+		close(_serverFd);
+		throw std::runtime_error("Error setting server socket to non-blocking mode!");
 	}
 
 	// Server config
@@ -84,14 +92,17 @@ void Ircserv::acceptClients()
 		int poll_count = poll(poll_fds.data(), poll_fds.size(), -1);
 		if (poll_count == -1)
 		{
-			std::cerr << red << "Poll error!\n" << reset;
-			continue;
+			if (errno == EINTR)
+				continue; // Retry if interrupted by a signal
+			std::cerr << red << "Poll error: " << strerror(errno) << "\n" << reset;
+			break; // Stop server on unexpected error
 		}
 
 		// Iterate through all file descriptors
+		std::vector<int> removeIndices;
 		for (size_t i = 0; i < poll_fds.size(); i++)
 		{
-			if (poll_fds[i].revents & POLLIN) // Check if there's incoming data
+			if (poll_fds[i].revents & (POLLIN | POLLHUP)) // Check if there's incoming data
 			{
 				if (poll_fds[i].fd == _serverFd)
 				{
@@ -99,14 +110,22 @@ void Ircserv::acceptClients()
 					sockaddr_in client_addr;
 					socklen_t client_len = sizeof(client_addr);
 					int clientFd = accept(_serverFd, (struct sockaddr*)&client_addr, &client_len);
-					std::cout << "New client FD: " << clientFd << std::endl;
 					if (clientFd < 0)
 					{
 						std::cerr << red << "Error accepting client\n" << reset;
 						continue;
 					}
+
+					// Set non-blocking mode for the client socket
+					int flags = fcntl(clientFd, F_GETFL, 0);
+					if (flags == -1 || fcntl(clientFd, F_SETFL, flags | O_NONBLOCK) == -1)
+					{
+						std::cerr << red << "Error setting client socket to non-blocking mode!\n" << reset;
+						close(clientFd);
+						continue;
+					}
 					
-					std::cout << green << "New client connected! FD: " << clientFd << reset << "\n";
+					std::cout << green << "New client connected! FD: " << clientFd << "\n" << reset;
 					
 					//Mensagem de boas vindas
 					//"\x03" -> indica que e um codigo de cor
@@ -136,8 +155,7 @@ void Ircserv::acceptClients()
 						std::cout << red << "Client disconnected: " << poll_fds[i].fd << "\n" << reset;
 						close(poll_fds[i].fd);
 						_clientsMap.erase(poll_fds[i].fd);
-						poll_fds.erase(poll_fds.begin() + i);
-						--i; // Adjust index after removal
+						removeIndices.push_back(i);
 						continue;
 					}
 
@@ -148,7 +166,9 @@ void Ircserv::acceptClients()
 				}
 			}
 		}
-
+		// Remove disconnected clients **after** iterating
+		for (int i = removeIndices.size() - 1; i >= 0; --i)
+			poll_fds.erase(poll_fds.begin() + removeIndices[i]);
 	}
 }
 
