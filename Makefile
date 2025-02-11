@@ -15,6 +15,8 @@ SRC = main.cpp \
 	Ircserv.cpp\
 	debugFuncions.cpp \
 	helpFunctions.cpp \
+	channelControl.cpp\
+	utils.cpp \
 	commands/pass.cpp \
 	commands/ping.cpp \
 
@@ -29,6 +31,10 @@ $(NAME): $(OBJ)
 	@echo "${YELLOW}| ${GREEN}All files are compiled ${YELLOW}|"
 	@echo "${YELLOW}--------------------------${NC}\n"
 
+go:
+	make re;
+	./ircserv 6667 asd
+	
 clean: 
 	$(RM) $(RMFLAGS) $(OBJ)
 	$(RM) $(RMFLAGS) -r

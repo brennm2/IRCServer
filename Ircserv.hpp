@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/10 18:15:11 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/11 11:33:42 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,13 +36,20 @@
 #define reset "\033[0m"
 
 
-struct Client
+
+class Ircserv 
 {
-	int			_fd;
-	std::string _nickName;
-	std::string _userName;
-	std::string _realName;	
-	bool		isFirstTime;
+	
+	private:
+		// nome do canal - FDs dos usuarios
+		
+		struct Client
+		{
+			int			_fd;
+			std::string _nickName;
+			std::string _userName;
+			std::string _realName;	
+			bool		isFirstTime;
 	bool		hasPass;
 	bool		hasUser;
 
@@ -50,14 +57,13 @@ struct Client
 		_userName(), _realName(), isFirstTime(true), \
 		hasPass(false), hasUser(false) {}
 };
-
-
-class Ircserv 
-{
-private:
-	// nome do canal - FDs dos usuarios
-	std::map<std::string, std::vector<Client> > _channels;
-	std::map<int, Client> _clientsMap;
+		
+		
+		std::map<std::string, std::vector<Client> > _channels;
+		
+		std::map<std::string, std::string > _channelTopics;
+		
+		std::map<int, Client> _clientsMap;
 
 
 
@@ -73,34 +79,42 @@ private:
 
 
 
-	bool _checkStartPass(const std::string& pass);
-	bool _checkStartPort(const unsigned int port);
+		bool _checkStartPass(const std::string& pass);
+		bool _checkStartPort(const unsigned int port);
 	
 
+		std::string _getChannelTopic(std::string channel);
+		void 		_changeChannelTopic(std::string &channel, std::string &newTopic);
+
+	public:
 
 
-public:
-	void createServer(const std::string& pass, unsigned int port);
-	void acceptClients();
+		void createServer(const std::string& pass, unsigned int port);
+		void acceptClients();
 
-	//Lida com as mensagens
-	void bufferReader(int clientFd, char *buffer);
+		//Lida com as mensagens
+		void bufferReader(int clientFd, char *buffer);
 
 
-	//Commands
-	void commandJoin(const std::string &channel);
-	void commandUser(std::istringstream &lineStream);
+		//Commands
+		void commandJoin(const std::string &channel);
+			void commandUser(std::istringstream &lineStream);
+		//-------------------mudkip------------------
+		void commandPart(std::string &channelName); 
+		void checkCommandPart(std::istringstream &lineStream);
+		void commandTopic(std::string &channelName, std::string &newTopic);
+		void checkCommandTopic(std::istringstream &lineStream);
 	void commandPrivMSG(std::istringstream &lineStream);
 
-	//Help Functions
-	bool checkIfClientInChannel(std::map<std::string, std::vector<Client> > channelMap, \
-		std::string channel, int clientFd);
-	bool checkIfClientInServer(int clientFd);
-	bool checkIfClientInServerByNick(std::string clientNick);
+		//Help Functions
+		bool checkIfClientInChannel(std::map<std::string, std::vector<Client> > channelMap, \
+			std::string channel, int clientFd);
+		bool checkIfClientInServer(int clientFd);
+		bool checkIfClientInServerByNick(std::string clientNick);
 
 	bool checkIfChannelExist(std::string channel);
 	Client returnClientStruct(int clientFd);
-	void makeUserList(std::string channel);
+		void makeUserList(std::string channel);
 	int  returnClientFd(std::string clientNick);
 
 	bool privMsgSintaxCheck(std::string firstWord, std::string target);
@@ -137,8 +151,13 @@ public:
 	void debugShowSpecificClient(Client client);
 
 
-	//Visual Functions
-	void visualLoadingServer(void);
+		//Visual Functions
+		void visualLoadingServer(void);
 
+		//utils diogo
+		std::vector<Client>::const_iterator LookClientInChannel(std::string channel);
+		
 	
+
+		
 } ;

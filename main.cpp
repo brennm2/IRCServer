@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:56 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/10 16:38:37 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/11 11:33:47 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ int main(int ac, char **av)
 		}
 		catch(const std::exception& e)
 		{
-			std::cerr << red << e.what() << '\n';
+			std::cerr << e.what() << '\n';
 		}
 	}
 	else
