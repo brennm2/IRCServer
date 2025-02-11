@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/11 17:56:52 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/11 18:49:04 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,6 +122,7 @@ class Ircserv
 	int  returnClientFd(std::string clientNick);
 
 	bool privMsgSintaxCheck(std::string firstWord, std::string target);
+	void removeClientFromChannel(const std::string& channelName, int clientFd);
 
 
 	void broadcastMessageToChannel(const std::string& message, std::string channel);

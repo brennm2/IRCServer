@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:07:24 by diogosan          #+#    #+#             */
-/*   Updated: 2025/02/11 14:10:50 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/11 18:52:56 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,23 +47,17 @@ void Ircserv::commandPart(std::string &channelName)
 		return ;
 	}
 
-	std::vector<Client>::iterator client = LookClientInChannel(channelName);
-	if (client == std::vector<Ircserv::Client>::iterator())
+	Client client = returnClientStruct(_clientFd);
+	if (!checkIfClientInChannel(_channels, channelName, _clientFd))
 	{
 		std::string errMsg = ":ircserver 442 " + channelName + " :User is not in the channel!\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return ;
 	}
 	
-	std::string leaveMsg = ":" + client->_nickName + "!" + client->_userName + "@localhost PART " + channelName + "\r\n";
-	It->second.erase(client);
-	send(_clientFd, leaveMsg.c_str(), leaveMsg.size(), 0);
+	std::string leaveMsg = ":" + client._nickName + "!" + client._userName + "@localhost PART " + channelName + "\r\n";
 	broadcastMessageToChannel(leaveMsg, channelName);
-
-	if (It->second.empty())
-		_channels.erase(It);
-
-	std::cout << "LEAVE CHANNEL" << channelName <<"\n";
+	removeClientFromChannel(channelName, _clientFd);
 }
 
 void Ircserv::checkCommandTopic(std::istringstream &lineStream)
