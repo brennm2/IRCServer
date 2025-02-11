@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/11 11:30:44 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/11 15:28:53 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,6 @@ void Ircserv::makeUserList(std::string channel)
 		for (std::vector<Client>::const_iterator itVector = clients.begin(); \
 			itVector != clients.end(); ++itVector)
 		{
-			// if (_clientFd != itVector->_fd)
 				nameList+= itVector->_nickName + " ";
 		}
 		nameList += "\r\n";
@@ -283,3 +282,4 @@ std::string Ircserv::to_string(int value)
 	oss << value;
 	return oss.str();
 }
+

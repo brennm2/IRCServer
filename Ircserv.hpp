@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/11 11:49:46 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/11 15:19:04 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,14 +50,15 @@ class Ircserv
 			int			_fd;
 			std::string _nickName;
 			std::string _userName;
-			std::string _realName;	
+			std::string _realName;
 			bool		isFirstTime;
-	bool		hasPass;
-	bool		hasUser;
+			bool		hasPass;
+			bool		hasNick;
+			bool		hasUser;
 
-	Client() :_fd(-1), _nickName(), \
+		Client() :_fd(-1), _nickName(), \
 		_userName(), _realName(), isFirstTime(true), \
-		hasPass(false), hasUser(false) {}
+		hasPass(false), hasNick(false), hasUser(false) {}
 };
 		
 		

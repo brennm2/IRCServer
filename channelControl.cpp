@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:07:24 by diogosan          #+#    #+#             */
-/*   Updated: 2025/02/11 11:51:41 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/11 14:10:50 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ void Ircserv::commandPart(std::string &channelName)
 	broadcastMessageToChannel(leaveMsg, channelName);
 
 	if (It->second.empty())
-        _channels.erase(It);
+		_channels.erase(It);
 
 	std::cout << "LEAVE CHANNEL" << channelName <<"\n";
 }

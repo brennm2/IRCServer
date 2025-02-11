@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/10 15:38:00 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/10 18:08:04 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/11 15:23:12 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,15 @@ bool Ircserv::clientCanUseCommands(int clientFd)
 {
 	Client client = returnClientStruct(clientFd);
 
-	if (client.hasPass == false)
+	if (!client.hasPass || !client.hasNick || !client.hasUser)
 	{
 		std::string errorMsg = ":ircserver 451 :" + client._nickName + " You have not registered\r\n";
 		send (clientFd, errorMsg.c_str(), errorMsg.size(), 0);
+
+		std::cout << "Has Pass:" << client.hasPass << "\n";
+		std::cout << "Has Nick:" << client.hasNick << "\n";
+		std::cout << "Has User:" << client.hasUser << "\n";
+
 		return (false);
 	}
 	else

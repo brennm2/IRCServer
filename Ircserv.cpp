@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/11 11:35:22 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/11 15:51:35 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,20 +198,18 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 			std::string channelName;
 			lineStream >> channelName;
 			
-			// if (channelName.empty())
-			// {
-			// 	send(clientFd, "Error: JOIN command requires a channel name.\n", 45, 0);
-			// 	continue;
-			// }
-			
 			commandJoin(channelName);
 		}
 		else if (command == "PART")
 		{
+			if (!clientCanUseCommands(clientFd))
+				continue ;
 			checkCommandPart(lineStream); //do all that PART has to do
 		}
 		else if (command == "TOPIC")
 		{
+			if (!clientCanUseCommands(clientFd))
+				continue ;
 			checkCommandTopic(lineStream);
 		}
 		else if (command == "NICK")
@@ -240,6 +238,8 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 		}
 		else if (command == "PING")
 		{
+			if (!clientCanUseCommands(clientFd))
+				continue ;
 			std::string token;
 			lineStream >> token;
 			commandPing(token);
@@ -263,9 +263,17 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 //Commands
 void Ircserv::commandJoin(const std::string &channel)
 {
-	if (channel.empty() || channel[0] != '#')
+	Client client = returnClientStruct(_clientFd);
+	if (channel[0] != '#' && channel[0] != '\0')
 	{
 		std::string errMsg = ":ircserver 461 * JOIN: Invalid Channel!\r\n";
+		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+		return ;
+	}
+	else if (channel[0] == '\0')
+	{
+		//Not enough parameters
+		std::string errMsg = ":ircserver 461 " + client._nickName + " JOIN: Not enough parameters\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return ;
 	}
@@ -284,6 +292,7 @@ void Ircserv::commandJoin(const std::string &channel)
 		send(_clientFd, msgTopic.c_str(), msgTopic.size(), 0);
 
 		_channelTopics.insert(std::make_pair(channel ,"My cool server yay!"));
+		makeUserList(channel);
 		return ;
 	}
 	else
@@ -342,6 +351,7 @@ void Ircserv::commandNick(int clientFd, const std::string &nickName)
 		nickReplyMsg003(nickName, clientFd);
 		nickReplyMsg004(nickName, clientFd);
 		nickReplyMsg005(nickName, clientFd);
+		client.hasNick = true;
 	}
 	std::cout << "Registrado o client: " << green << nickName << reset << "\n";
 
@@ -350,21 +360,25 @@ void Ircserv::commandNick(int clientFd, const std::string &nickName)
 
 void Ircserv::commandUser(std::istringstream &lineStream)
 {
+	Client client = _clientsMap[_clientFd];
+	if (client.hasUser)
+	{
+		std::string noNickMsg = ":ircserver 462 " + client._nickName + " You may not reregister\r\n";
+		send(_clientFd, noNickMsg.c_str(), noNickMsg.size(), 0);
+		return ;
+	}
+
 	// Separa as strings
 	std::string userName, realName;
 	lineStream >> userName;
 	lineStream.ignore(256, ':');
 	std::getline(lineStream, realName);
-	// std::cout << "Real name: " << realName << "\n";
 
 	// Guarda os nicks
 	_clientsMap[_clientFd]._userName = userName;
 	_clientsMap[_clientFd]._realName = realName;
-
-
-	//Debug para ver qual o ultimo usario cadastrado
-	//debugShowLastClient();
-	// // -----------------
+	_clientsMap[_clientFd].hasUser = true;
+	
 }
 
 void Ircserv::commandPrivMSG(std::istringstream &lineStream)
