@@ -6,7 +6,7 @@
 /*   By: diogosan <diogosan@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:07:24 by diogosan          #+#    #+#             */
-/*   Updated: 2025/02/06 16:10:57 by diogosan         ###   ########.fr       */
+/*   Updated: 2025/02/06 18:12:03 by diogosan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,23 +66,21 @@ void Ircserv::commandPart(std::string &channelName)
 	std::cout << "LEAVE CHANNEL" << channelName <<"\n";
 }
 
-
-
 void Ircserv::checkCommandTopic(std::istringstream &lineStream)
 {
 	std::string channelName;
 	std::string newTopic;
-	lineStream >> channelName;
-	
-	std::getline(lineStream, newTopic);
 
+	lineStream >> channelName;
+	lineStream >> newTopic;
 	if (channelName.empty())
 	{
 		std::string errMsg = ":ircserver 461 " + channelName + " :Not enough parameters\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return ;
 	}
-	if (newTopic.empty())
+
+	if (newTopic.empty() || newTopic[0] == ' ' )
 	{
 		std::string topic = _getChannelTopic(channelName);
 		if (topic.empty())
@@ -90,7 +88,7 @@ void Ircserv::checkCommandTopic(std::istringstream &lineStream)
 		std::cout << "the topic on " << channelName << " is " << topic << std::endl;
 		return;
 	}
-
+	//std::getline(lineStream, newTopic);
 	commandTopic(channelName, newTopic);
 }
 
