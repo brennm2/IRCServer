@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/11 11:35:39 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/11 11:49:46 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 #include <ctime>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <cerrno>
 
 
 // COLORS //
@@ -105,7 +106,7 @@ class Ircserv
 		void checkCommandPart(std::istringstream &lineStream);
 		void commandTopic(std::string &channelName, std::string &newTopic);
 		void checkCommandTopic(std::istringstream &lineStream);
-	void commandPrivMSG(std::istringstream &lineStream);
+		void commandPrivMSG(std::istringstream &lineStream);
 
 		//Help Functions
 		bool checkIfClientInChannel(std::map<std::string, std::vector<Client> > channelMap, \
@@ -156,7 +157,7 @@ class Ircserv
 		void visualLoadingServer(void);
 
 		//utils diogo
-		std::vector<Client>::const_iterator LookClientInChannel(std::string channel);
+		std::vector<Client>::iterator LookClientInChannel(std::string channel);
 		
 	
 
