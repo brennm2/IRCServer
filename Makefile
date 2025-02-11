@@ -19,6 +19,8 @@ SRC = main.cpp \
 	utils.cpp \
 	commands/pass.cpp \
 	commands/ping.cpp \
+	commands/join.cpp \
+	commands/mtdo.cpp \
 
 
 OBJ = $(SRC:.cpp=.o)

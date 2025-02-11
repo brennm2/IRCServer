@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/11 15:51:35 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/11 17:57:23 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -244,6 +244,13 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 			lineStream >> token;
 			commandPing(token);
 		}
+		else if (command == "MTDO")
+		{
+			if (!clientCanUseCommands(clientFd))
+				continue ;
+			commandMtdo();
+		}
+
 		else if (command == "DDEBUG")
 		{
 			debugShowAllClients();
@@ -256,6 +263,9 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 		// }
 
 		lineStream.clear();
+		Client client = returnClientStruct(clientFd);
+		if (client.hasNick && client.hasUser && client.hasPass && !client.hasFinalReg)
+			clientFinalRegistration(clientFd);
 	}
 
 }
@@ -263,20 +273,8 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 //Commands
 void Ircserv::commandJoin(const std::string &channel)
 {
-	Client client = returnClientStruct(_clientFd);
-	if (channel[0] != '#' && channel[0] != '\0')
-	{
-		std::string errMsg = ":ircserver 461 * JOIN: Invalid Channel!\r\n";
-		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+	if (!commandJoinCheck(channel))
 		return ;
-	}
-	else if (channel[0] == '\0')
-	{
-		//Not enough parameters
-		std::string errMsg = ":ircserver 461 " + client._nickName + " JOIN: Not enough parameters\r\n";
-		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-		return ;
-	}
 
 	//Se nao existir, cria um novo canal
 	if (_channels.find(channel) == _channels.end())
@@ -346,11 +344,9 @@ void Ircserv::commandNick(int clientFd, const std::string &nickName)
 	}
 	else
 	{
-		nickReplyMsg001(client, nickName, clientFd);
-		nickReplyMsg002(nickName, clientFd);
-		nickReplyMsg003(nickName, clientFd);
-		nickReplyMsg004(nickName, clientFd);
-		nickReplyMsg005(nickName, clientFd);
+		client._nickName = nickName;
+		client._fd = clientFd;
+		client.isFirstTime = false;
 		client.hasNick = true;
 	}
 	std::cout << "Registrado o client: " << green << nickName << reset << "\n";

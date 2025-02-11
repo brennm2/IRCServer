@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/11 15:19:04 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/11 17:56:52 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,10 +55,11 @@ class Ircserv
 			bool		hasPass;
 			bool		hasNick;
 			bool		hasUser;
+			bool		hasFinalReg;
 
 		Client() :_fd(-1), _nickName(), \
 		_userName(), _realName(), isFirstTime(true), \
-		hasPass(false), hasNick(false), hasUser(false) {}
+		hasPass(false), hasNick(false), hasUser(false), hasFinalReg(false) {}
 };
 		
 		
@@ -109,12 +110,12 @@ class Ircserv
 		void checkCommandTopic(std::istringstream &lineStream);
 		void commandPrivMSG(std::istringstream &lineStream);
 
-		//Help Functions
-		bool checkIfClientInChannel(std::map<std::string, std::vector<Client> > channelMap, \
-			std::string channel, int clientFd);
-		bool checkIfClientInServer(int clientFd);
-		bool checkIfClientInServerByNick(std::string clientNick);
-
+	//Help Functions
+	bool checkIfClientInChannel(std::map<std::string, std::vector<Client> > channelMap, \
+		std::string channel, int clientFd);
+	bool checkIfClientInServer(int clientFd);
+	bool checkIfClientInServerByNick(std::string clientNick);
+	void clientFinalRegistration(int clientFd);
 	bool checkIfChannelExist(std::string channel);
 	Client returnClientStruct(int clientFd);
 		void makeUserList(std::string channel);
@@ -133,7 +134,7 @@ class Ircserv
 
 	//CommandNick----
 	void commandNick(int clientFd, const std::string &str);
-	void nickReplyMsg001(Client &client, std::string nickName, int clientFd);
+	void nickReplyMsg001(std::string nickName, int clientFd);
 	void nickReplyMsg002(std::string nickName, int clientFd);
 	void nickReplyMsg003(std::string nickName, int clientFd);
 	void nickReplyMsg004(std::string nickName, int clientFd);
@@ -145,6 +146,13 @@ class Ircserv
 
 	//Command Ping
 	void commandPing(std::string token);
+
+	//Command Join
+	bool commandJoinCheck(const std::string &channel);
+
+	//Command MTDO
+	void commandMtdo();
+
 	
 
 	//Debug

@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/11 15:28:53 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/11 17:57:07 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -230,15 +230,11 @@ bool Ircserv::privMsgSintaxCheck(std::string firstWord, std::string target)
 }
 
 
-void Ircserv::nickReplyMsg001(Client &client, std::string nickName, int clientFd)
+void Ircserv::nickReplyMsg001(std::string nickName, int clientFd)
 {
-	client._nickName = nickName;
-	client._fd = clientFd;
-
 	std::string msgConfirmation;
 	msgConfirmation = ":ircserver 001 " + nickName + " Welcome to the server, " + nickName + "!\r\n";
 	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
-	client.isFirstTime = false;
 }
 
 void Ircserv::nickReplyMsg002(std::string nickName, int clientFd)
@@ -264,7 +260,7 @@ void Ircserv::nickReplyMsg004(std::string nickName, int clientFd)
 {
 	std::string msgConfirmation;
 
-	msgConfirmation = ":ircserver 004 " + nickName + " localhost 1.0 o iklt\r\n";
+	msgConfirmation = ":ircserver 004 " + nickName + ": localhost 1.0 o iklt\r\n";
 	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
 }
 
@@ -281,5 +277,19 @@ std::string Ircserv::to_string(int value)
 	std::ostringstream oss;
 	oss << value;
 	return oss.str();
+}
+
+void Ircserv::clientFinalRegistration(int clientFd)
+{
+	Client &client = _clientsMap[clientFd];
+
+	nickReplyMsg001(client._nickName, clientFd);
+	std::cout << "Client nickname:" << client._nickName << "\n";
+	nickReplyMsg002(client._nickName, clientFd);
+	nickReplyMsg003(client._nickName, clientFd);
+	nickReplyMsg004(client._nickName, clientFd);
+	nickReplyMsg005(client._nickName, clientFd);
+	commandMtdo();
+	client.hasFinalReg = true;
 }
 
