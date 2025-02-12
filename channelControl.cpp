@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channelControl.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:07:24 by diogosan          #+#    #+#             */
-/*   Updated: 2025/02/11 18:52:56 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/12 14:07:29 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,15 +96,15 @@ void Ircserv::commandTopic(std::string &channelName, std::string &newTopic)
 		return ;
 	}
 
-	std::vector<Client>::const_iterator client = LookClientInChannel(channelName);
-	if (client == std::vector<Ircserv::Client>::const_iterator())
+	Client client = returnClientStruct(_clientFd);
+	if (!checkIfClientInChannel(_channels, channelName, _clientFd))
 	{
 		std::string errMsg = ":ircserver 442 " + channelName + " :User is not in the channel!\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return ;
 	}
 	newTopic.erase(0,1);
-	std::string topicChange = ":" + client->_nickName + "!" + client->_userName + "@localhost TOPIC " + channelName + " :" + newTopic + "\r\n";
+	std::string topicChange = ":" + client._nickName + "!" + client._userName + "@localhost TOPIC " + channelName + " :" + newTopic + "\r\n";
 	broadcastMessageToChannel(topicChange, channelName);
 	_changeChannelTopic(channelName, newTopic);
 }
