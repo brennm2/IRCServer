@@ -21,6 +21,10 @@ SRC = main.cpp \
 	commands/ping.cpp \
 	commands/join.cpp \
 	commands/mtdo.cpp \
+	commands/nick.cpp \
+	commands/user.cpp \
+	commands/privmsg.cpp \
+
 
 
 OBJ = $(SRC:.cpp=.o)

@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/11 18:52:36 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/12 15:54:50 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -284,7 +284,6 @@ void Ircserv::clientFinalRegistration(int clientFd)
 	Client &client = _clientsMap[clientFd];
 
 	nickReplyMsg001(client._nickName, clientFd);
-	std::cout << "Client nickname:" << client._nickName << "\n";
 	nickReplyMsg002(client._nickName, clientFd);
 	nickReplyMsg003(client._nickName, clientFd);
 	nickReplyMsg004(client._nickName, clientFd);

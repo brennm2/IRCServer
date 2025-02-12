@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/11 18:49:04 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/12 14:36:35 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,6 +135,7 @@ class Ircserv
 
 	//CommandNick----
 	void commandNick(int clientFd, const std::string &str);
+	bool commandNickCheck(const std::string &nickName);
 	void nickReplyMsg001(std::string nickName, int clientFd);
 	void nickReplyMsg002(std::string nickName, int clientFd);
 	void nickReplyMsg003(std::string nickName, int clientFd);
