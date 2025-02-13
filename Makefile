@@ -24,6 +24,7 @@ SRC = main.cpp \
 	commands/nick.cpp \
 	commands/user.cpp \
 	commands/privmsg.cpp \
+	commands/quit.cpp \
 
 
 

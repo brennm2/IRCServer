@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 15:25:20 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/12 18:37:32 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/13 11:57:52 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ void Ircserv::commandUser(std::istringstream &lineStream)
 	realName = realName.erase(0,1);
 	// Guarda os nicks
 	_clientsMap[_clientFd]._userName = userName;
-	_clientsMap[_clientFd]._realName = realName.erase(0);
+	_clientsMap[_clientFd]._realName = realName;
 	_clientsMap[_clientFd].hasUser = true;
 	
 }

@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/12 15:54:50 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/13 14:27:50 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -322,6 +322,34 @@ void Ircserv::removeClientFromChannel(const std::string& channelName, int client
 	else
 	{
 		std::cerr << "Canal " << channelName << " não encontrado\n";
+	}
+}
+
+void Ircserv::removeClientFromEveryChannel(int clientFd)
+{
+	std::map<std::string, std::vector<Client> >::iterator channelIt = _channels.begin();
+	while (channelIt != _channels.end())
+	{
+		// Encontra o cliente no vetor de clientes do canal
+		std::vector<Client>& clients = channelIt->second;
+		for (std::vector<Client>::iterator clientIt = clients.begin(); \
+				clientIt != clients.end(); ++clientIt)
+		{
+			if (clientIt->_fd == clientFd)
+			{
+				std::cout << "Cliente: " << clientIt->_nickName << " removido do canal " << "\n";
+				clients.erase(clientIt);
+
+				// Se o canal estiver vazio após a remoção, apaga o canal do map
+				if (clients.empty())
+				{
+					_channels.erase(channelIt);
+					std::cout << "Canal " << channelIt->first << " removido pois está vazio\n";
+				}
+				return;
+			}
+		}
+		channelIt++;
 	}
 }
 

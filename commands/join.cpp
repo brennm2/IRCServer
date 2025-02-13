@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 15:40:35 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/11 16:35:13 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/13 14:18:24 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,5 +38,8 @@ bool Ircserv::commandJoinCheck(const std::string &channel)
 	//#TODO RPL_TOPIC (332)
 	//#TODO RPL_TOPICWHOTIME (333)
 	//#TODO RPL_NAMREPLY (353)
+
+
+	//#TODO Join pode receber varios channels
 
 }

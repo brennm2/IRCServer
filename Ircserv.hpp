@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/12 14:36:35 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/13 15:08:59 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,10 +119,12 @@ class Ircserv
 	bool checkIfChannelExist(std::string channel);
 	Client returnClientStruct(int clientFd);
 		void makeUserList(std::string channel);
-	int  returnClientFd(std::string clientNick);
+	int	returnClientFd(std::string clientNick);
 
 	bool privMsgSintaxCheck(std::string firstWord, std::string target);
 	void removeClientFromChannel(const std::string& channelName, int clientFd);
+	void removeClientFromEveryChannel(int clientFd);
+
 
 
 	void broadcastMessageToChannel(const std::string& message, std::string channel);
@@ -154,6 +156,10 @@ class Ircserv
 
 	//Command MTDO
 	void commandMtdo();
+
+	//Command Quit
+	void commandQuit(std::istringstream &lineStream);
+
 
 	
 
