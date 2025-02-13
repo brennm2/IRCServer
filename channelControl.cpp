@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:07:24 by diogosan          #+#    #+#             */
-/*   Updated: 2025/02/12 14:07:29 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/02/13 09:29:51 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,8 @@ void Ircserv::checkCommandTopic(std::istringstream &lineStream)
 	std::string newTopic;
 
 	lineStream >> channelName;
-	lineStream >> newTopic;
+	std::getline(lineStream >> std::ws, newTopic);
+	
 	if (channelName.empty())
 	{
 		std::string errMsg = ":ircserver 461 " + channelName + " :Not enough parameters\r\n";
@@ -78,11 +79,18 @@ void Ircserv::checkCommandTopic(std::istringstream &lineStream)
 	{
 		std::string topic = _getChannelTopic(channelName);
 		if (topic.empty())
-			topic = "No topic is set";
-		std::cout << "the topic on " << channelName << " is " << topic << std::endl;
+		{
+			topic = "No topic is set.";
+			std::string emptyTopic = ":ircserver 333 " + _clientsMap[_clientFd]._nickName + " " + channelName + " :" + topic + "\r\n";
+			broadcastMessageToChannel(emptyTopic, channelName);
+			return;
+		}
+		
+		std::string currentTopic = ":ircserver 332 " + _clientsMap[_clientFd]._nickName + " " + channelName + " :" + topic + "\r\n";
+		broadcastMessageToChannel(currentTopic, channelName);
 		return;
 	}
-	//std::getline(lineStream, newTopic);
+	// std::getline(lineStream, newTopic);
 	commandTopic(channelName, newTopic);
 }
 
@@ -103,7 +111,7 @@ void Ircserv::commandTopic(std::string &channelName, std::string &newTopic)
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return ;
 	}
-	newTopic.erase(0,1);
+	newTopic.erase(0, 1);
 	std::string topicChange = ":" + client._nickName + "!" + client._userName + "@localhost TOPIC " + channelName + " :" + newTopic + "\r\n";
 	broadcastMessageToChannel(topicChange, channelName);
 	_changeChannelTopic(channelName, newTopic);
