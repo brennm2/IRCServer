@@ -3,16 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   channelControl.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:07:24 by diogosan          #+#    #+#             */
-/*   Updated: 2025/02/13 09:29:51 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/02/13 18:28:56 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Ircserv.hpp"
-#include <cstddef>
-#include <string>
 
 
 void Ircserv::checkCommandPart(std::istringstream &lineStream)
@@ -39,8 +37,8 @@ void Ircserv::checkCommandPart(std::istringstream &lineStream)
 
 void Ircserv::commandPart(std::string &channelName)
 {
-	std::map<std::string, std::vector<Client> >::iterator It = _channels.find(channelName);
-	if (channelName.empty()|| channelName[0] != '#' || It == _channels.end())
+	// std::vector<channelsStruct>::iterator It = _channels.begin();
+	if (channelName.empty()|| channelName[0] != '#' || !checkIfChannelExist(channelName))
 	{
 		std::string errMsg = ":ircserver 403 " + channelName + " :No such channel!\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
@@ -96,12 +94,19 @@ void Ircserv::checkCommandTopic(std::istringstream &lineStream)
 
 void Ircserv::commandTopic(std::string &channelName, std::string &newTopic)
 {
-	std::map<std::string, std::vector<Client> >::const_iterator It = _channels.find(channelName);
-	if (channelName.empty()|| channelName[0] != '#' || It == _channels.end())
+	std::vector<channelsStruct>::iterator It = _channels.begin();
+	while (It != _channels.end())
+	{
+		if (It->_channelName == channelName)
+			break;
+		++It;
+	}
+
+	if (channelName.empty() || channelName[0] != '#' || It == _channels.end())
 	{
 		std::string errMsg = ":ircserver 403 " + channelName + " :No such channel!\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-		return ;
+		return;
 	}
 
 	Client client = returnClientStruct(_clientFd);
@@ -109,8 +114,9 @@ void Ircserv::commandTopic(std::string &channelName, std::string &newTopic)
 	{
 		std::string errMsg = ":ircserver 442 " + channelName + " :User is not in the channel!\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-		return ;
+		return;
 	}
+
 	newTopic.erase(0, 1);
 	std::string topicChange = ":" + client._nickName + "!" + client._userName + "@localhost TOPIC " + channelName + " :" + newTopic + "\r\n";
 	broadcastMessageToChannel(topicChange, channelName);

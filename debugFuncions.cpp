@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/29 17:14:04 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/11 15:48:28 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/13 17:52:08 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,23 +14,22 @@
 
 void Ircserv::debugShowChannelsInfo()
 {
-	std::map<std::string, std::vector<Client> >::const_iterator channel = _channels.begin();
+	std::vector<channelsStruct>::const_iterator channel = _channels.begin();
 
-	if(channel != _channels.end())
+	if (channel != _channels.end())
 	{
-		for (std::map<std::string, std::vector<Client> >::const_iterator channel = _channels.begin(); channel != _channels.end(); ++channel)
+		for (std::vector<channelsStruct>::const_iterator channel = _channels.begin(); channel != _channels.end(); ++channel)
 		{
 			std::cout << cyan << "-- Start of Channel -- " << "\n" << reset;
 
-			std::cout << "Channel: " << channel->first << std::endl;
-			for (std::vector<Client>::const_iterator clients = channel->second.begin(); \
-				clients != channel->second.end(); ++clients)
+			std::cout << "Channel: " << channel->_channelName << std::endl;
+			for (std::vector<Client>::const_iterator clients = channel->_clients.begin(); clients != channel->_clients.end(); ++clients)
 			{
 				std::cout << "Client FD: " << clients->_fd << "\n";
 				std::cout << "Client Nick: " << clients->_nickName << "\n";
 				std::cout << yellow << "-- Next --" << "\n" << reset;
 			}
-			
+
 			std::cout << cyan << "-- End of Channel -- " << "\n";
 		}
 	}

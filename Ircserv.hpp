@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/13 15:08:59 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/13 17:58:33 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,9 +61,23 @@ class Ircserv
 		_userName(), _realName(), isFirstTime(true), \
 		hasPass(false), hasNick(false), hasUser(false), hasFinalReg(false) {}
 };
+
+private:
+		struct channelsStruct
+		{
+			std::string			_channelName;
+			std::string			_channelTopic;
+			std::vector<Client> _clients;
+			std::vector<int>	_clientsFdInvite;
+
+			bool				_isPrivate;
+
+		channelsStruct() :_channelName(), _channelTopic(), _clients(), \
+			_clientsFdInvite(), _isPrivate(false) \
+			{}
+};
 		
-		
-		std::map<std::string, std::vector<Client> > _channels;
+		std::vector<channelsStruct> _channels;
 		
 		std::map<std::string, std::string > _channelTopics;
 		
@@ -111,8 +125,8 @@ class Ircserv
 		void commandPrivMSG(std::istringstream &lineStream);
 
 	//Help Functions
-	bool checkIfClientInChannel(std::map<std::string, std::vector<Client> > channelMap, \
-		std::string channel, int clientFd);
+	bool checkIfClientInChannel(const std::vector<channelsStruct>& channels, \
+		const std::string& channel, int clientFd);
 	bool checkIfClientInServer(int clientFd);
 	bool checkIfClientInServerByNick(std::string clientNick);
 	void clientFinalRegistration(int clientFd);
@@ -120,6 +134,10 @@ class Ircserv
 	Client returnClientStruct(int clientFd);
 		void makeUserList(std::string channel);
 	int	returnClientFd(std::string clientNick);
+	void createNewChannel(const std::string& channelName);
+	void addClientToChannel(const std::string& channelName, const Client& client);
+	
+
 
 	bool privMsgSintaxCheck(std::string firstWord, std::string target);
 	void removeClientFromChannel(const std::string& channelName, int clientFd);

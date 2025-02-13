@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/13 15:09:05 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/13 18:25:11 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,7 +149,6 @@ void Ircserv::acceptClients()
 					char buffer[512];
 					memset(buffer, 0, sizeof(buffer));
 					ssize_t bytes_received = recv(poll_fds[i].fd, buffer, sizeof(buffer) - 1, 0);
-					
 					if (bytes_received <= 0)
 					{
 						std::cout << red << "Client disconnected: " << poll_fds[i].fd << "\n" << reset;
@@ -192,8 +191,8 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 		
 		if (command == "JOIN")
 		{
-			if (!clientCanUseCommands(clientFd))
-				continue ;
+			// if (!clientCanUseCommands(clientFd))
+			// 	continue ;
 			std::string channelName;
 			lineStream >> channelName;
 			
@@ -222,18 +221,18 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 		{
 			commandUser(lineStream); // Process the full user info
 		}
-		else if (command == "PRIVMSG")
-		{
-			if (!clientCanUseCommands(clientFd))
-				continue ;
-			commandPrivMSG(lineStream);
-		}
 		else if (command == "PASS")
 		{
 			std::string password;
 			lineStream >> password;
 			if(!commandPass(password))
 				return ;
+		}
+		else if (command == "PRIVMSG")
+		{
+			if (!clientCanUseCommands(clientFd))
+				continue ;
+			commandPrivMSG(lineStream);
 		}
 		else if (command == "PING")
 		{
@@ -255,6 +254,7 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 			// 	continue ;
 			
 			commandQuit(lineStream);
+
 			return ;
 		}
 
@@ -283,22 +283,13 @@ void Ircserv::commandJoin(const std::string &channel)
 	if (!commandJoinCheck(channel))
 		return ;
 
+	Client client = returnClientStruct(_clientFd);
 	//Se nao existir, cria um novo canal
-	if (_channels.find(channel) == _channels.end())
+	if (!checkIfChannelExist(channel))
 	{
 		std::cout << green << "Nao existe channel, criado um novo" << channel << "\n" << reset;
-		_channels.insert(std::make_pair(channel, std::vector<Client>()));
-		_channels[channel].push_back(returnClientStruct(_clientFd));
-
-		std::string testeMsg = ":" + _clientsMap[_clientFd]._nickName + "!" + _clientsMap[_clientFd]._userName + "@localhost JOIN " + channel + "\r\n";
-		send(_clientFd, testeMsg.c_str(), testeMsg.size(), 0);
-
-		std::cout << red << "Client Join command ->" << testeMsg << "\n" << reset;
-
-		std::string msgTopic = ":ircserver 332 " + _clientsMap[_clientFd]._nickName + " " + channel + " :My cool server yay!\r\n";
-		send(_clientFd, msgTopic.c_str(), msgTopic.size(), 0);
-
-		_channelTopics.insert(std::make_pair(channel ,"My cool server yay!"));
+		createNewChannel(channel);
+		addClientToChannel(channel, client);
 		makeUserList(channel);
 		return ;
 	}
@@ -307,7 +298,7 @@ void Ircserv::commandJoin(const std::string &channel)
 		//Verifica se ja existe o clientFd igual no canal, caso nao tenha, coloque na lista
 		if (!checkIfClientInChannel(_channels, channel, _clientFd))
 		{
-			_channels[channel].push_back(returnClientStruct(_clientFd));
+			addClientToChannel(channel, client);
 		}
 	}
 	

@@ -6,20 +6,25 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/13 14:27:50 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/13 18:32:14 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Ircserv.hpp"
 
+
+
 bool Ircserv::checkIfChannelExist(std::string channel)
 {
-	std::map<std::string, std::vector<Client> >::const_iterator channelIt = _channels.find(channel);
+	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
 
-	if (channelIt != _channels.end())
-		return (true);
-	else
-		return (false);
+	while (channelIt != _channels.end())
+	{
+		if (channelIt->_channelName == channel)
+			return (true);
+		channelIt++;
+	}
+	return (false);
 }
 
 bool Ircserv::checkIfClientInServer(int clientFd)
@@ -48,51 +53,57 @@ bool Ircserv::checkIfClientInServerByNick(std::string clientNick)
 	return (false);
 }
 
-bool Ircserv::checkIfClientInChannel(std::map<std::string, std::vector<Client> > channelMap, std::string channel, int clientFd)
+bool Ircserv::checkIfClientInChannel(const std::vector<channelsStruct>& channels, const std::string& channel, int clientFd)
 {
-	// Verifica se o canal existe no channelMap
-	std::map<std::string, std::vector<Client> >::const_iterator channelIt = channelMap.find(channel);
-	if (channelIt != channelMap.end())
+	// Itera sobre o vetor de canais
+	std::vector<channelsStruct>::const_iterator channelIt = channels.begin();
+	while (channelIt != channels.end())
 	{
-		const std::vector<Client>& clients = channelIt->second;
-		for (std::vector<Client>::const_iterator clientIt = clients.begin(); \
-			clientIt != clients.end(); ++clientIt)
+		if (channelIt->_channelName == channel)
 		{
-			if (clientIt->_fd == clientFd)
+			const std::vector<Client>& clients = channelIt->_clients;
+			for (std::vector<Client>::const_iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
 			{
-				// std::cout << "Client FD: " << clientIt->_fd << " found in channel: " << channel << "\n";
-				return true;
+				if (clientIt->_fd == clientFd)
+				{
+					// std::cout << "Client FD: " << clientIt->_fd << " found in channel: " << channel << "\n";
+					return true;
+				}
 			}
 		}
+		++channelIt;
 	}
-	// std::cout << "Client FD: " << clientFd << " not found in channel: " << channel << "\n";
-	//std::cout << red << "NENHUM CLIENTE ENCONTRADO NO CHANNEL" << "\n" << reset ;
 	return false;
 }
 
 void Ircserv::makeUserList(std::string channel)
 {
-	std::map<std::string, std::vector<Client> >::const_iterator channelIt = _channels.find(channel);
-	if (channelIt != _channels.end())
+	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
+	while (channelIt != _channels.end())
 	{
-		const std::vector<Client>& clients = channelIt->second;
-
-		std::string nameList = ":ircserver 353 " + _clientsMap[_clientFd]._nickName + " @ " + channel + " :";
-		for (std::vector<Client>::const_iterator itVector = clients.begin(); \
-			itVector != clients.end(); ++itVector)
+		if (channelIt->_channelName == channel)
 		{
-				nameList+= itVector->_nickName + " ";
+			const std::vector<Client>& clients = channelIt->_clients;
+
+			std::string nameList = ":ircserver 353 " + _clientsMap[_clientFd]._nickName + " @ " + channel + " :";
+			for (std::vector<Client>::const_iterator itVector = clients.begin(); itVector != clients.end(); itVector++)
+			{
+				std::cout << red << "ENTROU" << "\n" << reset;
+				nameList += itVector->_nickName + " ";
+				std::cout << "NICK->" << itVector->_nickName << "\n";
+			}
+			nameList += "\r\n";
+			std::cout << "NameList->" << nameList << "\n";
+			broadcastMessageToChannel(nameList, channel);
+
+			std::string endOfNames = ":ircserver 366 " + _clientsMap[_clientFd]._nickName + " " + channel + " :End of /NAMES list.\r\n";
+			send(_clientFd, endOfNames.c_str(), endOfNames.size(), 0);
+
+			return;
 		}
-		nameList += "\r\n";
-		broadcastMessageToChannel(nameList, channel);
-		// send(_clientFd, nameList.c_str(), nameList.size(), 0);
-
-		std::string endOfNames = ":ircserver 366 " + _clientsMap[_clientFd]._nickName + " " + channel + " :End of /NAMES list.\r\n";
-		send(_clientFd, endOfNames.c_str(), endOfNames.size(), 0);
-
+		++channelIt;
 	}
-	else
-		throw std::runtime_error("No server was found!");
+	throw std::runtime_error("No server was found!");
 }
 
 Ircserv::Client Ircserv::returnClientStruct(int clientFd)
@@ -130,39 +141,46 @@ int Ircserv::returnClientFd(std::string clientNick)
 
 void Ircserv::broadcastMessageToChannel(const std::string& message, std::string channel)
 {
-	std::map<std::string, std::vector<Client> >::const_iterator channelIt = _channels.find(channel);
+	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
 
-	if(channelIt != _channels.end())
+	while (channelIt != _channels.end())
 	{
-		const std::vector<Client>& clients = channelIt->second;
-		for (std::vector<Client>::const_iterator clientIt = clients.begin(); \
-			clientIt != clients.end(); ++clientIt)
+		if (channelIt->_channelName == channel)
 		{
-			int clientFd = clientIt->_fd;				// Pega o file descriptor do cliente
-			send(clientFd, message.c_str(), message.size(), 0);
+			const std::vector<Client>& clients = channelIt->_clients;
+			for (std::vector<Client>::const_iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
+			{
+				int clientFd = clientIt->_fd; // Pega o file descriptor do cliente
+				send(clientFd, message.c_str(), message.size(), 0);
+			}
+			return;
 		}
+		++channelIt;
 	}
-	else
-		throw std::runtime_error("No server found in the broadcastMessageToChannel");
+	throw std::runtime_error("No server found in the broadcastMessageToChannel");
 }
 
 void Ircserv::broadcastMessageToChannelExceptSender(const std::string& message, std::string channel, int senderFd)
 {
-	std::map<std::string, std::vector<Client> >::const_iterator channelIt = _channels.find(channel);
+	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
 
-	if(channelIt != _channels.end())
+	while (channelIt != _channels.end())
 	{
-		const std::vector<Client>& clients = channelIt->second;
-		for (std::vector<Client>::const_iterator clientIt = clients.begin(); \
-			clientIt != clients.end(); ++clientIt)
+		if (channelIt->_channelName == channel)
 		{
-			int clientFd = clientIt->_fd;				// Pega o file descriptor do cliente
-			if (clientFd != senderFd)
-				send(clientFd, message.c_str(), message.size(), 0);
+			const std::vector<Client>& clients = channelIt->_clients;
+			for (std::vector<Client>::const_iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
+			{
+				int clientFd = clientIt->_fd; // Pega o file descriptor do cliente
+				if (clientFd != senderFd)
+					send(clientFd, message.c_str(), message.size(), 0);
+			}
+			return;
 		}
+		++channelIt;
 	}
-	else
-		throw std::runtime_error("No server found in the Broad Cast Message");
+
+	throw std::runtime_error("No server found in the Broad Cast Message");
 }
 
 void Ircserv::broadcastMessage(const std::string& message, int senderFd)
@@ -294,62 +312,67 @@ void Ircserv::clientFinalRegistration(int clientFd)
 
 void Ircserv::removeClientFromChannel(const std::string& channelName, int clientFd)
 {
-	// Encontra o canal no map _channels
-	std::map<std::string, std::vector<Client> >::iterator channelIt = _channels.find(channelName);
-	if (channelIt != _channels.end())
+	// Itera sobre o vetor de canais
+	std::vector<channelsStruct>::iterator channelIt = _channels.begin();
+	while (channelIt != _channels.end())
 	{
-		// Encontra o cliente no vetor de clientes do canal
-		std::vector<Client>& clients = channelIt->second;
-		for (std::vector<Client>::iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
+		if (channelIt->_channelName == channelName)
 		{
-			if (clientIt->_fd == clientFd)
+			// Encontra o cliente no vetor de clientes do canal
+			std::vector<Client>& clients = channelIt->_clients;
+			for (std::vector<Client>::iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
 			{
-				// Remove o cliente do vetor
-				clients.erase(clientIt);
-				std::cout << "Cliente com FD " << clientFd << " removido do canal " << channelName << "\n";
-
-				// Se o canal estiver vazio após a remoção, apaga o canal do map
-				if (clients.empty())
+				if (clientIt->_fd == clientFd)
 				{
-					_channels.erase(channelIt);
-					std::cout << "Canal " << channelName << " removido pois está vazio\n";
+					// Remove o cliente do vetor
+					clients.erase(clientIt);
+					std::cout << "Cliente com FD " << clientFd << " removido do canal " << channelName << "\n";
+
+					// Se o canal estiver vazio após a remoção, apaga o canal do vetor
+					if (clients.empty())
+					{
+						_channels.erase(channelIt);
+						std::cout << "Canal " << channelName << " removido pois está vazio\n";
+					}
+					return;
 				}
-				return;
 			}
+			std::cerr << "Cliente com FD " << clientFd << " não encontrado no canal " << channelName << "\n";
+			return;
 		}
-		std::cerr << "Cliente com FD " << clientFd << " não encontrado no canal " << channelName << "\n";
+		++channelIt;
 	}
-	else
-	{
-		std::cerr << "Canal " << channelName << " não encontrado\n";
-	}
+	std::cerr << "Canal " << channelName << " não encontrado\n";
 }
 
 void Ircserv::removeClientFromEveryChannel(int clientFd)
 {
-	std::map<std::string, std::vector<Client> >::iterator channelIt = _channels.begin();
+	std::vector<channelsStruct>::iterator channelIt = _channels.begin();
 	while (channelIt != _channels.end())
 	{
 		// Encontra o cliente no vetor de clientes do canal
-		std::vector<Client>& clients = channelIt->second;
-		for (std::vector<Client>::iterator clientIt = clients.begin(); \
-				clientIt != clients.end(); ++clientIt)
+		std::vector<Client>& clients = channelIt->_clients;
+		for (std::vector<Client>::iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
 		{
 			if (clientIt->_fd == clientFd)
 			{
-				std::cout << "Cliente: " << clientIt->_nickName << " removido do canal " << "\n";
+				std::cout << "Cliente: " << clientIt->_nickName << " removido do canal " << channelIt->_channelName << "\n";
 				clients.erase(clientIt);
 
-				// Se o canal estiver vazio após a remoção, apaga o canal do map
+				// Se o canal estiver vazio após a remoção, apaga o canal do vetor
 				if (clients.empty())
 				{
-					_channels.erase(channelIt);
-					std::cout << "Canal " << channelIt->first << " removido pois está vazio\n";
+					std::cout << "Canal " << channelIt->_channelName << " removido pois está vazio\n";
+					channelIt = _channels.erase(channelIt);
+				}
+				else
+				{
+					++channelIt;
 				}
 				return;
 			}
 		}
-		channelIt++;
+		++channelIt;
 	}
 }
 
