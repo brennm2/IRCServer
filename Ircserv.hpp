@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Ircserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/12 14:36:35 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/13 12:27:35 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ class Ircserv
 			std::string _nickName;
 			std::string _userName;
 			std::string _realName;
+			std::string outgoingBuffer;
 			bool		isFirstTime;
 			bool		hasPass;
 			bool		hasNick;
@@ -58,7 +59,7 @@ class Ircserv
 			bool		hasFinalReg;
 
 		Client() :_fd(-1), _nickName(), \
-		_userName(), _realName(), isFirstTime(true), \
+		_userName(), _realName(), outgoingBuffer(), isFirstTime(true), \
 		hasPass(false), hasNick(false), hasUser(false), hasFinalReg(false) {}
 };
 		
