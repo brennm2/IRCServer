@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:07:24 by diogosan          #+#    #+#             */
-/*   Updated: 2025/02/14 12:01:36 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/14 12:20:04 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,13 @@ void Ircserv::checkCommandTopic(std::istringstream &lineStream)
 	lineStream >> channelName;
 	std::getline(lineStream >> std::ws, newTopic);
 	
+	if(!checkIfChannelExist(channelName))
+	{
+		std::cout << red << "NAO EXISTE ESSE CANAL" << "\n" << reset;
+		//#TODO COLOCAR O ERRO CORRETO!
+		return ;
+	}
+
 	if (channelName.empty())
 	{
 		std::string errMsg = ":ircserver 461 " + channelName + " :Not enough parameters\r\n";
@@ -99,7 +106,7 @@ void Ircserv::commandTopic(std::string &channelName, std::string &newTopic)
 	while (It != _channels.end())
 	{
 		if (It->_channelName == channelName)
-			break;
+		break;
 		++It;
 	}
 
