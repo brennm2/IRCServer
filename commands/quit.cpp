@@ -33,4 +33,16 @@ void Ircserv::commandQuit(std::istringstream &lineStream)
 	broadcastMessage(quitMsg, 0);
 	removeClientFromEveryChannel(_clientFd);
 	close(_clientFd);
+
+	_clientsMap.erase(_clientFd);
+
+	for (size_t i = 0; i < poll_fds.size(); i++)
+	{
+		if (poll_fds[i].fd == _clientFd)
+		{
+			poll_fds.erase(poll_fds.begin() + i);
+			break;
+		}
+	}
+	std::cout << "Client " << _clientFd << " disconnected.\n";
 }

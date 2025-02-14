@@ -84,7 +84,7 @@ private:
 		
 		std::map<int, Client> _clientsMap;
 
-
+		std::vector<pollfd> poll_fds;
 
 	std::string		_password;
 	unsigned int	_port;
