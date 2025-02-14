@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:07:24 by diogosan          #+#    #+#             */
-/*   Updated: 2025/02/13 11:31:35 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/02/14 11:33:02 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,8 @@ void Ircserv::checkCommandTopic(std::istringstream &lineStream)
 		}
 		
 		std::string currentTopic = ":ircserver 332 " + _clientsMap[_clientFd]._nickName + " " + channelName + " :" + topic + "\r\n";
-		broadcastMessageToChannel(currentTopic, channelName);
+		// broadcastMessageToChannel(currentTopic, channelName);
+		broadcastMessagePrivate(currentTopic, );
 		return;
 	}
 	// std::getline(lineStream, newTopic);
