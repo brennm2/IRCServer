@@ -77,7 +77,8 @@ void Ircserv::createServer(const std::string& pass, unsigned int port)
 
 void Ircserv::acceptClients()
 {
-	std::vector<pollfd> poll_fds;
+	Ircserv serv;
+	
 	
 	// Add server socket to poll list
 	pollfd server_pollfd;
