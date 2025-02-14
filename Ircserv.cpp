@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/13 18:25:11 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/14 12:02:59 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ void Ircserv::acceptClients()
 		std::vector<int> removeIndices;
 		for (size_t i = 0; i < poll_fds.size(); i++)
 		{
-			if (poll_fds[i].revents & (POLLIN | POLLHUP)) // Check if there's incoming data
+			if (poll_fds[i].revents & POLLIN) // Check if there's incoming data
 			{
 				if (poll_fds[i].fd == _serverFd)
 				{
@@ -137,7 +137,7 @@ void Ircserv::acceptClients()
 					// Add new client to poll list
 					pollfd client_pollfd;
 					client_pollfd.fd = clientFd;
-					client_pollfd.events = POLLIN; // Ready to read
+					client_pollfd.events = POLLIN; // Initially only listening for input
 					poll_fds.push_back(client_pollfd);
 
 					// Add client to map
@@ -162,6 +162,32 @@ void Ircserv::acceptClients()
 					
 					// Process the message
 					bufferReader(poll_fds[i].fd, buffer);
+				}
+			}
+			
+			// Check if the client has data to send
+			if (poll_fds[i].revents & POLLOUT)
+			{
+				Client &client = _clientsMap[poll_fds[i].fd];
+				if (!client.outgoingBuffer.empty())
+				{
+					ssize_t bytesSent = send(poll_fds[i].fd, client.outgoingBuffer.c_str(), client.outgoingBuffer.size(), 0);
+					
+					if (bytesSent > 0)
+					{
+						client.outgoingBuffer.erase(0, bytesSent); // Remove sent part
+						if (client.outgoingBuffer.empty())
+						{
+							poll_fds[i].events &= ~POLLOUT; //Disable POLLOUT if nothing left to send
+						}
+					}
+					else if (bytesSent < 0 && (errno != EAGAIN && errno != EWOULDBLOCK))
+					{
+						std::cerr << red << "Error sending data to client: " << poll_fds[i].fd << "\n" << reset;
+						close(poll_fds[i].fd);
+						_clientsMap.erase(poll_fds[i].fd);
+						removeIndices.push_back(i);
+					}
 				}
 			}
 		}

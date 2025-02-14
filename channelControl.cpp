@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:07:24 by diogosan          #+#    #+#             */
-/*   Updated: 2025/02/13 18:28:56 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/14 12:01:36 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,13 +79,14 @@ void Ircserv::checkCommandTopic(std::istringstream &lineStream)
 		if (topic.empty())
 		{
 			topic = "No topic is set.";
-			std::string emptyTopic = ":ircserver 333 " + _clientsMap[_clientFd]._nickName + " " + channelName + " :" + topic + "\r\n";
+			std::string emptyTopic = ":ircserver 331 " + _clientsMap[_clientFd]._nickName + " " + channelName + " :" + topic + "\r\n";
 			broadcastMessageToChannel(emptyTopic, channelName);
 			return;
 		}
 		
 		std::string currentTopic = ":ircserver 332 " + _clientsMap[_clientFd]._nickName + " " + channelName + " :" + topic + "\r\n";
 		broadcastMessageToChannel(currentTopic, channelName);
+	
 		return;
 	}
 	// std::getline(lineStream, newTopic);
