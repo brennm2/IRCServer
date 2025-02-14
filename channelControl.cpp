@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channelControl.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:07:24 by diogosan          #+#    #+#             */
-/*   Updated: 2025/02/14 12:20:04 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/14 15:01:21 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,13 +87,12 @@ void Ircserv::checkCommandTopic(std::istringstream &lineStream)
 		{
 			topic = "No topic is set.";
 			std::string emptyTopic = ":ircserver 331 " + _clientsMap[_clientFd]._nickName + " " + channelName + " :" + topic + "\r\n";
-			broadcastMessageToChannel(emptyTopic, channelName);
+			send(_clientFd, emptyTopic.c_str(), emptyTopic.size(), 0);
 			return;
 		}
 		
 		std::string currentTopic = ":ircserver 332 " + _clientsMap[_clientFd]._nickName + " " + channelName + " :" + topic + "\r\n";
-		broadcastMessageToChannel(currentTopic, channelName);
-	
+		send(_clientFd, currentTopic.c_str(), currentTopic.size(), 0);
 		return;
 	}
 	// std::getline(lineStream, newTopic);
