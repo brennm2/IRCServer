@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/18 20:32:06 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/19 16:11:55 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ private:
 
 	//Commands
 	void commandJoin(const std::string &channel);
-		void commandUser(std::istringstream &lineStream);
+	void commandUser(std::istringstream &lineStream);
 	//-------------------mudkip------------------
 	void commandPart(std::string &channelName); 
 	void checkCommandPart(std::istringstream &lineStream);
@@ -132,8 +132,8 @@ private:
 	bool checkIfChannelExist(std::string channel);
 	Client returnClientStruct(int clientFd);
 	channelsStruct returnChannelStruct(const std::string &channel);
-	void makeUserList(std::string channel);
 	int	returnClientFd(std::string clientNick);
+	void makeUserList(std::string channel);
 	void createNewChannel(const std::string& channelName);
 	void addClientToChannel(const std::string& channelName, const Client& client);
 	std::vector<std::string> splitString(const std::string &str, char delimiter);
@@ -182,6 +182,9 @@ private:
 
 	//Command Quit
 	void commandQuit(std::istringstream &lineStream);
+
+	//Command Kick
+	void commandKick(std::istringstream &lineStream);
 
 
 	

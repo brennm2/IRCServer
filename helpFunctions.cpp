@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/18 19:22:56 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/19 16:21:06 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,10 +146,10 @@ int Ircserv::returnClientFd(std::string clientNick)
 			clientIt++;
 		}
 		//Se nao encontrar nick name no ClientsMap, entao da throw
-		throw std::runtime_error("No nickName found in function returnClientFd");
+		throw std::runtime_error("No nickName found in function returnClientFd, nick->" + clientNick + "<- End Nick");
 	}
 	else
-		throw std::runtime_error("No client map in function returnClientFd");
+		throw std::runtime_error("No client map in function returnClientFd, nick->" + clientNick + "<- End Nick");
 }
 
 
@@ -398,7 +398,15 @@ std::vector<std::string> Ircserv::splitString(const std::string &str, char delim
 	std::string tempStr;
 
 	while(std::getline(ss, tempStr, delimiter))
-		tokens.push_back(tempStr);
+	{
+		if (!tempStr.empty())
+		{
+			if (tempStr[tempStr.size() - 1] == '\r')
+				tempStr.erase(tempStr.size() - 1);
+			tokens.push_back(tempStr);
+			std::cout << green <<"Token pushback->" << tempStr << reset << "\n";
+		}
+	}
 	return (tokens);
 }
 
