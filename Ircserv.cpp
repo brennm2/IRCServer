@@ -118,7 +118,7 @@ void Ircserv::acceptClients()
 					}
 
 					// Set non-blocking mode for the client socket
-					int flags = fcntl(clientFd, F_GETFL, 0);
+					int flags = fcntl(clientFd, F_SETFL, O_NONBLOCK);
 					if (flags == -1 || fcntl(clientFd, F_SETFL, flags | O_NONBLOCK) == -1)
 					{
 						std::cerr << red << "Error setting client socket to non-blocking mode!\n" << reset;
