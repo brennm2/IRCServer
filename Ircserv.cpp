@@ -290,6 +290,12 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 			debugShowAllClients();
 			debugShowChannelsInfo();
 		}
+		else if (command == "MODE")
+		{
+			if (!clientCanUseCommands)
+				continue;
+			checkCommandMode(lineStream);
+		}
 		// else
 		// {
 		// 	std::string errorMsg = "Error: Unknown command " + command + "\n";

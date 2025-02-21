@@ -179,7 +179,10 @@ private:
 	//Command Quit
 	void commandQuit(std::istringstream &lineStream);
 
-
+	// Command Mode
+	void checkCommandMode(std::istringstream &lineStream);
+	void commandModeChannel(std::string &channelName, std::string &modes, std::string &parameters);
+	void commandModeUser(std::string &targetNick, std::string &modes, std::string &parameters);
 	
 
 	//Debug

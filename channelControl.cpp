@@ -68,9 +68,9 @@ void Ircserv::checkCommandTopic(std::istringstream &lineStream)
 	
 	if(!checkIfChannelExist(channelName))
 	{
-		std::cout << red << "NAO EXISTE ESSE CANAL" << "\n" << reset;
-		//#TODO COLOCAR O ERRO CORRETO!
-		return ;
+		std::string errMsg = ":ircserver 403 " + channelName + " :No such channel!\r\n";
+		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+		return;
 	}
 
 	if (channelName.empty())
