@@ -184,6 +184,7 @@ private:
 	void commandModeChannel(std::string &channelName, std::string &modes, std::string &parameters);
 	void commandModeUser(std::string &targetNick, std::string &modes, std::string &parameters);
 	
+	
 
 	//Debug
 	void debugShowChannelsInfo();
