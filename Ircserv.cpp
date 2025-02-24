@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/19 13:58:34 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/24 12:37:34 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -288,8 +288,6 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 		{
 			if (!clientCanUseCommands(clientFd))
 				continue ;
-			std::string nickName;
-			lineStream >> nickName;
 			
 			commandKick(lineStream);
 		}

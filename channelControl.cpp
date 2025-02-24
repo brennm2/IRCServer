@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channelControl.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:07:24 by diogosan          #+#    #+#             */
-/*   Updated: 2025/02/14 15:01:21 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/02/24 17:52:54 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ void Ircserv::commandPart(std::string &channelName)
 	}
 
 	Client client = returnClientStruct(_clientFd);
-	if (!checkIfClientInChannel(_channels, channelName, _clientFd))
+	if (!checkIfClientInChannel(channelName, _clientFd))
 	{
 		std::string errMsg = ":ircserver 442 " + channelName + " :User is not in the channel!\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
@@ -117,7 +117,7 @@ void Ircserv::commandTopic(std::string &channelName, std::string &newTopic)
 	}
 
 	Client client = returnClientStruct(_clientFd);
-	if (!checkIfClientInChannel(_channels, channelName, _clientFd))
+	if (!checkIfClientInChannel(channelName, _clientFd))
 	{
 		std::string errMsg = ":ircserver 442 " + channelName + " :User is not in the channel!\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);

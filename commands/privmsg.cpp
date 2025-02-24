@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:44:14 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/12 18:44:20 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/24 14:42:55 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 void Ircserv::commandPrivMSG(std::istringstream &lineStream)
 {
+	//#TODO Do the multiple PRIVMSG
 	std::string target, message, firstWord;
 	lineStream >> target;
 	lineStream >> firstWord;

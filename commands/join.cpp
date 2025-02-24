@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 15:40:35 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/18 20:24:49 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/24 17:53:11 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,7 +163,7 @@ void Ircserv::commandJoin(const std::string &channel)
 			if (!commandJoinCheckExistingChannel(tempChannel, client))
 				return ;
 			//Verifica se ja existe o clientFd igual no canal, caso nao tenha, coloque na lista
-			if (!checkIfClientInChannel(_channels, tempChannel, _clientFd))
+			if (!checkIfClientInChannel(tempChannel, _clientFd))
 				addClientToChannel(tempChannel, client);
 			
 			//Mensagem de confirmacao para dar JOIN

@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/19 16:11:55 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/24 18:33:41 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,8 +124,9 @@ private:
 	void commandPrivMSG(std::istringstream &lineStream);
 
 	//Help Functions
-	bool checkIfClientInChannel(const std::vector<channelsStruct>& channels, \
-		const std::string& channel, int clientFd);
+	bool checkIfClientInChannel(const std::string& channel, int clientFd);
+	bool checkIfClientInChannelByNick(const std::string& channel, \
+		const std::string& clientNick);
 	bool checkIfClientInServer(int clientFd);
 	bool checkIfClientInServerByNick(std::string clientNick);
 	void clientFinalRegistration(int clientFd);
@@ -185,6 +186,7 @@ private:
 
 	//Command Kick
 	void commandKick(std::istringstream &lineStream);
+	bool checkCommandKick(const std::string &channel, const std::vector<std::string> &clientsVec);
 
 
 	

@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/19 16:21:06 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/24 17:52:13 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,11 +53,10 @@ bool Ircserv::checkIfClientInServerByNick(std::string clientNick)
 	return (false);
 }
 
-bool Ircserv::checkIfClientInChannel(const std::vector<channelsStruct>& channels, const std::string& channel, int clientFd)
+bool Ircserv::checkIfClientInChannel(const std::string& channel, int clientFd)
 {
-	// Itera sobre o vetor de canais
-	std::vector<channelsStruct>::const_iterator channelIt = channels.begin();
-	while (channelIt != channels.end())
+	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
+	while (channelIt != _channels.end())
 	{
 		if (channelIt->_channelName == channel)
 		{
@@ -65,10 +64,27 @@ bool Ircserv::checkIfClientInChannel(const std::vector<channelsStruct>& channels
 			for (std::vector<Client>::const_iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
 			{
 				if (clientIt->_fd == clientFd)
-				{
-					// std::cout << "Client FD: " << clientIt->_fd << " found in channel: " << channel << "\n";
 					return true;
-				}
+			}
+		}
+		++channelIt;
+	}
+	return false;
+}
+
+
+bool Ircserv::checkIfClientInChannelByNick(const std::string& channel, const std::string& clientNick)
+{
+	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
+	while (channelIt != _channels.end())
+	{
+		if (channelIt->_channelName == channel)
+		{
+			const std::vector<Client>& clients = channelIt->_clients;
+			for (std::vector<Client>::const_iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
+			{
+				if (clientIt->_nickName == clientNick)
+					return true;
 			}
 		}
 		++channelIt;
