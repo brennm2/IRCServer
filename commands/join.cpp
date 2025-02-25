@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 15:40:35 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/25 16:33:16 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/25 18:10:03 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,38 +84,24 @@ bool Ircserv::commandJoinCheck(const std::string &channel)
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return false;
 	}
-
-	std::vector<std::string> channelsVec = splitString(channel, ',');
-	for (std::vector<std::string>::const_iterator it = channelsVec.begin(); \
-			it != channelsVec.end(); it++)
+	if (channel[0] != '#' && channel[0] != '\0')
 	{
-		std::string tempChannel = *it;
-		if (tempChannel[0] != '#' && tempChannel[0] != '\0')
-		{
-			std::string errMsg = ":ircserver 403 :" + client._nickName + " JOIN " + tempChannel + " :No such channel\r\n";
+			std::string errMsg = ":ircserver 476 : " + channel + " :Bad Channel Mask\r\n";
 			send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 			return false;
-		}
-		else if (tempChannel[0] == '\0')
-		{
-			//Not enough parameters
-			std::string errMsg = ":ircserver 461 " + client._nickName + " JOIN " + tempChannel + " :Not enough parameters\r\n";
-			send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-			return false;
-		}
+	}
+	else if (channel[0] == '\0')
+	{
+		//Not enough parameters
+		std::string errMsg = ":ircserver 461 " + client._nickName + " JOIN " + channel + " :Not enough parameters\r\n";
+		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+		return false;
 	}
 	return (true);
 
-	//#TODO ERR_BADCHANNELKEY (475)
+	//#TODO ERR_BADCHANNELKEY (475) maybe?
 
-	//#TODO ERR_CHANNELISFULL (471)
-	//#TODO ERR_BADCHANMASK (476)
-	//#TODO RPL_TOPIC (332)
 	//#TODO RPL_TOPICWHOTIME (333)
-	//#TODO RPL_NAMREPLY (353)
-
-
-	//#TODO Join pode receber varios channels
 
 }
 
@@ -140,8 +126,6 @@ bool Ircserv::commandJoinCheckExistingChannel(const std::string &tempChannel, co
 
 void Ircserv::commandJoin(const std::string &channel)
 {
-	if (!commandJoinCheck(channel))
-		return ;
 
 	Client &client = returnClientStructToModify(_clientFd);
 	std::vector<std::string> channelsVec = splitString(channel, ',');
@@ -150,13 +134,15 @@ void Ircserv::commandJoin(const std::string &channel)
 			it != channelsVec.end(); it++)
 	{
 		std::string tempChannel = *it;
+		if (!commandJoinCheck(tempChannel))
+			return ;
 		//Se nao existir, cria um novo canal
 		if (!checkIfChannelExist(tempChannel))
 		{
 			std::cout << green << "Nao existe channel, criado um novo->" << tempChannel << "\n" << reset;
 			createNewChannel(tempChannel);
 			addClientToChannel(tempChannel, client);
-			changeClientToOperator(_clientFd, channel);
+			changeClientToOperator(_clientFd, tempChannel);
 			makeUserList(tempChannel);
 		}
 		else

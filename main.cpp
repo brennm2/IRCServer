@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:56 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/11 11:33:47 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/25 18:57:27 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,6 @@ void checkIfValidPort(std::string arg)
 
 int main(int ac, char **av)
 {
-	(void) av; //#TODO Debug
 	if (ac == 3)
 	{
 		Ircserv Server;
