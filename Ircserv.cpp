@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/24 12:37:34 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/25 11:55:23 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,7 @@ void Ircserv::acceptClients()
 					}
 
 					// Set non-blocking mode for the client socket
-					int flags = fcntl(clientFd, F_GETFL, 0);
+					int flags = fcntl(clientFd, F_SETFL, O_NONBLOCK);
 					if (flags == -1 || fcntl(clientFd, F_SETFL, flags | O_NONBLOCK) == -1)
 					{
 						std::cerr << red << "Error setting client socket to non-blocking mode!\n" << reset;
@@ -296,6 +296,12 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 		{
 			debugShowAllClients();
 			debugShowChannelsInfo();
+		}
+		else if (command == "MODE")
+		{
+			if (!clientCanUseCommands(clientFd))
+				continue;
+			checkCommandMode(lineStream);
 		}
 		// else
 		// {

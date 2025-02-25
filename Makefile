@@ -25,6 +25,7 @@ SRC = main.cpp \
 	commands/user.cpp \
 	commands/privmsg.cpp \
 	commands/quit.cpp \
+	commands/mode.cpp \	
 	commands/kick.cpp \
 
 
