@@ -62,7 +62,7 @@ void Ircserv::commandModeChannel(std::string &channelName, std::string &modes, s
 	}
 
 	// Check if client is in the channel
-	if (!checkIfClientInChannel(_channels, channelName, _clientFd))
+	if (!checkIfClientInChannel(channelName, _clientFd))
 	{
 		std::string errMsg = ":ircserv 442 " + channelName + " :You're not in that channel\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
