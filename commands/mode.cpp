@@ -69,11 +69,15 @@ void Ircserv::commandModeChannel(std::string &channelName, std::string &modes, s
 		return;
 	}
 	
-	// Check if the client is an operator (for mode-restricted commands)
-	// TO DO
-	
 	for (std::vector<Client>::const_iterator clients = channelIt->_clients.begin(); clients != channelIt->_clients.end(); ++clients)
 	{
+	// Check if the client is an operator (for mode-restricted commands)
+	if (!clients->_isOperator)
+    {
+        std::string errMsg = ":ircserver 482 " + channelName + " :You're not channel operator\r\n";
+        send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+        return;
+    }
 		std::string modeChangeMsg = ":" + clients->_nickName + "!" + clients->_userName + "@localhost MODE " + channelName + " " + modes + " " + parameters + "\r\n";
 		broadcastMessageToChannel(modeChangeMsg, channelName);
 	}

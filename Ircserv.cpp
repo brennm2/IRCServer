@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/14 14:56:38 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/02/25 11:29:02 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -290,12 +290,12 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 			debugShowAllClients();
 			debugShowChannelsInfo();
 		}
-		// else if (command == "MODE")
-		// {
-		// 	if (!clientCanUseCommands(clientFd))
-		// 		continue;
-		// 	checkCommandMode(lineStream);
-		// }
+		else if (command == "MODE")
+		{
+			if (!clientCanUseCommands(clientFd))
+				continue;
+			checkCommandMode(lineStream);
+		}
 		// else
 		// {
 		// 	std::string errorMsg = "Error: Unknown command " + command + "\n";
