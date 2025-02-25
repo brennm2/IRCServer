@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/24 17:52:13 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/25 13:40:12 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -246,36 +246,6 @@ void Ircserv::broadcastMessagePrivate(const std::string &message, const std::str
 	//std::cout << targetMessage << "\n";
 
 //	send(clientSender._fd, senderMessage.c_str(), senderMessage.size(), 0);
-}
-
-
-bool Ircserv::privMsgSintaxCheck(std::string firstWord, std::string target)
-{
-	if (target[0] == ':')
-	{
-		Client client = returnClientStruct(_clientFd);
-		std::string errMsg = ":ircserver 411 " + client._nickName + " :" + "\x03" + "04No recipient given\r\n";
-		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-		return false;
-	}
-	//Se a primeira letra nao for ':', entao retorna error de sintax (esse error nao existe no IRC, error 407 (too many targets))
-	else if (firstWord[0] != ':')
-	{
-		Client client = returnClientStruct(_clientFd);
-		std::string errMsg = ":ircserver 407 " + client._nickName + " :" + "\x03" + "04Sintax Error (/PRIVMSG NICK :MESSAGE)\r\n";
-		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-		return (false);
-	}
-	//Se a primeira letra for ':' e nao existir mais nada a frente, entao nao existe texto (error 412)
-	else if (firstWord[0] == ':' && firstWord[1] == '\0')
-	{
-		Client client = returnClientStruct(_clientFd);
-		std::string errMsg = ":ircserver 412 " + client._nickName + " :" + "\x03" + "04No text to send\r\n";
-		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-		return (false);
-	}
-	else
-		return true;
 }
 
 
