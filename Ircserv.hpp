@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/25 11:56:35 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/25 16:25:02 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,7 +135,9 @@ private:
 	void clientFinalRegistration(int clientFd);
 	bool checkIfChannelExist(std::string channel);
 	Client returnClientStruct(int clientFd);
-	channelsStruct returnChannelStruct(const std::string &channel);
+	Client& returnClientStructToModify(int clientFd);
+	Client& returnClientStructToModifyInChannel(int clientFd, std::string channel);
+	channelsStruct& returnChannelStruct(const std::string &channel);
 	int	returnClientFd(std::string clientNick);
 	void makeUserList(std::string channel);
 	void createNewChannel(const std::string& channelName);
@@ -195,6 +197,8 @@ private:
 	void checkCommandMode(std::istringstream &lineStream);
 	void commandModeChannel(std::string &channelName, std::string &modes, std::string &parameters);
 	void commandModeUser(std::string &targetNick, std::string &modes, std::string &parameters);
+	void changeClientToOperator(int clientFd, std::string channel);
+	bool isOperator(const int clientFd, const std::string &channel);
 	
 	
 

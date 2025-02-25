@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 15:40:35 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/24 17:53:11 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/25 16:33:16 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,7 +143,7 @@ void Ircserv::commandJoin(const std::string &channel)
 	if (!commandJoinCheck(channel))
 		return ;
 
-	Client client = returnClientStruct(_clientFd);
+	Client &client = returnClientStructToModify(_clientFd);
 	std::vector<std::string> channelsVec = splitString(channel, ',');
 
 	for (std::vector<std::string>::const_iterator it = channelsVec.begin(); \
@@ -156,6 +156,7 @@ void Ircserv::commandJoin(const std::string &channel)
 			std::cout << green << "Nao existe channel, criado um novo->" << tempChannel << "\n" << reset;
 			createNewChannel(tempChannel);
 			addClientToChannel(tempChannel, client);
+			changeClientToOperator(_clientFd, channel);
 			makeUserList(tempChannel);
 		}
 		else

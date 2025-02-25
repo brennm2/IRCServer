@@ -1,4 +1,52 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   mode.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/25 15:42:18 by bde-souz          #+#    #+#             */
+/*   Updated: 2025/02/25 16:34:19 by bde-souz         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../Ircserv.hpp"
+
+void Ircserv::changeClientToOperator(int clientFd, std::string channel)
+{
+	channelsStruct &tempChannel = returnChannelStruct(channel);
+	std::vector<Client> &clientsVec = tempChannel._clients;
+
+	for (std::vector<Client>::iterator it = clientsVec.begin(); \
+			it != clientsVec.end(); it++)
+	{
+		if(it->_fd == clientFd)
+		{
+			it->_isOperator = true;
+			return ;
+		}
+	}
+}
+
+bool Ircserv::isOperator(const int clientFd, const std::string &channel)
+{
+	channelsStruct tempChannel = returnChannelStruct(channel);
+	std::vector<Client> clientsVec = tempChannel._clients;
+
+	for (std::vector<Client>::iterator it = clientsVec.begin(); \
+			it != clientsVec.end(); it++)
+	{
+		if (it->_fd == clientFd)
+		{
+			if (!it->_isOperator)
+				return (false);
+			else
+				return (true);
+		}
+	}
+	return (false);
+}
+
 
 void Ircserv::checkCommandMode(std::istringstream &lineStream)
 {
