@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/25 13:40:12 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/25 17:40:58 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,9 +102,13 @@ void Ircserv::makeUserList(std::string channel)
 			const std::vector<Client>& clients = channelIt->_clients;
 
 			std::string nameList = ":ircserver 353 " + _clientsMap[_clientFd]._nickName + " @ " + channel + " :";
-			for (std::vector<Client>::const_iterator itVector = clients.begin(); itVector != clients.end(); itVector++)
+			for (std::vector<Client>::const_iterator itClient = clients.begin(); \
+				itClient != clients.end(); itClient++)
 			{
-				nameList += itVector->_nickName + " ";
+				if (isOperator(itClient->_fd, channel))
+					nameList += '@' + itClient->_nickName + " ";
+				else
+					nameList += itClient->_nickName + " ";
 			}
 			nameList += "\r\n";
 			broadcastMessageToChannel(nameList, channel);
@@ -119,10 +123,10 @@ void Ircserv::makeUserList(std::string channel)
 	throw std::runtime_error("No server was found!");
 }
 
-Ircserv::channelsStruct Ircserv::returnChannelStruct(const std::string &channel)
+Ircserv::channelsStruct& Ircserv::returnChannelStruct(const std::string &channel)
 {
 	// Procura o cliente no mapa
-	std::vector<channelsStruct>::const_iterator it = _channels.begin();
+	std::vector<channelsStruct>::iterator it = _channels.begin();
 	
 	while(it != _channels.end())
 	{
@@ -137,6 +141,8 @@ Ircserv::channelsStruct Ircserv::returnChannelStruct(const std::string &channel)
 }
 
 
+
+
 Ircserv::Client Ircserv::returnClientStruct(int clientFd)
 {
 	// Procura o cliente no mapa
@@ -148,6 +154,28 @@ Ircserv::Client Ircserv::returnClientStruct(int clientFd)
 		throw std::runtime_error("Client not found in returnClientStruct");
 	
 }
+
+Ircserv::Client& Ircserv::returnClientStructToModify(int clientFd)
+{
+	// Procura o cliente no mapa
+	std::map<int, Client>::iterator it = _clientsMap.find(clientFd);
+	
+	if (it != _clientsMap.end()) // Retorna a estrutura Client se encontrada
+		return it->second;
+	else // Lança uma exceção ou retorna um valor padrão se o cliente não for encontrado
+		throw std::runtime_error("Client not found in returnClientStruct");
+}
+
+// Ircserv::Client& Ircserv::returnClientStructToModifyInChannel(int clientFd, std::string channel)
+// {
+// 	// Procura o cliente no mapa
+// 	std::map<int, Client>::iterator it = _clientsMap.find(clientFd);
+	
+// 	if (it != _clientsMap.end()) // Retorna a estrutura Client se encontrada
+// 		return it->second;
+// 	else // Lança uma exceção ou retorna um valor padrão se o cliente não for encontrado
+// 		throw std::runtime_error("Client not found in returnClientStruct");
+// }
 
 int Ircserv::returnClientFd(std::string clientNick)
 {

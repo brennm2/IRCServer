@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/25 11:55:23 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/25 18:46:40 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,7 @@ void Ircserv::acceptClients()
 	pollfd server_pollfd;
 	server_pollfd.fd = _serverFd;
 	server_pollfd.events = POLLIN; // Listen for incoming connections
+	server_pollfd.revents = 0;
 	poll_fds.push_back(server_pollfd);
 
 	std::cout << green << "Server is listening for connections...\n" << reset;
@@ -139,6 +140,7 @@ void Ircserv::acceptClients()
 					pollfd client_pollfd;
 					client_pollfd.fd = clientFd;
 					client_pollfd.events = POLLIN; // Initially only listening for input
+					client_pollfd.revents = 0;
 					poll_fds.push_back(client_pollfd);
 
 					// Add client to map
@@ -308,6 +310,8 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 		// 	std::string errorMsg = "Error: Unknown command " + command + "\n";
 		// 	send(clientFd, errorMsg.c_str(), errorMsg.length(), 0);
 		// }
+		//#TODO commandInvite
+		//#TODO signals
 
 		lineStream.clear();
 		Client client = returnClientStruct(clientFd);

@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 13:26:55 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/24 18:30:18 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/25 17:31:06 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,12 @@ bool Ircserv::checkCommandKick(const std::string &channel, \
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return (false);
 	}
+	else if(!isOperator(_clientFd, channel))
+	{
+		std::string errMsg = ":ircserver 482 :" + client._nickName + " " + channel + " :You're not channel operator\r\n";
+		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+		return (false);
+	}
 	else if(true)
 	{
 		for(std::vector<std::string>::const_iterator it = clientsVec.begin(); \
@@ -72,11 +78,7 @@ bool Ircserv::checkCommandKick(const std::string &channel, \
 			}
 		}
 	}
-	
 	return (true);
-
-	//#TODO ERR_CHANOPRIVSNEEDED (482)
-	
 }
 
 void Ircserv::commandKick(std::istringstream &lineStream)

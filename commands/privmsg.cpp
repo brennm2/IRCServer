@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:44:14 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/25 15:31:53 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/25 18:53:07 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 bool Ircserv::privMsgSintaxCheck(std::string firstWord, std::string target)
 {
-	if (target[0] == ':')
+	if (target[0] == ':' || target[0] == '\0')
 	{
 		Client client = returnClientStruct(_clientFd);
 		std::string errMsg = ":ircserver 411 " + client._nickName + " :" + "\x03" + "04No recipient given\r\n";
@@ -43,7 +43,6 @@ bool Ircserv::privMsgSintaxCheck(std::string firstWord, std::string target)
 
 void Ircserv::commandPrivMSG(std::istringstream &lineStream)
 {
-	//#TODO Do the multiple PRIVMSG
 	std::string target, message, tartg;
 	lineStream >> target;
 	lineStream >> std::ws;

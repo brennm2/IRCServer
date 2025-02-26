@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channelControl.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:07:24 by diogosan          #+#    #+#             */
-/*   Updated: 2025/02/24 17:52:54 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/26 16:30:33 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,7 @@ void Ircserv::checkCommandTopic(std::istringstream &lineStream)
 
 void Ircserv::commandTopic(std::string &channelName, std::string &newTopic)
 {
+	// Find the channel
 	std::vector<channelsStruct>::iterator It = _channels.begin();
 	while (It != _channels.end())
 	{
@@ -116,7 +117,7 @@ void Ircserv::commandTopic(std::string &channelName, std::string &newTopic)
 		return;
 	}
 
-	Client client = returnClientStruct(_clientFd);
+	// Check if client is in the channel
 	if (!checkIfClientInChannel(channelName, _clientFd))
 	{
 		std::string errMsg = ":ircserver 442 " + channelName + " :User is not in the channel!\r\n";
@@ -124,6 +125,19 @@ void Ircserv::commandTopic(std::string &channelName, std::string &newTopic)
 		return;
 	}
 
+	// Check if +t topic lock is enabled
+	if (It->_isTopicLocked)
+	{	
+		// If +t is set and user is not operator, deny topic change
+		if (!isOperator(_clientFd, channelName))
+		{
+			std::string errMsg = ":ircserver 482 " + channelName + " :You're not channel operator\r\n";
+			send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+			return;
+		}
+	}
+
+	Client client = returnClientStruct(_clientFd);
 	newTopic.erase(0, 1);
 	std::string topicChange = ":" + client._nickName + "!" + client._userName + "@localhost TOPIC " + channelName + " :" + newTopic + "\r\n";
 	broadcastMessageToChannel(topicChange, channelName);
