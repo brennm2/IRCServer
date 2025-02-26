@@ -26,6 +26,8 @@ SRC = main.cpp \
 	commands/privmsg.cpp \
 	commands/quit.cpp \
 	commands/mode.cpp \
+	commands/kick.cpp \
+
 
 
 OBJ = $(SRC:.cpp=.o)
@@ -42,6 +44,9 @@ go:
 	make re;
 	./ircserv 6667 asd
 	
+govalgrind:
+	make;
+	valgrind ./ircserv 6667 asd
 clean: 
 	$(RM) $(RMFLAGS) $(OBJ)
 	$(RM) $(RMFLAGS) -r

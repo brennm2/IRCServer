@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/13 18:32:14 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/25 13:40:12 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,11 +53,10 @@ bool Ircserv::checkIfClientInServerByNick(std::string clientNick)
 	return (false);
 }
 
-bool Ircserv::checkIfClientInChannel(const std::vector<channelsStruct>& channels, const std::string& channel, int clientFd)
+bool Ircserv::checkIfClientInChannel(const std::string& channel, int clientFd)
 {
-	// Itera sobre o vetor de canais
-	std::vector<channelsStruct>::const_iterator channelIt = channels.begin();
-	while (channelIt != channels.end())
+	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
+	while (channelIt != _channels.end())
 	{
 		if (channelIt->_channelName == channel)
 		{
@@ -65,10 +64,27 @@ bool Ircserv::checkIfClientInChannel(const std::vector<channelsStruct>& channels
 			for (std::vector<Client>::const_iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
 			{
 				if (clientIt->_fd == clientFd)
-				{
-					// std::cout << "Client FD: " << clientIt->_fd << " found in channel: " << channel << "\n";
 					return true;
-				}
+			}
+		}
+		++channelIt;
+	}
+	return false;
+}
+
+
+bool Ircserv::checkIfClientInChannelByNick(const std::string& channel, const std::string& clientNick)
+{
+	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
+	while (channelIt != _channels.end())
+	{
+		if (channelIt->_channelName == channel)
+		{
+			const std::vector<Client>& clients = channelIt->_clients;
+			for (std::vector<Client>::const_iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
+			{
+				if (clientIt->_nickName == clientNick)
+					return true;
 			}
 		}
 		++channelIt;
@@ -88,12 +104,9 @@ void Ircserv::makeUserList(std::string channel)
 			std::string nameList = ":ircserver 353 " + _clientsMap[_clientFd]._nickName + " @ " + channel + " :";
 			for (std::vector<Client>::const_iterator itVector = clients.begin(); itVector != clients.end(); itVector++)
 			{
-				std::cout << red << "ENTROU" << "\n" << reset;
 				nameList += itVector->_nickName + " ";
-				std::cout << "NICK->" << itVector->_nickName << "\n";
 			}
 			nameList += "\r\n";
-			std::cout << "NameList->" << nameList << "\n";
 			broadcastMessageToChannel(nameList, channel);
 
 			std::string endOfNames = ":ircserver 366 " + _clientsMap[_clientFd]._nickName + " " + channel + " :End of /NAMES list.\r\n";
@@ -106,6 +119,24 @@ void Ircserv::makeUserList(std::string channel)
 	throw std::runtime_error("No server was found!");
 }
 
+Ircserv::channelsStruct Ircserv::returnChannelStruct(const std::string &channel)
+{
+	// Procura o cliente no mapa
+	std::vector<channelsStruct>::const_iterator it = _channels.begin();
+	
+	while(it != _channels.end())
+	{
+		if (it->_channelName == channel)
+			return *it;
+		else
+			it++;
+	}
+	// Lança uma exceção ou retorna um valor padrão se o cliente não for encontrado
+	throw std::runtime_error("Channel not found in returnChannelStruct");
+	
+}
+
+
 Ircserv::Client Ircserv::returnClientStruct(int clientFd)
 {
 	// Procura o cliente no mapa
@@ -114,7 +145,7 @@ Ircserv::Client Ircserv::returnClientStruct(int clientFd)
 	if (it != _clientsMap.end()) // Retorna a estrutura Client se encontrada
 		return it->second;
 	else // Lança uma exceção ou retorna um valor padrão se o cliente não for encontrado
-		throw std::runtime_error("Client not found");
+		throw std::runtime_error("Client not found in returnClientStruct");
 	
 }
 
@@ -131,10 +162,10 @@ int Ircserv::returnClientFd(std::string clientNick)
 			clientIt++;
 		}
 		//Se nao encontrar nick name no ClientsMap, entao da throw
-		throw std::runtime_error("No nickName found in function returnClientFd");
+		throw std::runtime_error("No nickName found in function returnClientFd, nick->" + clientNick + "<- End Nick");
 	}
 	else
-		throw std::runtime_error("No client map in function returnClientFd");
+		throw std::runtime_error("No client map in function returnClientFd, nick->" + clientNick + "<- End Nick");
 }
 
 
@@ -215,36 +246,6 @@ void Ircserv::broadcastMessagePrivate(const std::string &message, const std::str
 	//std::cout << targetMessage << "\n";
 
 //	send(clientSender._fd, senderMessage.c_str(), senderMessage.size(), 0);
-}
-
-
-bool Ircserv::privMsgSintaxCheck(std::string firstWord, std::string target)
-{
-	if (target[0] == ':')
-	{
-		Client client = returnClientStruct(_clientFd);
-		std::string errMsg = ":ircserver 411 " + client._nickName + " :" + "\x03" + "04No recipient given\r\n";
-		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-		return false;
-	}
-	//Se a primeira letra nao for ':', entao retorna error de sintax (esse error nao existe no IRC, error 407 (too many targets))
-	else if (firstWord[0] != ':')
-	{
-		Client client = returnClientStruct(_clientFd);
-		std::string errMsg = ":ircserver 407 " + client._nickName + " :" + "\x03" + "04Sintax Error (/PRIVMSG NICK :MESSAGE)\r\n";
-		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-		return (false);
-	}
-	//Se a primeira letra for ':' e nao existir mais nada a frente, entao nao existe texto (error 412)
-	else if (firstWord[0] == ':' && firstWord[1] == '\0')
-	{
-		Client client = returnClientStruct(_clientFd);
-		std::string errMsg = ":ircserver 412 " + client._nickName + " :" + "\x03" + "04No text to send\r\n";
-		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-		return (false);
-	}
-	else
-		return true;
 }
 
 
@@ -374,5 +375,24 @@ void Ircserv::removeClientFromEveryChannel(int clientFd)
 		}
 		++channelIt;
 	}
+}
+
+std::vector<std::string> Ircserv::splitString(const std::string &str, char delimiter)
+{
+	std::vector<std::string> tokens;
+	std::stringstream ss(str);
+	std::string tempStr;
+
+	while(std::getline(ss, tempStr, delimiter))
+	{
+		if (!tempStr.empty())
+		{
+			if (tempStr[tempStr.size() - 1] == '\r')
+				tempStr.erase(tempStr.size() - 1);
+			tokens.push_back(tempStr);
+			std::cout << green <<"Token pushback->" << tempStr << reset << "\n";
+		}
+	}
+	return (tokens);
 }
 

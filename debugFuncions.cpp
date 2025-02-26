@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/29 17:14:04 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/13 17:52:08 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/18 20:23:45 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,24 @@ void Ircserv::debugShowChannelsInfo()
 			std::cout << cyan << "-- Start of Channel -- " << "\n" << reset;
 
 			std::cout << "Channel: " << channel->_channelName << std::endl;
-			for (std::vector<Client>::const_iterator clients = channel->_clients.begin(); clients != channel->_clients.end(); ++clients)
+			std::cout << "Channel Topic: " << channel->_channelTopic << std::endl;
+			std::cout << "Channel is Private: " << channel->_isPrivate << std::endl;
+			std::cout << "Clients Fd how can join: ";
+			for (std::vector<int>::const_iterator fd = channel->_clientsFdInvite.begin(); \
+				fd != channel->_clientsFdInvite.end(); ++fd)
+			{
+				std::cout << *fd << " - ";
+			}
+			std::cout << "\nClients Fd how is banned: ";
+			for (std::vector<int>::const_iterator fd = channel->_clientsBanned.begin(); \
+				fd != channel->_clientsBanned.end(); ++fd)
+			{
+				std::cout << *fd << " - ";
+			}
+			std::cout << "\n";
+			std::cout << yellow << "-- Start Clients --" << "\n" << reset;
+			for (std::vector<Client>::const_iterator clients = channel->_clients.begin(); \
+				clients != channel->_clients.end(); ++clients)
 			{
 				std::cout << "Client FD: " << clients->_fd << "\n";
 				std::cout << "Client Nick: " << clients->_nickName << "\n";

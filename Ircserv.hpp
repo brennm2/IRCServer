@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/25 11:44:19 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/02/25 17:21:44 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <cerrno>
+#include <algorithm>
 
 
 // COLORS //
@@ -65,27 +66,26 @@ class Ircserv
 };
 
 private:
-		struct channelsStruct
-		{
-			std::string			_channelName;
-			std::string			_channelTopic;
-			std::vector<Client> _clients;
-			std::vector<int>	_clientsFdInvite;
+	struct channelsStruct
+	{
+		std::string			_channelName;
+		std::string			_channelTopic;
+		std::vector<Client> _clients;
+		std::vector<int>	_clientsFdInvite;
+		std::vector<int>	_clientsBanned;
 
-			bool				_isPrivate;
+
+		bool				_isPrivate;
 
 		channelsStruct() :_channelName(), _channelTopic(), _clients(), \
-			_clientsFdInvite(), _isPrivate(false) \
-			{}
-};
+		_clientsFdInvite(), _clientsBanned(), _isPrivate(false) \
+		{}
+	};
 		
-		std::vector<channelsStruct> _channels;
-		
-		std::map<std::string, std::string > _channelTopics;
-		
-		std::map<int, Client> _clientsMap;
-
-		std::vector<pollfd> poll_fds;
+	std::vector<channelsStruct> _channels;
+	std::map<std::string, std::string > _channelTopics;
+	std::map<int, Client> _clientsMap;
+	std::vector<pollfd> poll_fds;
 
 	std::string		_password;
 	unsigned int	_port;
@@ -99,45 +99,49 @@ private:
 
 
 
-		bool _checkStartPass(const std::string& pass);
-		bool _checkStartPort(const unsigned int port);
-	
+	bool _checkStartPass(const std::string& pass);
+	bool _checkStartPort(const unsigned int port);
 
-		std::string _getChannelTopic(std::string channel);
-		void 		_changeChannelTopic(std::string &channel, std::string &newTopic);
+
+	std::string _getChannelTopic(std::string channel);
+	void 		_changeChannelTopic(std::string &channel, std::string &newTopic);
 
 	public:
 
 
-		void createServer(const std::string& pass, unsigned int port);
-		void acceptClients();
+	void createServer(const std::string& pass, unsigned int port);
+	void acceptClients();
 
-		//Lida com as mensagens
-		void bufferReader(int clientFd, char *buffer);
+	//Lida com as mensagens
+	void bufferReader(int clientFd, char *buffer);
 
 
-		//Commands
-		void commandJoin(const std::string &channel);
-			void commandUser(std::istringstream &lineStream);
-		//-------------------mudkip------------------
-		void commandPart(std::string &channelName); 
-		void checkCommandPart(std::istringstream &lineStream);
-		void commandTopic(std::string &channelName, std::string &newTopic);
-		void checkCommandTopic(std::istringstream &lineStream);
-		void commandPrivMSG(std::istringstream &lineStream);
+	//Commands
+	void commandJoin(const std::string &channel);
+	void commandUser(std::istringstream &lineStream);
+	//-------------------mudkip------------------
+	void commandPart(std::string &channelName); 
+	void checkCommandPart(std::istringstream &lineStream);
+	void commandTopic(std::string &channelName, std::string &newTopic);
+	void checkCommandTopic(std::istringstream &lineStream);
+	void commandPrivMSG(std::istringstream &lineStream);
 
 	//Help Functions
-	bool checkIfClientInChannel(const std::vector<channelsStruct>& channels, \
-		const std::string& channel, int clientFd);
+	bool checkIfClientInChannel(const std::string& channel, int clientFd);
+	bool checkIfClientInChannelByNick(const std::string& channel, \
+		const std::string& clientNick);
 	bool checkIfClientInServer(int clientFd);
 	bool checkIfClientInServerByNick(std::string clientNick);
 	void clientFinalRegistration(int clientFd);
 	bool checkIfChannelExist(std::string channel);
 	Client returnClientStruct(int clientFd);
-		void makeUserList(std::string channel);
+	channelsStruct returnChannelStruct(const std::string &channel);
 	int	returnClientFd(std::string clientNick);
+	void makeUserList(std::string channel);
 	void createNewChannel(const std::string& channelName);
 	void addClientToChannel(const std::string& channelName, const Client& client);
+	std::vector<std::string> splitString(const std::string &str, char delimiter);
+
 	
 
 
@@ -173,6 +177,9 @@ private:
 
 	//Command Join
 	bool commandJoinCheck(const std::string &channel);
+	bool commandJoinCheckExistingChannel(const std::string &tempChannel, const Client &client);
+	bool checkIfClientCanJoinPrivChannel(const int &clientFd, const std::string &channel);
+	bool checkIfClientCanJoinBannedChannel(const int &clientFd, const std::string &channel);
 
 	//Command MTDO
 	void commandMtdo();
@@ -180,11 +187,16 @@ private:
 	//Command Quit
 	void commandQuit(std::istringstream &lineStream);
 
+	//Command Kick
+	void commandKick(std::istringstream &lineStream);
+	bool checkCommandKick(const std::string &channel, const std::vector<std::string> &clientsVec);
+
 	// Command Mode
 	void checkCommandMode(std::istringstream &lineStream);
 	void commandModeChannel(std::string &channelName, std::string &modes, std::string &parameters);
 	void commandModeUser(std::string &targetNick, std::string &modes, std::string &parameters);
-	
+	void applyChannelModes(std::string &channelName, std::string &modes, std::string &parameters);
+	void applyUserModes(std::string &targetNick, std::string &modes, std::string &parameters);
 	
 
 	//Debug
@@ -194,13 +206,10 @@ private:
 	void debugShowSpecificClient(Client client);
 
 
-		//Visual Functions
-		void visualLoadingServer(void);
+	//Visual Functions
+	void visualLoadingServer(void);
 
-		//utils diogo
-		std::vector<Client>::iterator LookClientInChannel(std::string channel);
-		
-	
+	//utils diogo
+	std::vector<Client>::iterator LookClientInChannel(std::string channel);
 
-		
 } ;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Ircserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/25 11:29:02 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/02/25 11:55:23 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -218,8 +218,8 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 		
 		if (command == "JOIN")
 		{
-			// if (!clientCanUseCommands(clientFd))
-			// 	continue ;
+			if (!clientCanUseCommands(clientFd))
+				continue ;
 			std::string channelName;
 			lineStream >> channelName;
 			
@@ -284,6 +284,13 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 
 			return ;
 		}
+		if (command == "KICK")
+		{
+			if (!clientCanUseCommands(clientFd))
+				continue ;
+			
+			commandKick(lineStream);
+		}
 
 		else if (command == "DDEBUG")
 		{
@@ -311,42 +318,7 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 }
 
 //Commands
-void Ircserv::commandJoin(const std::string &channel)
-{
-	if (!commandJoinCheck(channel))
-		return ;
 
-	Client client = returnClientStruct(_clientFd);
-	//Se nao existir, cria um novo canal
-	if (!checkIfChannelExist(channel))
-	{
-		std::cout << green << "Nao existe channel, criado um novo" << channel << "\n" << reset;
-		createNewChannel(channel);
-		addClientToChannel(channel, client);
-		makeUserList(channel);
-		return ;
-	}
-	else
-	{
-		//Verifica se ja existe o clientFd igual no canal, caso nao tenha, coloque na lista
-		if (!checkIfClientInChannel(_channels, channel, _clientFd))
-		{
-			addClientToChannel(channel, client);
-		}
-	}
-	
-	//Mensagem de confirmacao para dar JOIN
-	std::string testeMsg = ":" + _clientsMap[_clientFd]._nickName + "!" + _clientsMap[_clientFd]._userName + "@localhost JOIN " + channel + "\r\n";
-	send(_clientFd, testeMsg.c_str(), testeMsg.size(), 0);
-
-
-	std::string msgTopic = ":ircserver 332 " + _clientsMap[_clientFd]._nickName + " " + channel + " :" + _getChannelTopic(channel) + "\r\n";
-	send(_clientFd, msgTopic.c_str(), msgTopic.size(), 0);
-
-	makeUserList(channel);
-
-	return ;
-}
 
 
 bool Ircserv::_checkStartPass(const std::string& pass)
