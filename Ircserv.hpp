@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/25 16:25:02 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/26 11:33:53 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,7 +199,8 @@ private:
 	void commandModeUser(std::string &targetNick, std::string &modes, std::string &parameters);
 	void changeClientToOperator(int clientFd, std::string channel);
 	bool isOperator(const int clientFd, const std::string &channel);
-	
+	void applyChannelModes(std::string &channelName, std::string &modes, std::string &parameters);
+	void applyUserModes(std::string &targetNick, std::string &modes, std::string &parameters);
 	
 
 	//Debug
