@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mode.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 10:25:52 by diodos-s          #+#    #+#             */
-/*   Updated: 2025/02/26 11:34:11 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/26 17:16:06 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,8 @@ void Ircserv::checkCommandMode(std::istringstream &lineStream)
 
 void Ircserv::commandModeChannel(std::string &channelName, std::string &modes, std::string &parameters)
 {
+	Client client = returnClientStruct(_clientFd);
+	
 	std::vector<channelsStruct>::iterator channelIt = _channels.begin();
 	while (channelIt != _channels.end())
 	{
@@ -117,18 +119,16 @@ void Ircserv::commandModeChannel(std::string &channelName, std::string &modes, s
 		return;
 	}
 	
-	for (std::vector<Client>::const_iterator clients = channelIt->_clients.begin(); clients != channelIt->_clients.end(); ++clients)
+	// Check if client is operator for mode restricted commands
+	if (!isOperator(_clientFd, channelName))
 	{
-	// Check if the client is an operator (for mode-restricted commands)
-	// if (!clients->_isOperator)
-    // {
-    //     std::string errMsg = ":ircserver 482 " + channelName + " :You're not channel operator\r\n";
-    //     send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-    //     return;
-    // }
-		std::string modeChangeMsg = ":" + clients->_nickName + "!" + clients->_userName + "@localhost MODE " + channelName + " " + modes + " " + parameters + "\r\n";
-		broadcastMessageToChannel(modeChangeMsg, channelName);
+		std::string errMsg = ":ircserver 482 " + client._nickName + " " + channelName + " :You're not channel operator\r\n";
+		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+		return;
 	}
+	
+	std::string modeChangeMsg = ":" + client._nickName + "!" + client._userName + "@localhost MODE " + channelName + " " + modes + " " + parameters + "\r\n";
+	broadcastMessageToChannel(modeChangeMsg, channelName);
 
 	// Apply mode changes
 	applyChannelModes(channelName, modes, parameters);
@@ -196,7 +196,7 @@ void Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 				break;
 
 			case 't': //Topic lock mode (only ops can change topic)
-				channel->_channelTopic = adding ? "LOCKED" : "";
+				channel->_isTopicLocked = adding;
 				break;
 
 			case 'k':
