@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/27 11:17:46 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/27 11:23:39 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,13 +74,13 @@ private:
 		std::vector<Client> _clients;
 		std::vector<int>	_clientsFdInvite;
 		std::vector<int>	_clientsBanned;
-
+		bool				_isTopicLocked;
 		bool				_isPrivate;
 		bool				_hasPassword;
 
 		channelsStruct() :_channelName(), _channelTopic(), _channelPassword(), \
 		_clients(), _clientsFdInvite(), \
-		_clientsBanned(), _isPrivate(false), \
+		_clientsBanned(), _isTopicLocked(false), _isPrivate(false), \
 		_hasPassword(false) \
 		{}
 	};
