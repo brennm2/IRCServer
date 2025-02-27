@@ -27,6 +27,7 @@ SRC = main.cpp \
 	commands/quit.cpp \
 	commands/mode.cpp \
 	commands/kick.cpp \
+	commands/invite.cpp \
 
 
 

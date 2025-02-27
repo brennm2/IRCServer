@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/26 14:41:23 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/27 12:16:16 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -305,6 +305,15 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 			if (!clientCanUseCommands(clientFd))
 				continue;
 			checkCommandMode(lineStream);
+		}
+		else if(command == "INVITE")
+		{
+			if (!clientCanUseCommands(clientFd))
+				continue;
+			std::string clients, channels;
+			lineStream >> clients;
+			lineStream >> channels;
+			commandInvite (clients, channels);
 		}
 		// else
 		// {

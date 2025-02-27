@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 15:40:35 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/27 11:18:21 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/27 17:47:34 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ bool Ircserv::checkIfClientCanJoinPrivChannel(const int &clientFd, const std::st
 	channelsStruct channelTmp = returnChannelStruct(channel);
 	if (channelTmp._isPrivate)
 	{
+		std::cout << blue << "ENTROU AQUI" << "\n" << reset;
 		std::vector<int> clientsFdInvite = channelTmp._clientsFdInvite;
 		std::vector<int>::iterator it = std::find(clientsFdInvite.begin(), clientsFdInvite.end(), clientFd);
 		
@@ -116,8 +117,6 @@ bool Ircserv::commandJoinCheck(const std::string &channel)
 	}
 	return (true);
 
-	//#TODO ERR_BADCHANNELKEY (475) maybe?
-
 	//#TODO RPL_TOPICWHOTIME (333)
 
 }
@@ -142,7 +141,6 @@ bool Ircserv::commandJoinCheckExistingChannel(const std::string &tempChannel, \
 	}
 	else if (checkIfChannelHasPassword(tempChannel))
 	{
-		std::cout << red << "ENTROU AQUI" << "\n" << reset;
 		if (keyVecIt != endVec && \
 			!emptyKeyFlag && \
 			checkIfChannelHasCorrectPassword(tempChannel, *keyVecIt))

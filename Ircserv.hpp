@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/27 11:23:39 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/27 17:55:15 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ private:
 
 		channelsStruct() :_channelName(), _channelTopic(), _channelPassword(), \
 		_clients(), _clientsFdInvite(), \
-		_clientsBanned(), _isTopicLocked(false), _isPrivate(false), \
+		_clientsBanned(), _isTopicLocked(false), _isPrivate(true), \
 		_hasPassword(false) \
 		{}
 	};
@@ -207,6 +207,13 @@ private:
 	bool isOperator(const int clientFd, const std::string &channel);
 	void applyChannelModes(std::string &channelName, std::string &modes, std::string &parameters);
 	void applyUserModes(std::string &targetNick, std::string &modes, std::string &parameters);
+
+	// Command Invite
+	void commandInvite(const std::string &clients, const std::string &channels);
+	void placeClientInChannelInvite(const int &clientFd, const std::string &channel);
+	void brodcastInviteMessage(const Client &clientTarget, const std::string &channels);
+	bool checkCommandInvite(const std::string &target, const std::string &channel);
+
 	
 
 	//Debug
