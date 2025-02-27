@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/27 11:52:20 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/02/27 16:58:16 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,7 +204,7 @@ private:
 	void commandModeChannel(std::string &channelName, std::string &modes, std::string &parameters);
 	void changeClientToOperator(int clientFd, std::string channel);
 	bool isOperator(const int clientFd, const std::string &channel);
-	void applyChannelModes(std::string &channelName, std::string &modes, std::string &parameters);	
+	bool applyChannelModes(std::string &channelName, std::string &modes, std::string &parameters);	
 
 	//Debug
 	void debugShowChannelsInfo();
