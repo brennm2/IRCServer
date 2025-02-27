@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 10:25:52 by diodos-s          #+#    #+#             */
-/*   Updated: 2025/02/26 17:16:06 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/02/27 10:42:12 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,7 +122,7 @@ void Ircserv::commandModeChannel(std::string &channelName, std::string &modes, s
 	// Check if client is operator for mode restricted commands
 	if (!isOperator(_clientFd, channelName))
 	{
-		std::string errMsg = ":ircserver 482 " + client._nickName + " " + channelName + " :You're not channel operator\r\n";
+		std::string errMsg = ":ircserver 482 " + channelName + " :You're not channel operator\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return;
 	}
@@ -205,7 +205,7 @@ void Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 					paramStream >> param;
 					if (param.empty())
 					{
-						std::string errMsg = ":ircserv 461 " + channelName + " k :Not enough parameters\r\n";
+						std::string errMsg = ":ircserv 461 " + modes + " :Not enough parameters\r\n";
 						send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
                         return;
 					}
