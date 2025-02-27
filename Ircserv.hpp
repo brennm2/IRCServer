@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Ircserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/27 11:23:39 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/27 11:52:20 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,12 +202,9 @@ private:
 	// Command Mode
 	void checkCommandMode(std::istringstream &lineStream);
 	void commandModeChannel(std::string &channelName, std::string &modes, std::string &parameters);
-	void commandModeUser(std::string &targetNick, std::string &modes, std::string &parameters);
 	void changeClientToOperator(int clientFd, std::string channel);
 	bool isOperator(const int clientFd, const std::string &channel);
-	void applyChannelModes(std::string &channelName, std::string &modes, std::string &parameters);
-	void applyUserModes(std::string &targetNick, std::string &modes, std::string &parameters);
-	
+	void applyChannelModes(std::string &channelName, std::string &modes, std::string &parameters);	
 
 	//Debug
 	void debugShowChannelsInfo();

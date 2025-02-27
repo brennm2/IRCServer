@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   kick.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 13:26:55 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/25 17:31:06 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/27 14:56:27 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ bool Ircserv::checkCommandKick(const std::string &channel, \
 	}
 	else if(!isOperator(_clientFd, channel))
 	{
-		std::string errMsg = ":ircserver 482 :" + client._nickName + " " + channel + " :You're not channel operator\r\n";
+		std::string errMsg = ":ircserver 482 " + client._nickName + " " + channel + " :You're not channel operator\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return (false);
 	}
