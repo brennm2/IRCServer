@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 15:40:35 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/26 18:43:34 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/27 11:18:21 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,15 +174,9 @@ void Ircserv::commandJoin(const std::string &channel, const std::string &key)
 	keyVec = splitString(key, ',');
 
 	if (!key.empty())
-	{
-		std::cout << blue << "KEY IS NOT EMPTY" << "\n" << reset;
 		keyVecIt = keyVec.begin();
-	}
 	else
-	{
 		emptyKeyFlag = true;
-		std::cout << red << "KEY IS EMPTY" << "\n" << reset;
-	}
 
 	for (std::vector<std::string>::const_iterator it = channelsVec.begin(); \
 			it != channelsVec.end(); it++)

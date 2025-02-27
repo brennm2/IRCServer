@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/26 18:41:48 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/27 11:17:46 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,10 +78,10 @@ private:
 		bool				_isPrivate;
 		bool				_hasPassword;
 
-		channelsStruct() :_channelName(), _channelTopic(), _channelPassword("123"), \
+		channelsStruct() :_channelName(), _channelTopic(), _channelPassword(), \
 		_clients(), _clientsFdInvite(), \
 		_clientsBanned(), _isPrivate(false), \
-		_hasPassword(true) \
+		_hasPassword(false) \
 		{}
 	};
 		
