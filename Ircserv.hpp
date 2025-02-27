@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/26 14:07:50 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/02/27 11:52:20 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,15 +70,18 @@ private:
 	{
 		std::string			_channelName;
 		std::string			_channelTopic;
+		std::string			_channelPassword;
 		std::vector<Client> _clients;
 		std::vector<int>	_clientsFdInvite;
 		std::vector<int>	_clientsBanned;
-
 		bool				_isTopicLocked;
 		bool				_isPrivate;
+		bool				_hasPassword;
 
-		channelsStruct() :_channelName(), _channelTopic(), _clients(), \
-		_clientsFdInvite(), _clientsBanned(), _isTopicLocked(false), _isPrivate(false) \
+		channelsStruct() :_channelName(), _channelTopic(), _channelPassword(), \
+		_clients(), _clientsFdInvite(), \
+		_clientsBanned(), _isTopicLocked(false), _isPrivate(false), \
+		_hasPassword(false) \
 		{}
 	};
 		
@@ -117,7 +120,6 @@ private:
 
 
 	//Commands
-	void commandJoin(const std::string &channel);
 	void commandUser(std::istringstream &lineStream);
 	//-------------------mudkip------------------
 	void commandPart(std::string &channelName); 
@@ -178,11 +180,15 @@ private:
 	void commandPing(std::string token);
 
 	//Command Join
+	void commandJoin(const std::string &channel, const std::string &key);
 	bool commandJoinCheck(const std::string &channel);
-	bool commandJoinCheckExistingChannel(const std::string &tempChannel, const Client &client);
+	bool commandJoinCheckExistingChannel(const std::string &tempChannel, \
+		const Client &client, std::vector<std::string>::iterator &keyVecIt, \
+			const std::vector<std::string>::const_iterator &endVec, bool emptyKeyFlag);
 	bool checkIfClientCanJoinPrivChannel(const int &clientFd, const std::string &channel);
 	bool checkIfClientCanJoinBannedChannel(const int &clientFd, const std::string &channel);
-
+	bool checkIfChannelHasPassword(const std::string &channel);
+	bool checkIfChannelHasCorrectPassword(const std::string &channel, const std::string &password);
 	//Command MTDO
 	void commandMtdo();
 
@@ -196,12 +202,9 @@ private:
 	// Command Mode
 	void checkCommandMode(std::istringstream &lineStream);
 	void commandModeChannel(std::string &channelName, std::string &modes, std::string &parameters);
-	void commandModeUser(std::string &targetNick, std::string &modes, std::string &parameters);
 	void changeClientToOperator(int clientFd, std::string channel);
 	bool isOperator(const int clientFd, const std::string &channel);
-	void applyChannelModes(std::string &channelName, std::string &modes, std::string &parameters);
-	void applyUserModes(std::string &targetNick, std::string &modes, std::string &parameters);
-	
+	void applyChannelModes(std::string &channelName, std::string &modes, std::string &parameters);	
 
 	//Debug
 	void debugShowChannelsInfo();

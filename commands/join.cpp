@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 15:40:35 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/25 18:10:03 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/27 11:18:21 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,24 @@ bool Ircserv::checkIfClientCanJoinPrivChannel(const int &clientFd, const std::st
 		return (true);
 }
 
+bool Ircserv::checkIfChannelHasPassword(const std::string &channel)
+{
+	channelsStruct channelTemp = returnChannelStruct(channel);
+	if (!channelTemp._hasPassword)
+		return (false);
+	else
+		return (true);
+}
+
+bool Ircserv::checkIfChannelHasCorrectPassword(const std::string &channel, const std::string &password)
+{
+	channelsStruct channelTemp = returnChannelStruct(channel);
+	if (channelTemp._channelPassword == password)
+		return (true);
+	else
+		return (false);
+}
+
 bool Ircserv::commandJoinCheck(const std::string &channel)
 {
 	Client client = returnClientStruct(_clientFd);
@@ -92,7 +110,6 @@ bool Ircserv::commandJoinCheck(const std::string &channel)
 	}
 	else if (channel[0] == '\0')
 	{
-		//Not enough parameters
 		std::string errMsg = ":ircserver 461 " + client._nickName + " JOIN " + channel + " :Not enough parameters\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return false;
@@ -105,7 +122,11 @@ bool Ircserv::commandJoinCheck(const std::string &channel)
 
 }
 
-bool Ircserv::commandJoinCheckExistingChannel(const std::string &tempChannel, const Client &client)
+bool Ircserv::commandJoinCheckExistingChannel(const std::string &tempChannel, \
+	const Client &client, \
+	std::vector<std::string>::iterator &keyVecIt,
+	const std::vector<std::string>::const_iterator &endVec, \
+	bool emptyKeyFlag)
 {
 	if (!checkIfClientCanJoinPrivChannel(_clientFd, tempChannel))
 	{
@@ -119,16 +140,43 @@ bool Ircserv::commandJoinCheckExistingChannel(const std::string &tempChannel, co
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return (false);
 	}
+	else if (checkIfChannelHasPassword(tempChannel))
+	{
+		std::cout << red << "ENTROU AQUI" << "\n" << reset;
+		if (keyVecIt != endVec && \
+			!emptyKeyFlag && \
+			checkIfChannelHasCorrectPassword(tempChannel, *keyVecIt))
+		{
+			keyVecIt++;
+			return(true);
+		}
+		else
+		{
+			if(!emptyKeyFlag && keyVecIt != endVec)
+				keyVecIt++;
+			std::string errMsg = ":ircserver 475 " + client._nickName + " " + tempChannel + " :Cannot join channel (+k)\r\n";
+			send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+			return (false);
+		}
+	}
 	else
 		return (true);
 }
 
 
-void Ircserv::commandJoin(const std::string &channel)
+void Ircserv::commandJoin(const std::string &channel, const std::string &key)
 {
-
 	Client &client = returnClientStructToModify(_clientFd);
 	std::vector<std::string> channelsVec = splitString(channel, ',');
+	std::vector<std::string> keyVec;
+	std::vector<std::string>::iterator keyVecIt;
+	bool					emptyKeyFlag = false;
+	keyVec = splitString(key, ',');
+
+	if (!key.empty())
+		keyVecIt = keyVec.begin();
+	else
+		emptyKeyFlag = true;
 
 	for (std::vector<std::string>::const_iterator it = channelsVec.begin(); \
 			it != channelsVec.end(); it++)
@@ -147,8 +195,8 @@ void Ircserv::commandJoin(const std::string &channel)
 		}
 		else
 		{
-			if (!commandJoinCheckExistingChannel(tempChannel, client))
-				return ;
+			if (!commandJoinCheckExistingChannel(tempChannel, client, keyVecIt, keyVec.end() ,emptyKeyFlag))
+				continue;
 			//Verifica se ja existe o clientFd igual no canal, caso nao tenha, coloque na lista
 			if (!checkIfClientInChannel(tempChannel, _clientFd))
 				addClientToChannel(tempChannel, client);

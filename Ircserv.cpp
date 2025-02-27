@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/25 18:46:40 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/02/26 14:41:23 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,10 +222,11 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 		{
 			if (!clientCanUseCommands(clientFd))
 				continue ;
-			std::string channelName;
+			std::string channelName, key;
 			lineStream >> channelName;
+			lineStream >> key;
 			
-			commandJoin(channelName);
+			commandJoin(channelName, key);
 		}
 		else if (command == "PART")
 		{

@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 10:25:52 by diodos-s          #+#    #+#             */
-/*   Updated: 2025/02/27 10:42:12 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/02/27 15:05:30 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,13 +50,15 @@ bool Ircserv::isOperator(const int clientFd, const std::string &channel)
 
 void Ircserv::checkCommandMode(std::istringstream &lineStream)
 {
+	Client client = returnClientStruct(_clientFd);
+	
 	std::string target, modes, parameters;
 	lineStream >> target >> modes;
 	std::getline(lineStream, parameters);
 
 	if (target.empty())
 	{
-		std::string errMsg = ":ircserver 461 MODE :Not enough parameters\r\n";
+		std::string errMsg = ":ircserver 461 " + client._nickName + modes + "MODE :Not enough parameters\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return;
 	}
@@ -73,23 +75,12 @@ void Ircserv::checkCommandMode(std::istringstream &lineStream)
 	{
 		if (It == _channels.end())
 		{
-			std::string errMsg = ":ircserver 403 " + target + " :No such channel!\r\n";
+			std::string errMsg = ":ircserver 403 " + client._nickName + " " + target + " :No such channel!\r\n";
 			send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 			return;
 		}
 		commandModeChannel(target, modes, parameters);
 	}
-
-	// else // It's a user
-	// {
-	// 	if (_clientsMap.find(_clientFd) == _clientsMap.end())
-	// 	{
-	// 		std::string errMsg = ":ircserver 401 " + target + " :No such nick\r\n";
-	// 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-	// 		return;
-	// 	}
-	// 	commandModeUser(target, modes, parameters);
-	// }
 }
 
 void Ircserv::commandModeChannel(std::string &channelName, std::string &modes, std::string &parameters)
@@ -106,7 +97,7 @@ void Ircserv::commandModeChannel(std::string &channelName, std::string &modes, s
 
 	if (channelName.empty() || channelName[0] != '#' || channelIt == _channels.end())
 	{
-		std::string errMsg = ":ircserver 403 " + channelName + " :No such channel!\r\n";
+		std::string errMsg = ":ircserver 403 " + client._nickName + " " + channelName + " :No such channel!\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return;
 	}
@@ -114,7 +105,7 @@ void Ircserv::commandModeChannel(std::string &channelName, std::string &modes, s
 	// Check if client is in the channel
 	if (!checkIfClientInChannel(channelName, _clientFd))
 	{
-		std::string errMsg = ":ircserv 442 " + channelName + " :You're not in that channel\r\n";
+		std::string errMsg = ":ircserv 442 " + client._nickName + channelName + " :You're not in that channel\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return;
 	}
@@ -122,7 +113,7 @@ void Ircserv::commandModeChannel(std::string &channelName, std::string &modes, s
 	// Check if client is operator for mode restricted commands
 	if (!isOperator(_clientFd, channelName))
 	{
-		std::string errMsg = ":ircserver 482 " + channelName + " :You're not channel operator\r\n";
+		std::string errMsg = ":ircserver 482 " + client._nickName + " " + channelName + " :You're not channel operator\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return;
 	}
@@ -134,31 +125,14 @@ void Ircserv::commandModeChannel(std::string &channelName, std::string &modes, s
 	applyChannelModes(channelName, modes, parameters);
 }
 
-// void Ircserv::commandModeUser(std::string &targetNick, std::string &modes, std::string &parameters)
-// {
-// 	Client &client = _clientsMap[_clientFd];
-
-// 	// Ensure user is modifying his own modes
-// 	if (client._nickName != targetNick)
-// 	{
-// 		std::string errMsg = ":ircserv 502 " + targetNick + " :Cannot change mode for other users\r\n";
-// 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-// 		return;
-// 	}
-
-// 	std::string modeChangeMsg = ":" + client._nickName + "!" + client._userName + "@localhost MODE " + targetNick + " " + modes + " " + parameters + "\r\n";
-// 	send(_clientFd, modeChangeMsg.c_str(), modeChangeMsg.size(), 0);
-
-// 	// Apply user modes
-// 	// applyUserModes(client, modes);
-// }
-
 void Ircserv::applyChannelModes(std::string &channelName, std::string &modes, std::string &parameters)
 {
+	Client client = returnClientStruct(_clientFd);
+	
 	// Check if channel exists
 	if (!checkIfChannelExist(channelName))
 	{
-		std::string errMsg = ":ircserver 403 " + channelName + " :No such channel\r\n";
+		std::string errMsg = ":ircserver 403 " + client._nickName + channelName + " :No such channel\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return;
 	}
@@ -205,7 +179,7 @@ void Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 					paramStream >> param;
 					if (param.empty())
 					{
-						std::string errMsg = ":ircserv 461 " + modes + " :Not enough parameters\r\n";
+						std::string errMsg = ":ircserv 461 " + client._nickName + modes + " :Not enough parameters\r\n";
 						send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
                         return;
 					}
@@ -224,7 +198,7 @@ void Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 					opFd = returnClientFd(param);
 					if (opFd == -1 || !checkIfClientInChannel(channelName, opFd))
 					{
-						std::string errMsg = ":ircserver 441 " + param + " " + channelName + " :They aren't on that channel\r\n";
+						std::string errMsg = ":ircserver 441 " + client._nickName + param + " " + channelName + " :They aren't on that channel\r\n";
 						send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 						return;
 					}
@@ -255,7 +229,7 @@ void Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 					}
 					else
 					{
-						std::string errMsg = ":ircserver 461 " + channelName + " l :Not enough parameters\r\n";
+						std::string errMsg = ":ircserver 461 " + client._nickName + channelName + " l :Not enough parameters\r\n";
 						send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 						return;
 					}
@@ -267,7 +241,7 @@ void Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 				break;
 
 			default:
-				std::string errMsg = ":ircserver 472 " + std::string(1, mode) + " :is unknown mode char\r\n";
+				std::string errMsg = ":ircserver 472 " + client._nickName + std::string(1, mode) + " :is unknown mode char to me\r\n";
 				send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 				break;
 		}

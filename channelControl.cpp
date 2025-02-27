@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:07:24 by diogosan          #+#    #+#             */
-/*   Updated: 2025/02/26 16:30:33 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/02/27 15:05:21 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,8 @@ void Ircserv::checkCommandTopic(std::istringstream &lineStream)
 
 void Ircserv::commandTopic(std::string &channelName, std::string &newTopic)
 {
+	Client client = returnClientStruct(_clientFd);
+	
 	// Find the channel
 	std::vector<channelsStruct>::iterator It = _channels.begin();
 	while (It != _channels.end())
@@ -112,7 +114,7 @@ void Ircserv::commandTopic(std::string &channelName, std::string &newTopic)
 
 	if (channelName.empty() || channelName[0] != '#' || It == _channels.end())
 	{
-		std::string errMsg = ":ircserver 403 " + channelName + " :No such channel!\r\n";
+		std::string errMsg = ":ircserver 403 " + client._nickName + channelName + " :No such channel!\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return;
 	}
@@ -120,7 +122,7 @@ void Ircserv::commandTopic(std::string &channelName, std::string &newTopic)
 	// Check if client is in the channel
 	if (!checkIfClientInChannel(channelName, _clientFd))
 	{
-		std::string errMsg = ":ircserver 442 " + channelName + " :User is not in the channel!\r\n";
+		std::string errMsg = ":ircserver 442 " + client._nickName + channelName + " :User is not in the channel!\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return;
 	}
@@ -131,13 +133,12 @@ void Ircserv::commandTopic(std::string &channelName, std::string &newTopic)
 		// If +t is set and user is not operator, deny topic change
 		if (!isOperator(_clientFd, channelName))
 		{
-			std::string errMsg = ":ircserver 482 " + channelName + " :You're not channel operator\r\n";
+			std::string errMsg = ":ircserver 482 " + client._nickName + " " + channelName + " :You're not channel operator\r\n";
 			send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 			return;
 		}
 	}
 
-	Client client = returnClientStruct(_clientFd);
 	newTopic.erase(0, 1);
 	std::string topicChange = ":" + client._nickName + "!" + client._userName + "@localhost TOPIC " + channelName + " :" + newTopic + "\r\n";
 	broadcastMessageToChannel(topicChange, channelName);
