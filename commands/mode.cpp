@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mode.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 10:25:52 by diodos-s          #+#    #+#             */
-/*   Updated: 2025/02/27 10:42:12 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/02/28 11:33:57 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ void Ircserv::checkCommandMode(std::istringstream &lineStream)
 	std::string target, modes, parameters;
 	lineStream >> target >> modes;
 	std::getline(lineStream, parameters);
+	Client client = returnClientStruct(_clientFd);
 
 	if (target.empty())
 	{
@@ -73,7 +74,7 @@ void Ircserv::checkCommandMode(std::istringstream &lineStream)
 	{
 		if (It == _channels.end())
 		{
-			std::string errMsg = ":ircserver 403 " + target + " :No such channel!\r\n";
+			std::string errMsg = ":ircserver 403 :" + client._nickName + " " + target + " :No such channel!\r\n";
 			send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 			return;
 		}
@@ -106,7 +107,7 @@ void Ircserv::commandModeChannel(std::string &channelName, std::string &modes, s
 
 	if (channelName.empty() || channelName[0] != '#' || channelIt == _channels.end())
 	{
-		std::string errMsg = ":ircserver 403 " + channelName + " :No such channel!\r\n";
+		std::string errMsg = ":ircserver 403 :" + client._nickName + " " + channelName + " :No such channel!\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return;
 	}
@@ -155,10 +156,11 @@ void Ircserv::commandModeChannel(std::string &channelName, std::string &modes, s
 
 void Ircserv::applyChannelModes(std::string &channelName, std::string &modes, std::string &parameters)
 {
+	Client client = returnClientStruct(_clientFd);
 	// Check if channel exists
 	if (!checkIfChannelExist(channelName))
 	{
-		std::string errMsg = ":ircserver 403 " + channelName + " :No such channel\r\n";
+		std::string errMsg = ":ircserver 403 :" + client._nickName + " " + channelName + " :No such channel!\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return;
 	}
