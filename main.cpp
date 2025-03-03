@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:56 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/25 18:57:27 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/03 15:05:03 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,4 +103,5 @@ int main(int ac, char **av)
 		std::cout << "You need to use ./ircserv" << \
 			green << " <port> <password>"<< reset << "\n";
 	}
+	return (0);
 }

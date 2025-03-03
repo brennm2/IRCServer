@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/25 17:40:58 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/03 18:33:19 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,7 +159,7 @@ Ircserv::Client& Ircserv::returnClientStructToModify(int clientFd)
 {
 	// Procura o cliente no mapa
 	std::map<int, Client>::iterator it = _clientsMap.find(clientFd);
-	
+
 	if (it != _clientsMap.end()) // Retorna a estrutura Client se encontrada
 		return it->second;
 	else // Lança uma exceção ou retorna um valor padrão se o cliente não for encontrado

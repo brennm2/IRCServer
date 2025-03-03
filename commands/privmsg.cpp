@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:44:14 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/27 11:45:49 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/03 12:08:27 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,6 @@ void Ircserv::commandPrivMSG(std::istringstream &lineStream)
 					message.erase(0, 1);
 				broadcastMessagePrivate(message, *it);
 			}
-		//#TODO RPL_AWAY (301)
 		}
 		else
 		{

@@ -6,12 +6,13 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/02 19:52:11 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/03 18:33:48 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Ircserv.hpp"
 
+bool Ircserv::endServer = false;
 
 void Ircserv::createServer(const std::string& pass, unsigned int port)
 {
@@ -89,8 +90,9 @@ void Ircserv::acceptClients()
 
 	std::cout << green << "Server is listening for connections...\n" << reset;
 	
-	while (true)
+	while (true && !endServer)
 	{
+		signalCatcher();
 		int poll_count = poll(poll_fds.data(), poll_fds.size(), -1);
 		if (poll_count == -1)
 		{
@@ -198,6 +200,7 @@ void Ircserv::acceptClients()
 		for (int i = removeIndices.size() - 1; i >= 0; --i)
 			poll_fds.erase(poll_fds.begin() + removeIndices[i]);
 	}
+	return ;
 }
 
 
@@ -206,18 +209,21 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 	std::istringstream stringSplit(buffer);
 	std::string line;
 
+	_clientFd = clientFd;
 	while (std::getline(stringSplit, line))
 	{
 		if (line.empty())
 			continue;
 
+		checkIfBufferHasEnd(line);
 		std::istringstream lineStream(line);
 		std::string command;
 		lineStream >> command;
 
 		std::cout << "Command: " << command << "\n";
-		_clientFd = clientFd;
 		
+		
+
 		if (command == "JOIN")
 		{
 			if (!clientCanUseCommands(clientFd))
@@ -311,7 +317,6 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 		// 	std::string errorMsg = "Error: Unknown command " + command + "\n";
 		// 	send(clientFd, errorMsg.c_str(), errorMsg.length(), 0);
 		// }
-		//#TODO commandInvite
 		//#TODO signals
 
 		lineStream.clear();
@@ -348,7 +353,7 @@ void Ircserv::visualLoadingServer(void)
 }
 
 
-
+//#TODO ASCTIME LOCALTIME
 
 // 00 - Branco  
 // 01 - Preto  
