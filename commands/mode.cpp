@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mode.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 10:25:52 by diodos-s          #+#    #+#             */
-/*   Updated: 2025/03/05 18:52:38 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/05 19:08:09 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,9 +224,9 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 					paramStream >> param;
 					if (!param.empty() || std::atoi(param.c_str()) > 0)
 					{
+						channel->_maxUsers = std::atoi(param.c_str());
 						if (channel->_maxUsers > 0)
 						{
-							channel->_maxUsers = std::atoi(param.c_str());
 							std::string modeMsg = ":ircserver 324 " + client._nickName + " " + channelName + " +l " + param + "\r\n";
 							broadcastMessageToChannel(modeMsg, channelName);
 						}
