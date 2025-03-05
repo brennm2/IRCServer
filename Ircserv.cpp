@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Ircserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/26 14:41:23 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/05 18:16:42 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,7 +200,6 @@ void Ircserv::acceptClients()
 	}
 }
 
-
 void Ircserv::bufferReader(int clientFd, char *buffer)
 {
 	std::istringstream stringSplit(buffer);
@@ -214,6 +213,7 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 		std::istringstream lineStream(line);
 		std::string command;
 		lineStream >> command;
+		
 
 		std::cout << "Command: " << command << "\n";
 		_clientFd = clientFd;
