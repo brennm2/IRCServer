@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/03 17:44:31 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/05 16:34:01 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -242,6 +242,9 @@ class Ircserv
 	void signalCatcher(void);
 	bool eofChecker(const std::string &buffer);
 	bool checkIfBufferHasEnd(const std::string &line);
+	bool checkIfClientHasEndedBuffer(const int &clientFd);
+	std::string returnClientBuffer(const int &clientFd);
+	void clientHasSendedBuffer(const int &clientFd);
 } ;
 
 void printAsciiValues(const std::string& str);
