@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/27 16:58:16 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/03/05 11:59:18 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,11 +77,13 @@ private:
 		bool				_isTopicLocked;
 		bool				_isPrivate;
 		bool				_hasPassword;
+		std::string			_topicSetter;
+		time_t				_topicSetTime;
 
 		channelsStruct() :_channelName(), _channelTopic(), _channelPassword(), \
 		_clients(), _clientsFdInvite(), \
 		_clientsBanned(), _isTopicLocked(false), _isPrivate(false), \
-		_hasPassword(false) \
+		_hasPassword(false), _topicSetter(), _topicSetTime(0) \
 		{}
 	};
 		

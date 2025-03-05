@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:07:24 by diogosan          #+#    #+#             */
-/*   Updated: 2025/02/27 15:05:21 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/03/05 12:37:19 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ void Ircserv::commandPart(std::string &channelName)
 }
 
 void Ircserv::checkCommandTopic(std::istringstream &lineStream)
-{
+{	
 	std::string channelName;
 	std::string newTopic;
 
@@ -93,6 +93,26 @@ void Ircserv::checkCommandTopic(std::istringstream &lineStream)
 		
 		std::string currentTopic = ":ircserver 332 " + _clientsMap[_clientFd]._nickName + " " + channelName + " :" + topic + "\r\n";
 		send(_clientFd, currentTopic.c_str(), currentTopic.size(), 0);
+
+		// Find the channel to get topicSetter and topicSetTime
+		for (std::vector<channelsStruct>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+		{
+			if (it->_channelName == channelName)
+			{
+				if (!it->_topicSetter.empty())
+				{
+					std::ostringstream oss;
+					oss << ":ircserver 333 " << _clientsMap[_clientFd]._nickName
+						<< " " << channelName
+						<< " " << it->_topicSetter
+						<< " " << it->_topicSetTime
+						<< "\r\n";
+					std::string topicWhoTime = oss.str();
+					send(_clientFd, topicWhoTime.c_str(), topicWhoTime.size(), 0);
+				}
+				break;
+			}
+		}
 		return;
 	}
 	// std::getline(lineStream, newTopic);

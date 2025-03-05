@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/05 14:30:28 by diogosan          #+#    #+#             */
-/*   Updated: 2025/02/13 18:30:39 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/05 12:09:34 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,8 @@ void Ircserv::_changeChannelTopic(std::string &channel, std::string &newTopic)
 		if (It->_channelName == channel)
 		{
 			It->_channelTopic = newTopic;
+			It->_topicSetter = _clientsMap[_clientFd]._nickName; // Store who set the topic
+			It->_topicSetTime = time(NULL); // Store the current timestamp
 			return;
 		}
 		++It;
