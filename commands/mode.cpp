@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 10:25:52 by diodos-s          #+#    #+#             */
-/*   Updated: 2025/03/05 18:51:52 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/05 18:52:38 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,6 @@ void Ircserv::checkCommandMode(std::istringstream &lineStream)
 	lineStream >> target >> modes;
 	lineStream >> std::ws;
 	std::getline(lineStream, parameters);
-	Client client = returnClientStruct(_clientFd);
 
 	if (target.empty())
 	{
