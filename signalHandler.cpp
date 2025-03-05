@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:10:19 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/05 16:38:03 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/05 18:39:49 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ std::string Ircserv::returnClientBuffer(const int &clientFd)
 	std::string tempStr = client.buffer;
 	client.buffer.clear();
 
-	std::cout << "teste->" << tempStr << "\n";
+	//std::cout << "teste->" << tempStr << "\n";
 	return tempStr;
 }
 
@@ -71,20 +71,22 @@ std::string Ircserv::returnClientBuffer(const int &clientFd)
 bool Ircserv::checkIfBufferHasEnd(const std::string &line)
 {
 	//printAsciiValues(line);
-	if (line.find(13) != std::string::npos)
+	if (line.find(10) != std::string::npos)
 	{
 		Client &client = returnClientStructToModify(_clientFd);
-		std::cout << red << "FOI ENCONTRADO O 13" << "\n" << reset;
+		//std::cout << red << "FOI ENCONTRADO O 10" << "\n" << reset;
 		client.bufferIsReady = true;
 		client.buffer += line;
+		//std::cout << "buffer atual :" << client.buffer << "<--" << "\n";
 		return (true);
 	}
 	else
 	{
 		std::cout << red << "NAO ENCONTROU" << "\n" << reset;
 		//std::cout << "CLIENTFD -> " << _clientFd << "\n";
-		Client client = returnClientStructToModify(_clientFd);
+		Client &client = returnClientStructToModify(_clientFd);
 		client.buffer += line;
+		//std::cout << "buffer atual :" << client.buffer << "<--" << "\n";
 		return (false);
 	}
 }
