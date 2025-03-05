@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 10:25:52 by diodos-s          #+#    #+#             */
-/*   Updated: 2025/02/27 17:20:58 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/03/05 18:05:06 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,7 +158,6 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 	std::string param;
 
 	int opFd = -1;
-	int limit = -1;
 
 	for (size_t i = 0; i < modes.size(); i++)
 	{
@@ -224,12 +223,13 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 				if (adding)
 				{
 					paramStream >> param;
-					if (!param.empty())
+					if (!param.empty() || std::atoi(param.c_str()) > 0)
 					{
-						limit = std::atoi(param.c_str());
-						if (limit > 0)
+						if (channel->_maxUsers > 0)
 						{
-							// Implement logic to set max users (store in a channel attribute if needed)
+							channel->_maxUsers = std::atoi(param.c_str());
+							std::string modeMsg = ":ircserver 324 " + client._nickName + " " + channelName + " +l " + param + "\r\n";
+							broadcastMessageToChannel(modeMsg, channelName);
 						}
 					}
 					else
@@ -241,7 +241,9 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 				}
 				else
 				{
-					// Remove user limit
+					channel->_maxUsers = -1;
+					std::string modeMsg = ":ircserver 324 " + client._nickName + " " + channelName + " -l\r\n";
+					broadcastMessageToChannel(modeMsg, channelName);
 				}
 				break;
 
