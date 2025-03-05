@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/05 18:45:12 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/05 18:49:33 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,7 +210,6 @@ void betterPrint(std::string str)
 	}
 	//std::cout << red << "Teste->" << str << "\n" << reset;
 }
-
 
 void Ircserv::bufferReader(int clientFd, char *buffer)
 {

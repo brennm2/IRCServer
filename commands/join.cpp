@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 15:40:35 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/27 17:47:34 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/05 18:51:21 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,7 +168,7 @@ void Ircserv::commandJoin(const std::string &channel, const std::string &key)
 	std::vector<std::string> channelsVec = splitString(channel, ',');
 	std::vector<std::string> keyVec;
 	std::vector<std::string>::iterator keyVecIt;
-	bool					emptyKeyFlag = false;
+	bool emptyKeyFlag = false;
 	keyVec = splitString(key, ',');
 
 	if (!key.empty())
@@ -193,6 +193,15 @@ void Ircserv::commandJoin(const std::string &channel, const std::string &key)
 		}
 		else
 		{
+			channelsStruct &channelsStruct = returnChannelStruct(tempChannel);
+
+			if (channelsStruct._maxUsers > 0 && (int)channelsStruct._clients.size() >= channelsStruct._maxUsers)
+			{
+				std::string errMsg = ":ircserver 471 " + _clientsMap[_clientFd]._nickName + " " + tempChannel + " :Cannot join channel (+l)\r\n";
+				send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+				continue;
+			}
+			
 			if (!commandJoinCheckExistingChannel(tempChannel, client, keyVecIt, keyVec.end() ,emptyKeyFlag))
 				continue;
 			//Verifica se ja existe o clientFd igual no canal, caso nao tenha, coloque na lista
@@ -209,5 +218,5 @@ void Ircserv::commandJoin(const std::string &channel, const std::string &key)
 			makeUserList(tempChannel);
 		}
 	}
-	
 }
+

@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/05 16:34:01 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/05 18:51:13 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,11 +82,14 @@ class Ircserv
 			bool				_isTopicLocked;
 			bool				_isPrivate;
 			bool				_hasPassword;
+		std::string			_topicSetter;
+		time_t				_topicSetTime;
+		int					_maxUsers;
 
 			channelsStruct() :_channelName(), _channelTopic(), _channelPassword(), \
 			_clients(), _clientsFdInvite(), \
 			_clientsBanned(), _isTopicLocked(false), _isPrivate(true), \
-			_hasPassword(false) \
+			_hasPassword(false), _topicSetter(), _topicSetTime(0), _maxUsers(-1) \
 			{}
 		};
 			
@@ -209,12 +212,9 @@ class Ircserv
 	// Command Mode
 	void checkCommandMode(std::istringstream &lineStream);
 	void commandModeChannel(std::string &channelName, std::string &modes, std::string &parameters);
-	void commandModeUser(std::string &targetNick, std::string &modes, std::string &parameters);
 	void changeClientToOperator(int clientFd, std::string channel);
 	bool isOperator(const int clientFd, const std::string &channel);
-	void applyChannelModes(std::string &channelName, std::string &modes, std::string &parameters);
-	void applyUserModes(std::string &targetNick, std::string &modes, std::string &parameters);
-
+	bool applyChannelModes(std::string &channelName, std::string &modes, std::string &parameters);
 	// Command Invite
 	void commandInvite(const std::string &clients, const std::string &channels);
 	void placeClientInChannelInvite(const int &clientFd, const std::string &channel);
