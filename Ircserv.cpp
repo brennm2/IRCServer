@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Ircserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/05 18:16:42 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/03/05 18:49:33 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Ircserv.hpp"
 
+bool Ircserv::endServer = false;
 
 void Ircserv::createServer(const std::string& pass, unsigned int port)
 {
@@ -89,8 +90,9 @@ void Ircserv::acceptClients()
 
 	std::cout << green << "Server is listening for connections...\n" << reset;
 	
-	while (true)
+	while (true && !endServer)
 	{
+		signalCatcher();
 		int poll_count = poll(poll_fds.data(), poll_fds.size(), -1);
 		if (poll_count == -1)
 		{
@@ -161,7 +163,6 @@ void Ircserv::acceptClients()
 						continue;
 					}
 
-					std::cout << green << "Received from " << poll_fds[i].fd << ": " << reset << buffer;
 					
 					// Process the message
 					bufferReader(poll_fds[i].fd, buffer);
@@ -198,127 +199,143 @@ void Ircserv::acceptClients()
 		for (int i = removeIndices.size() - 1; i >= 0; --i)
 			poll_fds.erase(poll_fds.begin() + removeIndices[i]);
 	}
+	return ;
+}
+
+void betterPrint(std::string str)
+{
+	if (str.find(13) != std::string::npos)
+	{
+		str.erase(str.size() - 1);
+	}
+	//std::cout << red << "Teste->" << str << "\n" << reset;
 }
 
 void Ircserv::bufferReader(int clientFd, char *buffer)
 {
-	std::istringstream stringSplit(buffer);
-	std::string line;
-
-	while (std::getline(stringSplit, line))
+	_clientFd = clientFd;
+	if (checkIfBufferHasEnd(buffer))
 	{
-		if (line.empty())
-			continue;
-
-		std::istringstream lineStream(line);
-		std::string command;
-		lineStream >> command;
-		
-
-		std::cout << "Command: " << command << "\n";
-		_clientFd = clientFd;
-		
-		if (command == "JOIN")
+		std::string line;
+		std::istringstream stringSplit(returnClientBuffer(clientFd));
+		while (std::getline(stringSplit, line))
 		{
-			if (!clientCanUseCommands(clientFd))
-				continue ;
-			std::string channelName, key;
-			lineStream >> channelName;
-			lineStream >> key;
-			
-			commandJoin(channelName, key);
-		}
-		else if (command == "PART")
-		{
-			if (!clientCanUseCommands(clientFd))
-				continue ;
-			checkCommandPart(lineStream); //do all that PART has to do
-		}
-		else if (command == "TOPIC")
-		{
-			if (!clientCanUseCommands(clientFd))
-				continue ;
-			checkCommandTopic(lineStream);
-		}
-		else if (command == "NICK")
-		{
-			std::string nickName;
-			lineStream >> nickName;
-			
-			commandNick(clientFd, nickName);
-		}
-		else if (command == "USER")
-		{
-			commandUser(lineStream); // Process the full user info
-		}
-		else if (command == "PASS")
-		{
-			std::string password;
-			lineStream >> password;
-			if(!commandPass(password))
-				return ;
-		}
-		else if (command == "PRIVMSG")
-		{
-			if (!clientCanUseCommands(clientFd))
-				continue ;
-			commandPrivMSG(lineStream);
-		}
-		else if (command == "PING")
-		{
-			if (!clientCanUseCommands(clientFd))
-				continue ;
-			std::string token;
-			lineStream >> token;
-			commandPing(token);
-		}
-		else if (command == "MTDO")
-		{
-			if (!clientCanUseCommands(clientFd))
-				continue ;
-			commandMtdo();
-		}
-		else if (command == "QUIT")
-		{
-			// if (!clientCanUseCommands(clientFd))
-			// 	continue ;
-			
-			commandQuit(lineStream);
-
-			return ;
-		}
-		if (command == "KICK")
-		{
-			if (!clientCanUseCommands(clientFd))
-				continue ;
-			
-			commandKick(lineStream);
-		}
-
-		else if (command == "DDEBUG")
-		{
-			debugShowAllClients();
-			debugShowChannelsInfo();
-		}
-		else if (command == "MODE")
-		{
-			if (!clientCanUseCommands(clientFd))
+			if (line.empty())
 				continue;
-			checkCommandMode(lineStream);
-		}
-		// else
-		// {
-		// 	std::string errorMsg = "Error: Unknown command " + command + "\n";
-		// 	send(clientFd, errorMsg.c_str(), errorMsg.length(), 0);
-		// }
-		//#TODO commandInvite
-		//#TODO signals
 
-		lineStream.clear();
-		Client client = returnClientStruct(clientFd);
-		if (client.hasNick && client.hasUser && client.hasPass && !client.hasFinalReg)
-			clientFinalRegistration(clientFd);
+			if (checkIfClientHasEndedBuffer(clientFd))
+			{
+				std::istringstream lineStream(line);
+				//std::istringstream lineStream(returnClientBuffer(clientFd));
+				std::cout << green << "Received from " << clientFd << ": " << reset << lineStream.str() << "\n";
+
+				std::string command;
+				lineStream >> command;
+
+				if (command == "JOIN")
+				{
+					if (!clientCanUseCommands(clientFd))
+						continue ;
+					std::string channelName, key;
+					lineStream >> channelName;
+					lineStream >> key;
+					
+					commandJoin(channelName, key);
+				}
+				else if (command == "PART")
+				{
+					if (!clientCanUseCommands(clientFd))
+						continue ;
+					checkCommandPart(lineStream); //do all that PART has to do
+				}
+				else if (command == "TOPIC")
+				{
+					if (!clientCanUseCommands(clientFd))
+						continue ;
+					checkCommandTopic(lineStream);
+				}
+				else if (command == "NICK")
+				{
+					std::string nickName;
+					lineStream >> nickName;
+					
+					commandNick(clientFd, nickName);
+				}
+				else if (command == "USER")
+				{
+					commandUser(lineStream); // Process the full user info
+				}
+				else if (command == "PASS")
+				{
+					std::string password;
+					lineStream >> password;
+					if(!commandPass(password))
+						return ;
+				}
+				else if (command == "PRIVMSG")
+				{
+					if (!clientCanUseCommands(clientFd))
+						continue ;
+					commandPrivMSG(lineStream);
+				}
+				else if (command == "PING")
+				{
+					if (!clientCanUseCommands(clientFd))
+						continue ;
+					std::string token;
+					lineStream >> token;
+					commandPing(token);
+				}
+				else if (command == "MTDO")
+				{
+					if (!clientCanUseCommands(clientFd))
+						continue ;
+					commandMtdo();
+				}
+				else if (command == "QUIT")
+					return commandQuit(lineStream);
+				else if (command == "KICK")
+				{
+					if (!clientCanUseCommands(clientFd))
+						continue ;
+					commandKick(lineStream);
+				}
+				else if (command == "DDEBUG")
+				{
+					debugShowAllClients();
+					debugShowChannelsInfo();
+				}
+				else if (command == "MODE")
+				{
+					if (!clientCanUseCommands(clientFd))
+						continue;
+					checkCommandMode(lineStream);
+				}
+				else if(command == "INVITE")
+				{
+					if (!clientCanUseCommands(clientFd))
+						continue;
+					std::string clients, channels;
+					lineStream >> clients;
+					lineStream >> channels;
+					commandInvite (clients, channels);
+				}
+				// else
+				// {
+				// 	std::string errorMsg = "Error: Unknown command " + command + "\n";
+				// 	send(clientFd, errorMsg.c_str(), errorMsg.length(), 0);
+				// }
+				//#TODO signals
+
+				lineStream.clear();
+				Client client = returnClientStruct(clientFd);
+				if (client.hasNick && client.hasUser && client.hasPass && !client.hasFinalReg)
+					clientFinalRegistration(clientFd);
+			}
+		}
 	}
+
+	clientHasSendedBuffer(clientFd);
 
 }
 
@@ -348,7 +365,7 @@ void Ircserv::visualLoadingServer(void)
 }
 
 
-
+//#TODO ASCTIME LOCALTIME
 
 // 00 - Branco  
 // 01 - Preto  

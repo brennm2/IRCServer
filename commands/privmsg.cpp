@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:44:14 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/25 18:53:07 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/03 12:08:27 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,18 +69,20 @@ void Ircserv::commandPrivMSG(std::istringstream &lineStream)
 			{
 				if (message[0] == ':')
 					message.erase(0, 1);
-				//Envia para a mensagem para a pessoa que enviou e para o target
 				broadcastMessagePrivate(message, *it);
 			}
-		//#TODO RPL_AWAY (301)
 		}
 		else
 		{
+			Client client = returnClientStruct(_clientFd);
 			if (!checkIfChannelExist(*it))
 			{
-				std::cout << "target->" << *it <<"<-" << "\n";
-				Client client = returnClientStruct(_clientFd);
 				std::string errMsg = ":ircserver 402 " + client._nickName + " " + *it + " :No such server\r\n";
+				send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+			}
+			else if (!checkIfClientInChannel(*it, _clientFd))
+			{
+				std::string errMsg = ":ircserver 404 " + client._nickName + " " + *it + " :Cannot send to channel\r\n";
 				send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 			}
 			else
@@ -92,8 +94,6 @@ void Ircserv::commandPrivMSG(std::istringstream &lineStream)
 					+ *it + " :" + message + "\r\n";
 				broadcastMessageToChannelExceptSender(channelMessage, *it, _clientFd);
 			}
-			//#TODO ERR_CANNOTSENDTOCHAN (404) (depende dos MODES)
-			;
 		}
 	}
 }

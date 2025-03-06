@@ -27,6 +27,8 @@ SRC = main.cpp \
 	commands/quit.cpp \
 	commands/mode.cpp \
 	commands/kick.cpp \
+	commands/invite.cpp \
+	signalHandler.cpp \
 
 
 
@@ -46,7 +48,7 @@ go:
 	
 govalgrind:
 	make;
-	valgrind ./ircserv 6667 asd
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --tool=memcheck ./ircserv 6667 asd
 clean: 
 	$(RM) $(RMFLAGS) $(OBJ)
 	$(RM) $(RMFLAGS) -r
