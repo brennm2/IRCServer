@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 10:25:52 by diodos-s          #+#    #+#             */
-/*   Updated: 2025/03/05 19:08:09 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/03/06 14:39:53 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -215,6 +215,12 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 							break;
 						}
 					}
+				}
+				else
+				{
+					std::string errMsg = ":ircserv 461 " + client._nickName + " " + channelName + " o :Not enough parameters\r\n";
+					send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+                    return false;
 				}
 				break;
 
