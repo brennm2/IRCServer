@@ -28,6 +28,7 @@ SRC = main.cpp \
 	commands/mode.cpp \
 	commands/kick.cpp \
 	commands/invite.cpp \
+	commands/unknown.cpp \
 	signalHandler.cpp \
 
 

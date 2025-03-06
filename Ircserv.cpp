@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/06 15:33:32 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/06 18:32:14 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,13 +130,6 @@ void Ircserv::acceptClients()
 					}
 					
 					std::cout << green << "New client connected! FD: " << clientFd << "\n" << reset;
-					
-					//Mensagem de boas vindas
-					//"\x03" -> indica que e um codigo de cor
-					//"01,02Teste" -> primeiro numero e a cor da letra e o segundo e a cor de fundo
-					// obs: nao precisa ter cor de fundo
-					const char *welcomeMsg = "\x03""04,01Welcome test!\n";
-					send(clientFd, welcomeMsg, strlen(welcomeMsg), 0);
 
 					// Add new client to poll list
 					pollfd client_pollfd;
@@ -320,12 +313,8 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 					lineStream >> channels;
 					commandInvite (clients, channels);
 				}
-				// else
-				// {
-				// 	std::string errorMsg = "Error: Unknown command " + command + "\n";
-				// 	send(clientFd, errorMsg.c_str(), errorMsg.length(), 0);
-				// }
-				//#TODO signals
+				else
+					commandUnknown(command);
 
 				lineStream.clear();
 				Client client = returnClientStruct(clientFd);

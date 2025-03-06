@@ -6,13 +6,11 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/06 17:18:23 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/06 17:31:03 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Ircserv.hpp"
-
-
 
 bool Ircserv::checkIfChannelExist(std::string channel)
 {
@@ -125,7 +123,6 @@ void Ircserv::makeUserList(std::string channel)
 
 Ircserv::channelsStruct& Ircserv::returnChannelStruct(const std::string &channel)
 {
-	// Procura o cliente no mapa
 	std::vector<channelsStruct>::iterator it = _channels.begin();
 	
 	while(it != _channels.end())
@@ -135,47 +132,32 @@ Ircserv::channelsStruct& Ircserv::returnChannelStruct(const std::string &channel
 		else
 			it++;
 	}
-	// Lança uma exceção ou retorna um valor padrão se o cliente não for encontrado
 	throw std::runtime_error("Channel not found in returnChannelStruct");
 	
 }
 
 
-
-
 Ircserv::Client Ircserv::returnClientStruct(int clientFd)
 {
-	// Procura o cliente no mapa
 	std::map<int, Client>::iterator it = _clientsMap.find(clientFd);
 	
-	if (it != _clientsMap.end()) // Retorna a estrutura Client se encontrada
+	if (it != _clientsMap.end())
 		return it->second;
-	else // Lança uma exceção ou retorna um valor padrão se o cliente não for encontrado
+	else
 		throw std::runtime_error("Client not found in returnClientStruct");
 	
 }
 
 Ircserv::Client& Ircserv::returnClientStructToModify(int clientFd)
 {
-	// Procura o cliente no mapa
 	std::map<int, Client>::iterator it = _clientsMap.find(clientFd);
 
-	if (it != _clientsMap.end()) // Retorna a estrutura Client se encontrada
+	if (it != _clientsMap.end()) 
 		return it->second;
-	else // Lança uma exceção ou retorna um valor padrão se o cliente não for encontrado
+	else
 		throw std::runtime_error("Client not found in returnClientStruct");
 }
 
-// Ircserv::Client& Ircserv::returnClientStructToModifyInChannel(int clientFd, std::string channel)
-// {
-// 	// Procura o cliente no mapa
-// 	std::map<int, Client>::iterator it = _clientsMap.find(clientFd);
-	
-// 	if (it != _clientsMap.end()) // Retorna a estrutura Client se encontrada
-// 		return it->second;
-// 	else // Lança uma exceção ou retorna um valor padrão se o cliente não for encontrado
-// 		throw std::runtime_error("Client not found in returnClientStruct");
-// }
 
 int Ircserv::returnClientFd(std::string clientNick)
 {
@@ -245,7 +227,7 @@ void Ircserv::broadcastMessageToChannelExceptSender(const std::string& message, 
 void Ircserv::broadcastMessage(const std::string& message, int senderFd)
 {
 	(void) senderFd;
-	for (std::map<int, Client>::iterator it = _clientsMap.begin(); it != _clientsMap.end(); ++it) 
+	for (std::map<int, Client>::iterator it = _clientsMap.begin(); it != _clientsMap.end(); ++it)
 	{
 		int clientFd = it->first;				// Pega o file descriptor do cliente
 		Client client = it->second;				// Pega o objeto Client
@@ -264,60 +246,11 @@ void Ircserv::broadcastMessagePrivate(const std::string &message, const std::str
 	Client clientTarget = returnClientStruct(returnClientFd(target));
 
 	std::string nickNameSender = clientSender._nickName;
-
-	// std::cout << "MESSAGE: " << message << "\n";
 	std::string targetMessage = ":" + nickNameSender + " PRIVMSG " + target + " :" + message + "\r\n";
-	//	std::string senderMessage = ":" + clientTarget._nickName + " PRIVMSG " + target + " :" + message + "\r\n";
-
 	send(clientTarget._fd, targetMessage.c_str(), targetMessage.size(), 0);
-	//std::cout << "Mensagem enviada:" << "\n";
-	//std::cout << targetMessage << "\n";
-
-//	send(clientSender._fd, senderMessage.c_str(), senderMessage.size(), 0);
 }
 
 
-void Ircserv::nickReplyMsg001(std::string nickName, int clientFd)
-{
-	std::string msgConfirmation;
-	msgConfirmation = ":ircserver 001 " + nickName + " Welcome to the server, " + nickName + "!\r\n";
-	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
-}
-
-void Ircserv::nickReplyMsg002(std::string nickName, int clientFd)
-{
-	std::string msgConfirmation;
-	msgConfirmation = ":ircserver 002 " + nickName + " Your host is localhost, running version 1.0!\r\n";
-	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
-}
-
-void Ircserv::nickReplyMsg003(std::string nickName, int clientFd)
-{
-	std::string msgConfirmation;
-	std::string timer = to_string(now->tm_mday ) + '-' \
-		+ to_string(now->tm_mon + 1) + '-' \
-		+ to_string(now->tm_year + 1900) + " at " \
-		+ to_string(now->tm_hour) + ':' \
-		+ to_string(now->tm_min);
-	msgConfirmation = ":ircserver 003 " + nickName + " This server was created " + timer + " \r\n";
-	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
-}
-
-void Ircserv::nickReplyMsg004(std::string nickName, int clientFd)
-{
-	std::string msgConfirmation;
-
-	msgConfirmation = ":ircserver 004 " + nickName + ": localhost 1.0 o iklt\r\n";
-	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
-}
-
-void Ircserv::nickReplyMsg005(std::string nickName, int clientFd)
-{
-	std::string msgConfirmation;
-
-	msgConfirmation = ":ircserver 005 " + nickName + " I, T, K, O, L :are supported by this server\r\n";
-	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
-}
 
 std::string Ircserv::to_string(int value)
 {
@@ -330,11 +263,27 @@ void Ircserv::clientFinalRegistration(int clientFd)
 {
 	Client &client = _clientsMap[clientFd];
 
-	nickReplyMsg001(client._nickName, clientFd);
-	nickReplyMsg002(client._nickName, clientFd);
-	nickReplyMsg003(client._nickName, clientFd);
-	nickReplyMsg004(client._nickName, clientFd);
-	nickReplyMsg005(client._nickName, clientFd);
+	std::string msgConfirmation;
+	msgConfirmation = ":ircserver 001 " + client._nickName + " Welcome to the server, " + client._nickName + "!\r\n";
+	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
+
+	msgConfirmation = ":ircserver 002 " + client._nickName + " Your host is localhost, running version 1.0!\r\n";
+	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
+
+	std::string timer = to_string(now->tm_mday ) + '-' \
+		+ to_string(now->tm_mon + 1) + '-' \
+		+ to_string(now->tm_year + 1900) + " at " \
+		+ to_string(now->tm_hour) + ':' \
+		+ to_string(now->tm_min);
+	msgConfirmation = ":ircserver 003 " + client._nickName + " This server was created " + timer + " \r\n";
+	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
+
+	msgConfirmation = ":ircserver 004 " + client._nickName + ": localhost 1.0 o iklt\r\n";
+	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
+
+	msgConfirmation = ":ircserver 005 " + client._nickName + " I, T, K, O, L :are supported by this server\r\n";
+	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
+
 	commandMotd();
 	client.hasFinalReg = true;
 }
@@ -418,7 +367,6 @@ std::vector<std::string> Ircserv::splitString(const std::string &str, char delim
 			if (tempStr[tempStr.size() - 1] == '\r')
 				tempStr.erase(tempStr.size() - 1);
 			tokens.push_back(tempStr);
-			std::cout << green <<"Token pushback->" << tempStr << reset << "\n";
 		}
 	}
 	return (tokens);
