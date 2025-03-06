@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/03 18:33:19 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/06 17:18:23 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -335,7 +335,7 @@ void Ircserv::clientFinalRegistration(int clientFd)
 	nickReplyMsg003(client._nickName, clientFd);
 	nickReplyMsg004(client._nickName, clientFd);
 	nickReplyMsg005(client._nickName, clientFd);
-	commandMtdo();
+	commandMotd();
 	client.hasFinalReg = true;
 }
 

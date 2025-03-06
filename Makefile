@@ -20,7 +20,7 @@ SRC = main.cpp \
 	commands/pass.cpp \
 	commands/ping.cpp \
 	commands/join.cpp \
-	commands/mtdo.cpp \
+	commands/motd.cpp \
 	commands/nick.cpp \
 	commands/user.cpp \
 	commands/privmsg.cpp \

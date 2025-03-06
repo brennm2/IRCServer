@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/05 18:49:33 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/06 15:33:32 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -286,11 +286,11 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 					lineStream >> token;
 					commandPing(token);
 				}
-				else if (command == "MTDO")
+				else if (command == "MOTD")
 				{
 					if (!clientCanUseCommands(clientFd))
 						continue ;
-					commandMtdo();
+					commandMotd();
 				}
 				else if (command == "QUIT")
 					return commandQuit(lineStream);

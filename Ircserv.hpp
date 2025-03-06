@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/05 18:51:13 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/06 15:41:40 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ class Ircserv
 
 			channelsStruct() :_channelName(), _channelTopic(), _channelPassword(), \
 			_clients(), _clientsFdInvite(), \
-			_clientsBanned(), _isTopicLocked(false), _isPrivate(true), \
+			_clientsBanned(), _isTopicLocked(false), _isPrivate(false), \
 			_hasPassword(false), _topicSetter(), _topicSetTime(0), _maxUsers(-1) \
 			{}
 		};
@@ -181,6 +181,7 @@ class Ircserv
 	void nickReplyMsg003(std::string nickName, int clientFd);
 	void nickReplyMsg004(std::string nickName, int clientFd);
 	void nickReplyMsg005(std::string nickName, int clientFd);
+	void changeNickNameInChannels(const int &clientFd, const std::string &newNickName);
 
 	//Command PASS
 	bool commandPass(std::string password);
@@ -199,8 +200,8 @@ class Ircserv
 	bool checkIfClientCanJoinBannedChannel(const int &clientFd, const std::string &channel);
 	bool checkIfChannelHasPassword(const std::string &channel);
 	bool checkIfChannelHasCorrectPassword(const std::string &channel, const std::string &password);
-	//Command MTDO
-	void commandMtdo();
+	//Command MOTD
+	void commandMotd();
 
 	//Command Quit
 	void commandQuit(std::istringstream &lineStream);
@@ -232,11 +233,6 @@ class Ircserv
 
 	//Visual Functions
 	void visualLoadingServer(void);
-
-	//utils diogo
-	std::vector<Client>::iterator LookClientInChannel(std::string channel);
-
-
 
 	static void signalHandler(int signal);
 	void signalCatcher(void);

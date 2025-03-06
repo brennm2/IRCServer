@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:49:36 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/12 15:07:26 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/06 15:16:14 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,23 @@ bool Ircserv::commandNickCheck(const std::string &nickName)
 	return (true);
 }
 
+void Ircserv::changeNickNameInChannels(const int &clientFd, const std::string &newNickName)
+{
+	for (std::vector<channelsStruct>::iterator channelIt = _channels.begin();
+		channelIt != _channels.end(); ++channelIt)
+	{
+		for (std::vector<Client>::iterator clientsIt = channelIt->_clients.begin(); 
+			clientsIt != channelIt->_clients.end(); ++clientsIt)
+		{
+			if (clientsIt->_fd == clientFd)
+			{
+				clientsIt->_nickName = newNickName;
+				return;
+			}
+		}
+	}
+}
+
 
 
 void Ircserv::commandNick(int clientFd, const std::string &nickName)
@@ -62,6 +79,7 @@ void Ircserv::commandNick(int clientFd, const std::string &nickName)
 		std::string nickUpdate;
 		nickUpdate = ":" + oldNick + "!~b@localhost NICK :" + nickName +"\r\n";
 		broadcastMessage(nickUpdate, 0);
+		changeNickNameInChannels(clientFd, nickName);
 	}
 	else
 	{

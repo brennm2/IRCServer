@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 15:40:35 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/05 18:51:21 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/06 14:08:14 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,6 @@ bool Ircserv::checkIfClientCanJoinPrivChannel(const int &clientFd, const std::st
 	channelsStruct channelTmp = returnChannelStruct(channel);
 	if (channelTmp._isPrivate)
 	{
-		std::cout << blue << "ENTROU AQUI" << "\n" << reset;
 		std::vector<int> clientsFdInvite = channelTmp._clientsFdInvite;
 		std::vector<int>::iterator it = std::find(clientsFdInvite.begin(), clientsFdInvite.end(), clientFd);
 		
