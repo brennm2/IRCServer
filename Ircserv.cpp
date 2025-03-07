@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/06 18:32:14 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/07 16:57:57 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,10 +149,12 @@ void Ircserv::acceptClients()
 					ssize_t bytes_received = recv(poll_fds[i].fd, buffer, sizeof(buffer) - 1, 0);
 					if (bytes_received <= 0)
 					{
+						int tempFd = poll_fds[i].fd;
 						std::cout << red << "Client disconnected: " << poll_fds[i].fd << "\n" << reset;
 						close(poll_fds[i].fd);
 						_clientsMap.erase(poll_fds[i].fd);
 						removeIndices.push_back(i);
+						removeClientFromEveryChannel(tempFd);
 						continue;
 					}
 
