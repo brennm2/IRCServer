@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 10:25:52 by diodos-s          #+#    #+#             */
-/*   Updated: 2025/03/05 19:08:09 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/03/06 18:58:04 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,6 +109,35 @@ void Ircserv::commandModeChannel(std::string &channelName, std::string &modes, s
 		std::string errMsg = ":ircserv 442 " + client._nickName + " " + channelName + " :You're not in that channel\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return;
+	}
+
+	if (modes.empty())
+	{
+		std::string modeString = "+";
+
+		if (channelIt->_isPrivate)
+			modeString += "i";
+		if (channelIt->_isTopicLocked)
+			modeString += "t";
+		if (channelIt->_hasPassword)
+			modeString += "k";
+		if (channelIt->_hasLimit)
+			modeString += "l";
+
+		std::string modeResponse = ":ircserver 324 " + client._nickName + " " + channelName + " " + modeString;
+
+		if (modeString.length() > 1)
+		{
+			if (channelIt->_hasLimit)
+			{
+				modeResponse += " " + to_string(channelIt->_maxUsers);
+			}
+			modeResponse += "\r\n";
+			send(_clientFd, modeResponse.c_str(), modeResponse.size(), 0);
+			return;
+		}
+		else
+			return;
 	}
 	
 	// Check if client is operator for mode restricted commands
@@ -216,6 +245,12 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 						}
 					}
 				}
+				else
+				{
+					std::string errMsg = ":ircserv 461 " + client._nickName + " " + channelName + " o :Not enough parameters\r\n";
+					send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+                    return false;
+				}
 				break;
 
 			case 'l': // Set user limit
@@ -227,8 +262,7 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 						channel->_maxUsers = std::atoi(param.c_str());
 						if (channel->_maxUsers > 0)
 						{
-							std::string modeMsg = ":ircserver 324 " + client._nickName + " " + channelName + " +l " + param + "\r\n";
-							broadcastMessageToChannel(modeMsg, channelName);
+							channel->_hasLimit = true;
 						}
 					}
 					else
@@ -241,8 +275,7 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 				else
 				{
 					channel->_maxUsers = -1;
-					std::string modeMsg = ":ircserver 324 " + client._nickName + " " + channelName + " -l\r\n";
-					broadcastMessageToChannel(modeMsg, channelName);
+					channel->_hasLimit = false;
 				}
 				break;
 

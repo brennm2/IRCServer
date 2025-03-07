@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Ircserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/05 18:51:13 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/06 17:44:59 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,17 +79,18 @@ class Ircserv
 			std::vector<Client> _clients;
 			std::vector<int>	_clientsFdInvite;
 			std::vector<int>	_clientsBanned;
-			bool				_isTopicLocked;
 			bool				_isPrivate;
+			bool				_isTopicLocked;
 			bool				_hasPassword;
-		std::string			_topicSetter;
-		time_t				_topicSetTime;
-		int					_maxUsers;
+			bool				_hasLimit;
+			std::string			_topicSetter;
+			time_t				_topicSetTime;
+			int					_maxUsers;
 
 			channelsStruct() :_channelName(), _channelTopic(), _channelPassword(), \
 			_clients(), _clientsFdInvite(), \
-			_clientsBanned(), _isTopicLocked(false), _isPrivate(true), \
-			_hasPassword(false), _topicSetter(), _topicSetTime(0), _maxUsers(-1) \
+			_clientsBanned(), _isPrivate(false), _isTopicLocked(false), \
+			_hasPassword(false), _hasLimit(false), _topicSetter(), _topicSetTime(0), _maxUsers(-1) \
 			{}
 		};
 			
@@ -215,6 +216,7 @@ class Ircserv
 	void changeClientToOperator(int clientFd, std::string channel);
 	bool isOperator(const int clientFd, const std::string &channel);
 	bool applyChannelModes(std::string &channelName, std::string &modes, std::string &parameters);
+	
 	// Command Invite
 	void commandInvite(const std::string &clients, const std::string &channels);
 	void placeClientInChannelInvite(const int &clientFd, const std::string &channel);
