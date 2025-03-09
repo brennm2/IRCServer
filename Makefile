@@ -30,6 +30,7 @@ SRC = main.cpp \
 	commands/invite.cpp \
 	commands/unknown.cpp \
 	signalHandler.cpp \
+	bonus/bot.cpp \
 
 
 
@@ -49,7 +50,7 @@ go:
 	
 govalgrind:
 	make;
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --tool=memcheck ./ircserv 6667 asd
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --tool=memcheck ./ircserv 6667 123
 clean: 
 	$(RM) $(RMFLAGS) $(OBJ)
 	$(RM) $(RMFLAGS) -r

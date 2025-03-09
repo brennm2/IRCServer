@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/09 20:09:43 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/09 20:20:22 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void Ircserv::createServer(const std::string& pass, unsigned int port)
 	_startTimer = std::time(0);
 	now = std::localtime(&_startTimer);
 
-	visualLoadingServer();
+	//visualLoadingServer();
 	
 	_password = pass;
 	_port = port;
@@ -310,6 +310,14 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 					lineStream >> clients;
 					lineStream >> channels;
 					commandInvite (clients, channels);
+				}
+				else if (command == "BOT")
+				{
+					if (!clientCanUseCommands(clientFd))
+						continue;
+					std::string option;
+					lineStream >> option;
+					commandBot(option);
 				}
 				else
 					commandUnknown(command);

@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/07 17:24:22 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/09 21:13:31 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -252,7 +252,7 @@ void Ircserv::broadcastMessagePrivate(const std::string &message, const std::str
 
 
 
-std::string Ircserv::to_string(int value)
+std::string to_string(int value)
 {
 	std::ostringstream oss;
 	oss << value;

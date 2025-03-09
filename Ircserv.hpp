@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/07 17:24:20 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/09 21:14:50 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,7 +170,6 @@ class Ircserv
 	void broadcastMessage(const std::string& message, int sender_fd);
 	void broadcastMessagePrivate(const std::string &message, const std::string &target);
 
-	std::string to_string(int value);
 
 
 	//CommandNick----
@@ -220,6 +219,10 @@ class Ircserv
 	// Command Unknown
 	void commandUnknown(const std::string &command);
 
+	// Command Bot
+	void commandBot(const std::string &option);
+	void tellTimeOption(const int &clientFd);
+
 	
 
 	//Debug
@@ -242,4 +245,5 @@ class Ircserv
 } ;
 
 void printAsciiValues(const std::string& str);
+std::string to_string(int value);
 // void signalHandler(int signal);
