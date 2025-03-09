@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/07 16:57:57 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/09 20:09:43 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,9 @@ void Ircserv::createServer(const std::string& pass, unsigned int port)
 	_startTimer = std::time(0);
 	now = std::localtime(&_startTimer);
 
-	_password = "123";
-	(void) pass;
-	//visualLoadingServer();
-	// if (!_checkStartPass(pass))
-	// 	throw std::runtime_error("Wrong Password");
-
+	visualLoadingServer();
+	
+	_password = pass;
 	_port = port;
 	//Create server
 	this->_serverFd = socket(AF_INET, SOCK_STREAM, 0);
@@ -53,7 +50,6 @@ void Ircserv::createServer(const std::string& pass, unsigned int port)
 	sockaddr_in server_addr;
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_addr.s_addr = INADDR_ANY; //Aceita qualquer tipo de endereco
-	std::cout << _port << std::endl;
 	server_addr.sin_port = htons(_port);
 
 
