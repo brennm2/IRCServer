@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 20:11:46 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/09 21:21:03 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 17:36:07 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,17 @@
 
 void Ircserv::tellTimeOption(const int &clientFd)
 {
-	std::string date = to_string(now->tm_mday ) + '-' \
-		+ to_string(now->tm_mon + 1) + '-' \
-		+ to_string(now->tm_year + 1900);
+	std::time_t now = std::time(NULL);
+	std::tm* nowTime = std::localtime(&now);
+	std::string date = to_string(nowTime->tm_mday ) + '-' \
+						+ to_string(nowTime->tm_mon + 1) + '-' \
+						+ to_string(nowTime->tm_year + 1900);
 
-	std::string time = 	to_string(now->tm_hour) + ':' \
-		+ to_string(now->tm_min);
-	
-	std::string msgTime = "\x03" "05Current Date: " + date + ", and Time: " + time + "\r\n";
+	std::string time = 	to_string(nowTime->tm_hour) + ':' \
+						+ to_string(nowTime->tm_min);
+
+	std::string msgTime = "\x03" "03Current Date: " + date + " and Time: " + time + "\r\n";
 	send(clientFd, msgTime.c_str(), msgTime.size(), 0);
-
 }
 
 void tellQuoteOption(const int &clientFd)
@@ -31,32 +32,49 @@ void tellQuoteOption(const int &clientFd)
 	std::srand(std::time(0));
 
 	std::vector<std::string> quotes;
-	quotes.push_back("\x03" "05Tenho mais força na perna esquerda mas escrevo com a direita.	(rumachad)\r\n");
-	quotes.push_back("\x03" "05No gods or kings. Only man.	(Andrew Ryan)\r\n");
-	quotes.push_back("\x03" "05Why do you ask \"what\", when the delicious question is \"when\"?.	(Lutece Twins)\r\n");
-	quotes.push_back("\x03" "05Hey look, buddy, I'm an Engineer. That means I solve problems.	(Engineer)\r\n");
-	quotes.push_back("\x03" "05The cake is a lie!\r\n");
+	quotes.push_back("\x03" "03Tenho mais força na perna esquerda mas escrevo com a direita.\r\n");
+	quotes.push_back("\x03" "03No gods or kings. Only man.\r\n");
+	quotes.push_back("\x03" "03Why do you ask \"what\", when the delicious question is \"when\"?\r\n");
+	quotes.push_back("\x03" "03Hey look, buddy, I'm an Engineer. That means I solve problems.\r\n");
+	quotes.push_back("\x03" "03Isso tem tinta ai dentro?\r\n");
+	quotes.push_back("\x03" "03The cake is a lie!\r\n");
 
-	
 	int randomIndex = std::rand() % quotes.size();
 	std::string msgQuote = quotes[randomIndex];
 	send(clientFd, msgQuote.c_str(), msgQuote.size(), 0);
 }
 
+void tellMsg(const int &clientFd, const int &msgCount)
+{
+	std::string msgResponse = "\x03" "03Current count of messages sent: " + to_string(msgCount) + "\r\n";
+	send(clientFd, msgResponse.c_str(), msgResponse.size(), 0);
+}
 
 void Ircserv::commandBot(const std::string &option)
 {
+	Client client = returnClientStruct(_clientFd);
+
 	if (option == "HELP")
 	{
 		std::string msgResponse = "Commands that you can use:\r\n";
 		send(_clientFd, msgResponse.c_str(), msgResponse.size(), 0);
-		msgResponse = "\x03" "09◎ TELLTIME\n	- Tells the current time\r\n";
+		msgResponse = "\x03" "07◎ TELLTIME\n	- Tells the current time\r\n";
 		send(_clientFd, msgResponse.c_str(), msgResponse.size(), 0);
-		msgResponse = "\x03" "09◎ TELLQUOTE\n	- Tells a random quote\r\n";
+		msgResponse = "\x03" "07◎ TELLQUOTE\n	- Tells a random quote\r\n";
+		send(_clientFd, msgResponse.c_str(), msgResponse.size(), 0);
+		msgResponse = "\x03" "07◎ TELLMSG\n	- Tells the count of message\r\n";
 		send(_clientFd, msgResponse.c_str(), msgResponse.size(), 0);
 	}
 	else if (option == "TELLQUOTE")
 		tellQuoteOption(_clientFd);
 	else if (option == "TELLTIME")
 		tellTimeOption(_clientFd);
+	else if (option == "TELLMSG")
+		tellMsg(_clientFd, client._msgCount);
+	else
+	{
+		std::string msgResponse = "\x03" "07I didn't catch that, try using /BOT HELP\r\n";
+		send(_clientFd, msgResponse.c_str(), msgResponse.size(), 0);
+
+	}
 }

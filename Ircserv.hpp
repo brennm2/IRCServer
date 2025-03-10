@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/10 14:59:50 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 15:48:57 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ class Ircserv
 		struct Client
 		{
 			int			_fd;
+			int			_msgCount;
 			std::string _nickName;
 			std::string _userName;
 			std::string _realName;
@@ -61,7 +62,7 @@ class Ircserv
 			bool		_isOperator;
 			bool		bufferIsReady;
 
-			Client() :_fd(-1), _nickName(), \
+			Client() :_fd(-1), _msgCount(0), _nickName(), \
 			_userName(), _realName(), outgoingBuffer(), buffer(), \
 			isFirstTime(true), \
 			hasPass(false), hasNick(false), hasUser(false), hasFinalReg(false), \
@@ -135,7 +136,6 @@ class Ircserv
 	Client returnClientStruct(int clientFd);
 	Client& returnClientStructToModify(int clientFd);
 	channelsStruct& returnChannelStruct(const std::string &channel);
-	std::string to_string(int value);
 	std::vector<std::string> splitString(const std::string &str, char delimiter);
 
 	//CommandNick----
@@ -207,7 +207,11 @@ class Ircserv
 
 	// Command Bot
 	void commandBot(const std::string &option);
+	void checkMsgForBot(const std::string &msg, \
+		const std::string &channel, const int &clientFd);
 	void tellTimeOption(const int &clientFd);
+	void tellTimeOptionChannel(const std::string &channel);
+
 
 	
 
@@ -231,3 +235,4 @@ class Ircserv
 } ;
 
 void printAsciiValues(const std::string& str);
+std::string to_string(int value);

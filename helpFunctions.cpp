@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/10 14:59:03 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 15:28:24 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,12 +136,6 @@ Ircserv::channelsStruct& Ircserv::returnChannelStruct(const std::string &channel
 	
 }
 
-std::string Ircserv::to_string(int value)
-{
-	std::ostringstream oss;
-	oss << value;
-	return oss.str();
-}
 
 
 Ircserv::Client Ircserv::returnClientStruct(int clientFd)
