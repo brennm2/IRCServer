@@ -6,14 +6,11 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:56 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/09 20:00:38 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 14:52:20 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Ircserv.hpp"
-#include <climits>
-#include <stdexcept>
-
 
 bool isNumber(std::string &str)
 {
@@ -52,11 +49,6 @@ void checkIfValidPassWord(const std::string &pass)
 			throw std::runtime_error ("Invalid Password (invalid character)");
 	}
 }
-
-
-
-
-
 
 int main(int ac, char **av)
 {

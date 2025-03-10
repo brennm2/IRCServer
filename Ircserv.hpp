@@ -6,12 +6,11 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/10 14:31:45 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 14:51:55 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-
 
 #include <iostream>
 #include <sys/socket.h>
@@ -28,6 +27,8 @@
 #include <cerrno>
 #include <algorithm>
 #include <csignal>
+#include <climits>
+#include <stdexcept>
 
 
 // COLORS //
@@ -39,55 +40,55 @@
 #define cyan "\033[36m"
 #define reset "\033[0m"
 
-
-
 class Ircserv
 {
-	private:
-		struct Client
-		{
-			int			_fd;
-			std::string _nickName;
-			std::string _userName;
-			std::string _realName;
-			std::string outgoingBuffer;
-			std::string buffer;
-			bool		isFirstTime;
-			bool		hasPass;
-			bool		hasNick;
-			bool		hasUser;
-			bool		hasFinalReg;
-			bool		_isOperator;
-			bool		bufferIsReady;
+private:
+	struct Client
+	{
+		int			_fd;
+		std::string _nickName;
+		std::string _userName;
+		std::string _realName;
+		std::string outgoingBuffer;
+		std::string buffer;
+		bool		isFirstTime;
+		bool		hasPass;
+		bool		hasNick;
+		bool		hasUser;
+		bool		hasFinalReg;
+		bool		_isOperator;
+		bool		bufferIsReady;
 
-			Client() :_fd(-1), _nickName(), \
+		Client()
+			:_fd(-1), _nickName(), \
 			_userName(), _realName(), outgoingBuffer(), buffer(), \
 			isFirstTime(true), \
 			hasPass(false), hasNick(false), hasUser(false), hasFinalReg(false), \
 			_isOperator(false), bufferIsReady(false) {}
 		};
 		
-		struct channelsStruct
-		{
-			std::string			_channelName;
-			std::string			_channelTopic;
-			std::string			_channelPassword;
-			std::vector<Client> _clients;
-			std::vector<int>	_clientsFdInvite;
-			std::vector<int>	_clientsBanned;
-			bool				_isTopicLocked;
-			bool				_isPrivate;
-			bool				_hasPassword;
-			std::string			_topicSetter;
-			time_t				_topicSetTime;
-			int					_maxUsers;
+	struct channelsStruct
+	{
+		std::string			_channelName;
+		std::string			_channelTopic;
+		std::string			_channelPassword;
+		std::vector<Client> _clients;
+		std::vector<int>	_clientsFdInvite;
+		std::vector<int>	_clientsBanned;
+		bool				_isTopicLocked;
+		bool				_isPrivate;
+		bool				_hasPassword;
+		std::string			_topicSetter;
+		time_t				_topicSetTime;
+		int					_maxUsers;
 
-			channelsStruct() :_channelName(), _channelTopic(), _channelPassword(), \
+		channelsStruct()
+			:_channelName(), _channelTopic(), _channelPassword(), \
 			_clients(), _clientsFdInvite(), \
 			_clientsBanned(), _isTopicLocked(false), _isPrivate(false), \
 			_hasPassword(false), _topicSetter(), _topicSetTime(0), _maxUsers(-1) \
-			{}
-		};
+		{}
+	};
 
 	std::vector<channelsStruct> _channels;
 	std::map<std::string, std::string > _channelTopics;
@@ -101,16 +102,13 @@ class Ircserv
 	time_t			_startTimer;
 	std::tm*		now;
 
-
-	public:
+public:
 
 	// Main Functions
 	void createServer(const std::string& pass, unsigned int port);
 	void acceptClients();
 	void bufferReader(int clientFd, char *buffer);
-
 	bool _checkStartPass(const std::string& pass);
-	bool _checkStartPort(const unsigned int port);
 
 
 	// Help Functions
@@ -133,6 +131,7 @@ class Ircserv
 	int	returnClientFd(std::string clientNick);
 	Client returnClientStruct(int clientFd);
 	Client& returnClientStructToModify(int clientFd);
+	channelsStruct& returnChannelStruct(const std::string &channel);
 	std::string to_string(int value);
 	std::vector<std::string> splitString(const std::string &str, char delimiter);
 
