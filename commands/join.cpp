@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 15:40:35 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/10 18:17:34 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 18:38:00 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,6 +173,7 @@ void Ircserv::commandJoin(const std::string &channel, const std::string &key)
 	keyVec = splitString(key, ',');
 
 
+	//#TODO testar SOMENTE join, ve se da erro
 	//#TODO JOIN invite com senha
 	if (!key.empty())
 		keyVecIt = keyVec.begin();

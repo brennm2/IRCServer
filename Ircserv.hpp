@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/10 18:11:09 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 18:55:03 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,8 +152,8 @@ public:
 	bool commandUserCheck(const int &clientFd, const Client &client);
 
 	// Command Part
-	void commandPart(std::string &channelName); 
-	void checkCommandPart(std::istringstream &lineStream);
+	void commandPart(const std::string &channelName, std::string reason);
+	void checkCommandPart(const std::string &channels, std::string reason);
 
 	// Command Topic
 	void commandTopic(std::string &channelName, std::string &newTopic);
