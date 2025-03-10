@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/10 14:51:55 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 18:11:09 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,6 +198,8 @@ public:
 	void placeClientInChannelInvite(const int &clientFd, const std::string &channel);
 	void brodcastInviteMessage(const Client &clientTarget, const std::string &channels);
 	bool checkCommandInvite(const std::string &target, const std::string &channel);
+	bool checkIfClientIsInviteded(const int& clientFd, const std::string &channel);
+
 
 	// Command Unknown
 	void commandUnknown(const std::string &command);

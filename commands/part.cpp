@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 12:05:50 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/10 12:06:33 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 18:25:53 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,8 @@ void Ircserv::checkCommandPart(std::istringstream &lineStream)
 
 void Ircserv::commandPart(std::string &channelName)
 {
+	//#TODO motivo para sair do part
 	Client client = returnClientStruct(_clientFd);
-	// std::vector<channelsStruct>::iterator It = _channels.begin();
 	if (channelName.empty()|| channelName[0] != '#' || !checkIfChannelExist(channelName))
 	{
 		std::string errMsg = ":ircserver 403 :" + client._nickName + " " + channelName + " :No such channel!\r\n";

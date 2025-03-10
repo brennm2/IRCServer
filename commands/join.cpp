@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 15:40:35 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/10 12:03:54 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 18:17:34 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,7 +140,9 @@ bool Ircserv::commandJoinCheckExistingChannel(const std::string &tempChannel, \
 	}
 	else if (checkIfChannelHasPassword(tempChannel))
 	{
-		if (keyVecIt != endVec && \
+		if(checkIfClientIsInviteded(_clientFd, tempChannel))
+			return (true);
+		else if (keyVecIt != endVec && \
 			!emptyKeyFlag && \
 			checkIfChannelHasCorrectPassword(tempChannel, *keyVecIt))
 		{
@@ -170,6 +172,8 @@ void Ircserv::commandJoin(const std::string &channel, const std::string &key)
 	bool emptyKeyFlag = false;
 	keyVec = splitString(key, ',');
 
+
+	//#TODO JOIN invite com senha
 	if (!key.empty())
 		keyVecIt = keyVec.begin();
 	else

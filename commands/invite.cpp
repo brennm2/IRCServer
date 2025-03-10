@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 11:55:26 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/06 14:41:32 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 18:18:05 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,21 @@ void Ircserv::placeClientInChannelInvite(const int &clientFd, const std::string 
 	channelsStruct &channelStruct = returnChannelStruct(channel);
 
 	channelStruct._clientsFdInvite.push_back(clientFd);
+}
+
+bool Ircserv::checkIfClientIsInviteded(const int& clientFd, const std::string &channel)
+{
+	channelsStruct channelStruct = returnChannelStruct(channel);
+
+	std::vector<int>::const_iterator inviteFd = channelStruct._clientsFdInvite.begin();
+
+	while(inviteFd != channelStruct._clientsFdInvite.end())
+	{
+		if (*inviteFd == clientFd)
+			return (true);
+		inviteFd++;
+	}
+	return (false);
 }
 
 
