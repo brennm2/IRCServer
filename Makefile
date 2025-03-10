@@ -15,8 +15,6 @@ SRC = main.cpp \
 	Ircserv.cpp\
 	debugFuncions.cpp \
 	helpFunctions.cpp \
-	channelControl.cpp\
-	utils.cpp \
 	commands/pass.cpp \
 	commands/ping.cpp \
 	commands/join.cpp \
@@ -29,6 +27,8 @@ SRC = main.cpp \
 	commands/kick.cpp \
 	commands/invite.cpp \
 	commands/unknown.cpp \
+	commands/part.cpp \
+	commands/topic.cpp \
 	signalHandler.cpp \
 	bonus/bot.cpp \
 

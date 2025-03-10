@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/09 21:13:31 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 14:35:57 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,7 +171,6 @@ int Ircserv::returnClientFd(std::string clientNick)
 				return(clientIt->second._fd);
 			clientIt++;
 		}
-		//Se nao encontrar nick name no ClientsMap, entao da throw
 		throw std::runtime_error("No nickName found in function returnClientFd, nick->" + clientNick + "<- End Nick");
 	}
 	else
@@ -191,7 +190,7 @@ void Ircserv::broadcastMessageToChannel(const std::string& message, std::string 
 			const std::vector<Client>& clients = channelIt->_clients;
 			for (std::vector<Client>::const_iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
 			{
-				int clientFd = clientIt->_fd; // Pega o file descriptor do cliente
+				int clientFd = clientIt->_fd;
 				send(clientFd, message.c_str(), message.size(), 0);
 			}
 			return;
@@ -296,31 +295,28 @@ void Ircserv::removeClientFromChannel(const std::string& channelName, int client
 	{
 		if (channelIt->_channelName == channelName)
 		{
-			// Encontra o cliente no vetor de clientes do canal
 			std::vector<Client>& clients = channelIt->_clients;
 			for (std::vector<Client>::iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
 			{
 				if (clientIt->_fd == clientFd)
 				{
-					// Remove o cliente do vetor
 					clients.erase(clientIt);
-					std::cout << "Cliente com FD " << clientFd << " removido do canal " << channelName << "\n";
+					std::cout << "Client with FD: " << clientFd << " removed from channel: " << channelName << "\n";
 
-					// Se o canal estiver vazio após a remoção, apaga o canal do vetor
 					if (clients.empty())
 					{
 						_channels.erase(channelIt);
-						std::cout << "Canal " << channelName << " removido pois está vazio\n";
+						std::cout << "Channel: " << channelName << " deleted because is empty\n";
 					}
 					return;
 				}
 			}
-			std::cerr << "Cliente com FD " << clientFd << " não encontrado no canal " << channelName << "\n";
+			std::cerr << "Client with FD: " << clientFd << " not found on the channel: " << channelName << "\n";
 			return;
 		}
 		++channelIt;
 	}
-	std::cerr << "Canal " << channelName << " não encontrado\n";
+	std::cerr << "Channel: " << channelName << " not found\n";
 }
 
 void Ircserv::removeClientFromEveryChannel(int clientFd)
@@ -328,19 +324,17 @@ void Ircserv::removeClientFromEveryChannel(int clientFd)
 	std::vector<channelsStruct>::iterator channelIt = _channels.begin();
 	while (channelIt != _channels.end())
 	{
-		// Encontra o cliente no vetor de clientes do canal
 		std::vector<Client>& clients = channelIt->_clients;
 		for (std::vector<Client>::iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
 		{
 			if (clientIt->_fd == clientFd)
 			{
-				std::cout << "Cliente: " << clientIt->_nickName << " removido do canal " << channelIt->_channelName << "\n";
+				std::cout << "Client: " << clientIt->_nickName << " removed from channel: " << channelIt->_channelName << "\n";
 				clients.erase(clientIt);
 
-				// Se o canal estiver vazio após a remoção, apaga o canal do vetor
 				if (clients.empty())
 				{
-					std::cout << "Canal " << channelIt->_channelName << " removido pois está vazio\n";
+					std::cout << "Channel: " << channelIt->_channelName << " deleted because is empty\n";
 					channelIt = _channels.erase(channelIt);
 				}
 				else
@@ -370,5 +364,36 @@ std::vector<std::string> Ircserv::splitString(const std::string &str, char delim
 		}
 	}
 	return (tokens);
+}
+
+std::string Ircserv::_getChannelTopic(std::string channel)
+{
+	std::vector<channelsStruct>::iterator It = _channels.begin();
+	
+	while (It != _channels.end())
+	{
+		if (It->_channelName == channel)
+			return It->_channelTopic;
+		It++;
+	}
+	return NULL;
+}
+
+
+void Ircserv::_changeChannelTopic(std::string &channel, std::string &newTopic)
+{
+	std::vector<channelsStruct>::iterator It = _channels.begin();
+	while (It != _channels.end())
+	{
+		if (It->_channelName == channel)
+		{
+			It->_channelTopic = newTopic;
+			It->_topicSetter = _clientsMap[_clientFd]._nickName; // Store who set the topic
+			It->_topicSetTime = time(NULL); // Store the current timestamp
+			return;
+		}
+		++It;
+	}
+
 }
 

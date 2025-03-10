@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 12:14:21 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/13 18:24:57 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 12:05:12 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,5 +44,5 @@ void Ircserv::commandQuit(std::istringstream &lineStream)
 			break;
 		}
 	}
-	std::cout << "Client " << _clientFd << " disconnected.\n";
+	std::cout << "Client: " << _clientFd << " disconnected.\n";
 }

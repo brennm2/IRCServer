@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:49:36 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/06 18:55:22 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 12:15:43 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,13 @@ bool Ircserv::commandNickCheck(const std::string &nickName)
 {
 	Client client = returnClientStruct(_clientFd);
 	std::string errMsg;
-	if (nickName.find_first_of("#: &") != std::string::npos)
+	if (!client.hasPass)
+	{
+		errMsg = ":ircserver 451 * :You're not authenticated\r\n";
+		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+		return (false);
+	}
+	else if (nickName.find_first_of("#: &") != std::string::npos)
 	{
 		if (client.hasNick)
 			errMsg = ":ircserver 432 " + nickName + " " + nickName + " :Erroneus nickname\r\n";
@@ -100,7 +106,7 @@ void Ircserv::commandNick(int clientFd, const std::string &nickName)
 		client.isFirstTime = false;
 		client.hasNick = true;
 	}
-	std::cout << "Registrado o client: " << green << nickName << reset << "\n";
+	std::cout << "Client registration: " << green << nickName << reset << "\n";
 
 
 }

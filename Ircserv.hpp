@@ -6,9 +6,10 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/09 21:14:50 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 14:39:40 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #pragma once
 
@@ -41,12 +42,9 @@
 
 
 
-class Ircserv 
+class Ircserv
 {
-	
 	private:
-		// nome do canal - FDs dos usuarios
-		
 		struct Client
 		{
 			int			_fd;
@@ -63,14 +61,13 @@ class Ircserv
 			bool		_isOperator;
 			bool		bufferIsReady;
 
-		Client() :_fd(-1), _nickName(), \
-		_userName(), _realName(), outgoingBuffer(), buffer(), \
-		isFirstTime(true), \
-		hasPass(false), hasNick(false), hasUser(false), hasFinalReg(false), \
-		_isOperator(false), bufferIsReady(false) {}
-};
-
-	private:
+			Client() :_fd(-1), _nickName(), \
+			_userName(), _realName(), outgoingBuffer(), buffer(), \
+			isFirstTime(true), \
+			hasPass(false), hasNick(false), hasUser(false), hasFinalReg(false), \
+			_isOperator(false), bufferIsReady(false) {}
+		};
+		
 		struct channelsStruct
 		{
 			std::string			_channelName;
@@ -82,9 +79,9 @@ class Ircserv
 			bool				_isTopicLocked;
 			bool				_isPrivate;
 			bool				_hasPassword;
-		std::string			_topicSetter;
-		time_t				_topicSetTime;
-		int					_maxUsers;
+			std::string			_topicSetter;
+			time_t				_topicSetTime;
+			int					_maxUsers;
 
 			channelsStruct() :_channelName(), _channelTopic(), _channelPassword(), \
 			_clients(), _clientsFdInvite(), \
@@ -92,7 +89,7 @@ class Ircserv
 			_hasPassword(false), _topicSetter(), _topicSetTime(0), _maxUsers(-1) \
 			{}
 		};
-			
+
 	std::vector<channelsStruct> _channels;
 	std::map<std::string, std::string > _channelTopics;
 	std::map<int, Client> _clientsMap;
@@ -100,77 +97,45 @@ class Ircserv
 	std::string		_password;
 	unsigned int	_port;
 	static bool		endServer;
-
-
-
 	int				_clientFd;
 	int				_serverFd;
 	time_t			_startTimer;
 	std::tm*		now;
 
 
+	public:
 
+	// Main Functions
+	void createServer(const std::string& pass, unsigned int port);
+	void acceptClients();
+	void bufferReader(int clientFd, char *buffer);
 
 	bool _checkStartPass(const std::string& pass);
 	bool _checkStartPort(const unsigned int port);
 
 
-	std::string _getChannelTopic(std::string channel);
-	void 		_changeChannelTopic(std::string &channel, std::string &newTopic);
-
-	public:
-
-
-	void createServer(const std::string& pass, unsigned int port);
-	void acceptClients();
-
-	//Lida com as mensagens
-	void bufferReader(int clientFd, char *buffer);
-
-
-
-	//Commands
-	void commandUser(std::istringstream &lineStream);
-	//-------------------mudkip------------------
-	void commandPart(std::string &channelName); 
-	void checkCommandPart(std::istringstream &lineStream);
-	void commandTopic(std::string &channelName, std::string &newTopic);
-	void checkCommandTopic(std::istringstream &lineStream);
-	void commandPrivMSG(std::istringstream &lineStream);
-
-	//Help Functions
+	// Help Functions
 	bool checkIfClientInChannel(const std::string& channel, int clientFd);
 	bool checkIfClientInChannelByNick(const std::string& channel, \
 		const std::string& clientNick);
 	bool checkIfClientInServer(int clientFd);
 	bool checkIfClientInServerByNick(std::string clientNick);
-	void clientFinalRegistration(int clientFd);
 	bool checkIfChannelExist(std::string channel);
-	Client returnClientStruct(int clientFd);
-	Client& returnClientStructToModify(int clientFd);
-	Client& returnClientStructToModifyInChannel(int clientFd, std::string channel);
-	channelsStruct& returnChannelStruct(const std::string &channel);
-	int	returnClientFd(std::string clientNick);
 	void makeUserList(std::string channel);
 	void createNewChannel(const std::string& channelName);
 	void addClientToChannel(const std::string& channelName, const Client& client);
-	std::vector<std::string> splitString(const std::string &str, char delimiter);
-
-	
-
-
-	bool privMsgSintaxCheck(std::string firstWord, std::string target);
+	void clientFinalRegistration(int clientFd);
 	void removeClientFromChannel(const std::string& channelName, int clientFd);
 	void removeClientFromEveryChannel(int clientFd);
-
-
-
 	void broadcastMessageToChannel(const std::string& message, std::string channel);
 	void broadcastMessageToChannelExceptSender(const std::string& message, std::string channel, int senderFd);
 	void broadcastMessage(const std::string& message, int sender_fd);
 	void broadcastMessagePrivate(const std::string &message, const std::string &target);
-
-
+	int	returnClientFd(std::string clientNick);
+	Client returnClientStruct(int clientFd);
+	Client& returnClientStructToModify(int clientFd);
+	std::string to_string(int value);
+	std::vector<std::string> splitString(const std::string &str, char delimiter);
 
 	//CommandNick----
 	void commandNick(int clientFd, const std::string &str);
@@ -183,6 +148,20 @@ class Ircserv
 
 	//Command Ping
 	void commandPing(std::string token);
+	
+	// Command User
+	void commandUser(std::istringstream &lineStream);
+	bool commandUserCheck(const int &clientFd, const Client &client);
+
+	// Command Part
+	void commandPart(std::string &channelName); 
+	void checkCommandPart(std::istringstream &lineStream);
+
+	// Command Topic
+	void commandTopic(std::string &channelName, std::string &newTopic);
+	void checkCommandTopic(std::istringstream &lineStream);
+	std::string _getChannelTopic(std::string channel);
+	void 		_changeChannelTopic(std::string &channel, std::string &newTopic);
 
 	//Command Join
 	void commandJoin(const std::string &channel, const std::string &key);
@@ -194,8 +173,13 @@ class Ircserv
 	bool checkIfClientCanJoinBannedChannel(const int &clientFd, const std::string &channel);
 	bool checkIfChannelHasPassword(const std::string &channel);
 	bool checkIfChannelHasCorrectPassword(const std::string &channel, const std::string &password);
+	
 	//Command MOTD
 	void commandMotd();
+
+	// Command PrivMSG
+	void commandPrivMSG(std::istringstream &lineStream);
+	bool privMsgSintaxCheck(std::string firstWord, std::string target);
 
 	//Command Quit
 	void commandQuit(std::istringstream &lineStream);
@@ -210,6 +194,7 @@ class Ircserv
 	void changeClientToOperator(int clientFd, std::string channel);
 	bool isOperator(const int clientFd, const std::string &channel);
 	bool applyChannelModes(std::string &channelName, std::string &modes, std::string &parameters);
+	
 	// Command Invite
 	void commandInvite(const std::string &clients, const std::string &channels);
 	void placeClientInChannelInvite(const int &clientFd, const std::string &channel);
@@ -231,19 +216,17 @@ class Ircserv
 	void debugShowAllClients(void);
 	void debugShowSpecificClient(Client client);
 
-
 	//Visual Functions
 	void visualLoadingServer(void);
 
-	static void signalHandler(int signal);
-	void signalCatcher(void);
+	// Signal Handler
 	bool eofChecker(const std::string &buffer);
 	bool checkIfBufferHasEnd(const std::string &line);
 	bool checkIfClientHasEndedBuffer(const int &clientFd);
-	std::string returnClientBuffer(const int &clientFd);
+	static void signalHandler(int signal);
 	void clientHasSendedBuffer(const int &clientFd);
+	void signalCatcher(void);
+	std::string returnClientBuffer(const int &clientFd);
 } ;
 
 void printAsciiValues(const std::string& str);
-std::string to_string(int value);
-// void signalHandler(int signal);
