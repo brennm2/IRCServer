@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:44:14 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/03 12:08:27 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 12:05:04 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,6 @@ void Ircserv::commandPrivMSG(std::istringstream &lineStream)
 	if (!privMsgSintaxCheck(message, target))
 		return;
 	
-	//Se for mensagem direta para um client
 	for(std::vector<std::string>::const_iterator it = targetsVec.begin(); \
 			it != targetsVec.end(); it++)
 	{
