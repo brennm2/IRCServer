@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/10 14:39:40 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 14:59:50 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,6 +134,7 @@ class Ircserv
 	int	returnClientFd(std::string clientNick);
 	Client returnClientStruct(int clientFd);
 	Client& returnClientStructToModify(int clientFd);
+	channelsStruct& returnChannelStruct(const std::string &channel);
 	std::string to_string(int value);
 	std::vector<std::string> splitString(const std::string &str, char delimiter);
 

@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/10 14:35:57 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 14:59:03 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,6 +134,13 @@ Ircserv::channelsStruct& Ircserv::returnChannelStruct(const std::string &channel
 	}
 	throw std::runtime_error("Channel not found in returnChannelStruct");
 	
+}
+
+std::string Ircserv::to_string(int value)
+{
+	std::ostringstream oss;
+	oss << value;
+	return oss.str();
 }
 
 
