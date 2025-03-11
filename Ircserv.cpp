@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/11 13:14:55 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/11 18:15:53 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ void Ircserv::createServer(const std::string& pass, unsigned int port)
 	}
 
 	// Set non-blocking mode for the server socket
-	int flags = fcntl(_serverFd, F_GETFL, 0);
+	int flags = fcntl(_serverFd, F_SETFL, O_NONBLOCK);
 	if (flags == -1 || fcntl(_serverFd, F_SETFL, flags | O_NONBLOCK) == -1)
 	{
 		close(_serverFd);
@@ -150,6 +150,7 @@ void Ircserv::acceptClients()
 						close(poll_fds[i].fd);
 						_clientsMap.erase(poll_fds[i].fd);
 						removeIndices.push_back(i);
+						//TODO dar part de todos os canais
 						removeClientFromEveryChannel(tempFd);
 						continue;
 					}
