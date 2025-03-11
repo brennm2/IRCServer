@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/10 18:54:47 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/11 13:14:55 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -354,9 +354,6 @@ void Ircserv::visualLoadingServer(void)
 	sleep(1);
 	std::cout << "\n";
 }
-
-
-//#TODO ASCTIME LOCALTIME
 
 // 00 - Branco  
 // 01 - Preto  

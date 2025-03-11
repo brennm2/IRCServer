@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 15:40:35 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/10 18:38:00 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/11 13:14:39 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,9 +115,6 @@ bool Ircserv::commandJoinCheck(const std::string &channel)
 		return false;
 	}
 	return (true);
-
-	//#TODO RPL_TOPICWHOTIME (333)
-
 }
 
 bool Ircserv::commandJoinCheckExistingChannel(const std::string &tempChannel, \
@@ -172,9 +169,13 @@ void Ircserv::commandJoin(const std::string &channel, const std::string &key)
 	bool emptyKeyFlag = false;
 	keyVec = splitString(key, ',');
 
+	if (channelsVec.size() < 1)
+	{
+		std::string errMsg = ":ircserver 461 :" + client._nickName + " JOIN :Not enough parameters\r\n";
+		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+		return ;
+	}
 
-	//#TODO testar SOMENTE join, ve se da erro
-	//#TODO JOIN invite com senha
 	if (!key.empty())
 		keyVecIt = keyVec.begin();
 	else
