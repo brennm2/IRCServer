@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Ircserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/11 18:15:53 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/11 18:50:06 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ void Ircserv::createServer(const std::string& pass, unsigned int port)
 
 	// Set non-blocking mode for the server socket
 	int flags = fcntl(_serverFd, F_SETFL, O_NONBLOCK);
-	if (flags == -1 || fcntl(_serverFd, F_SETFL, flags | O_NONBLOCK) == -1)
+	if (flags == -1)
 	{
 		close(_serverFd);
 		throw std::runtime_error("Error setting server socket to non-blocking mode!");
@@ -118,7 +118,7 @@ void Ircserv::acceptClients()
 
 					// Set non-blocking mode for the client socket
 					int flags = fcntl(clientFd, F_SETFL, O_NONBLOCK);
-					if (flags == -1 || fcntl(clientFd, F_SETFL, flags | O_NONBLOCK) == -1)
+					if (flags == -1)
 					{
 						std::cerr << red << "Error setting client socket to non-blocking mode!\n" << reset;
 						close(clientFd);
