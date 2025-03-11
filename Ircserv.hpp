@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Ircserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/11 14:29:26 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/03/11 18:42:10 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,6 +155,7 @@ public:
 	// Command Part
 	void commandPart(const std::string &channelName, std::string reason);
 	void checkCommandPart(const std::string &channels, std::string reason);
+	void disconnectClientFromEveryChannel(int clientFd);
 
 	// Command Topic
 	void commandTopic(std::string &channelName, std::string &newTopic);

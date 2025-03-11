@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/10 12:02:34 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/11 18:59:48 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -317,6 +317,44 @@ void Ircserv::removeClientFromChannel(const std::string& channelName, int client
 		++channelIt;
 	}
 	std::cerr << "Channel: " << channelName << " not found\n";
+}
+
+void Ircserv::disconnectClientFromEveryChannel(int clientFd)
+{
+	Client client = returnClientStruct(clientFd);
+	std::vector<channelsStruct>::iterator channelIt = _channels.begin();
+	while (channelIt != _channels.end())
+	{
+		std::vector<Client>& clients = channelIt->_clients;
+		for (std::vector<Client>::iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
+		{
+			if (clientIt->_fd == clientFd)
+			{
+				// commandPart(channelIt->_channelName, "Leaving");
+				std::string leaveMsg = ":" + client._nickName + "!" + client._userName + \
+				"@localhost PART " + channelIt->_channelName + " :Leaving\r\n";
+
+				broadcastMessageToChannelExceptSender(leaveMsg, channelIt->_channelName, clientFd);
+
+				// std::cout << "Client: " << clientIt->_nickName << " removed from channel: " << channelIt->_channelName << "\n";
+				// clients.erase(clientIt);
+
+				// if (clients.empty())
+				// {
+				// 	std::cout << "Channel: " << channelIt->_channelName << " deleted because is empty\n";
+				// 	channelIt = _channels.erase(channelIt);
+				// }
+				// else
+				// {
+				// 	++channelIt;
+				// }
+				// return;
+			}
+		}
+		++channelIt;
+	}
+	_clientsMap.erase(clientFd);
+
 }
 
 void Ircserv::removeClientFromEveryChannel(int clientFd)
