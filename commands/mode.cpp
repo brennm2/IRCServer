@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mode.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 10:25:52 by diodos-s          #+#    #+#             */
-/*   Updated: 2025/03/11 14:53:32 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/03/11 17:44:19 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ void Ircserv::commandModeChannel(std::string &channelName, std::string &modes, s
 	while (channelIt != _channels.end())
 	{
 		if (channelIt->_channelName == channelName)
-		break;
+			break;
 		++channelIt;
 	}
 
@@ -147,12 +147,8 @@ void Ircserv::commandModeChannel(std::string &channelName, std::string &modes, s
 	}
 	
 	// Apply mode changes
-	if (applyChannelModes(channelName, modes, parameters))
-	{
-		std::cout << parameters << std::endl;
-		std::string modeChangeMsg = ":" + client._nickName + "!" + client._userName + "@localhost MODE " + channelName + " " + modes + " " + parameters + "\r\n";
-		broadcastMessageToChannel(modeChangeMsg, channelName);
-	}
+	applyChannelModes(channelName, modes, parameters);
+
 }
 
 bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, std::string &parameters)
@@ -179,25 +175,83 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 	if (!channel)
 		return false;
 
-	bool adding = (modes[0] == '+'); // Determine if we're adding or removing a mode
 	std::istringstream paramStream(parameters);
 	std::string param;
-
+	static bool lastSignal = false;
+	bool hasSignal = false;
+	bool adding = true;
 	for (size_t i = 0; i < modes.size(); i++)
 	{
 		char mode = modes[i];
+		if (mode == '+' || mode == '-')
+			hasSignal = true;
+
+		if (mode == '+')
+			lastSignal = true;
+		else if (mode == '-')
+			lastSignal = false;
+
+		if (!hasSignal)
+			adding = true;
+		else
+			adding = lastSignal;
+
 		if (mode == '+' || mode == '-')
 			continue;
 
 		switch(mode)
 		{
 			case 'i': // Invite only mode
-				channel->_isPrivate = adding; // Reset invite list
-				break;
+			{
+				if (adding)
+				{
+					std::cout << red << "ENTROU AQUI" << "\n" << reset;
+					if (!channel->_isPrivate)
+					{
+						channel->_isPrivate = true; // Reset invite list
+						std::string modeChangeMsg = ":" + client._nickName + "!" + client._userName + \
+												"@localhost MODE " + channelName + " +" + mode + "\r\n";
+						broadcastMessageToChannel(modeChangeMsg, channelName);
+					}
+				}
+				else
+				{
+					if (channel->_isPrivate)
+					{
+						channel->_isPrivate = false;
+						std::string modeChangeMsg = ":" + client._nickName + "!" + client._userName + \
+											"@localhost MODE " + channelName + " -" + mode + "\r\n";
+						broadcastMessageToChannel(modeChangeMsg, channelName);
+					}
+				}
+				continue;
+			}
 
 			case 't': //Topic lock mode (only ops can change topic)
-				channel->_isTopicLocked = adding;
-				break;
+			{
+				if (adding)
+				{
+					if (!channel->_isTopicLocked)
+					{
+						channel->_isTopicLocked = true;
+						std::string modeChangeMsg = ":" + client._nickName + "!" + client._userName + \
+											"@localhost MODE " + channelName + " +" + mode + "\r\n";
+						broadcastMessageToChannel(modeChangeMsg, channelName);
+					}
+				}
+				else
+				{
+					if (channel->_isTopicLocked)
+					{
+						channel->_isTopicLocked = false;
+						std::string modeChangeMsg = ":" + client._nickName + "!" + client._userName + \
+											"@localhost MODE " + channelName + " -" + mode + "\r\n";
+						broadcastMessageToChannel(modeChangeMsg, channelName);
+					}
+				}
+				continue;
+				
+			}
 
 			case 'k':
 				if (adding)
@@ -205,97 +259,139 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 					paramStream >> param;
 					if (param.empty())
 					{
-						std::string errMsg = ":ircserv 461 " + client._nickName + " " + channelName + " k :Not enough parameters\r\n";
+						std::string errMsg = ":ircserver 461 " + client._nickName + " " + channelName + " k :Not enough parameters\r\n";
 						send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-                        return false;
+						continue;
 					}
+					
 					channel->_channelPassword = param; // Store the password
 					channel->_hasPassword = true;
+					std::string modeChangeMsg = ":" + client._nickName + "!" + client._userName + \
+							"@localhost MODE " + channelName + " +" + mode + " " + param + "\r\n";
+					broadcastMessageToChannel(modeChangeMsg, channelName);
 				}
 				else
 				{
-					channel->_channelPassword.erase(); // Remove the password
-					channel->_hasPassword = false;
+					if (channel->_hasPassword)
+					{
+						channel->_channelPassword.erase(); // Remove the password
+						channel->_hasPassword = false;
+						std::string modeChangeMsg = ":" + client._nickName + "!" + client._userName + \
+								"@localhost MODE " + channelName + " -" + mode + " *\r\n";
+						broadcastMessageToChannel(modeChangeMsg, channelName);
+					}
 				}
-				break;
+				continue;
 
 			case 'o': // Give or remove operator status
 				paramStream >> param;
+
 				if (adding)
 				{
 					if (param.empty())
 					{
 						std::string errMsg = ":ircserver 461 " + client._nickName + " " + channelName + " o :Not enough parameters\r\n";
 						send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-						return false;
+						continue ;
 					}
-					
-					if (!checkIfClientInServerByNick(param)) 
+					else if (!checkIfClientInServerByNick(param)) 
 					{
 						std::string errMsg = ":ircserver 441 " + client._nickName + " " + param + " " + channelName + " :They aren't on that channel\r\n";
 						send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-						return false;
+						continue;
 					}
-
 					// Find the client in the channel
-					for (size_t j = 0; j < channel->_clients.size(); j++)
+					else
 					{
-						if (channel->_clients[j]._nickName == param)
+						for (size_t j = 0; j < channel->_clients.size(); j++)
 						{
-							channel->_clients[j]._isOperator = true;
-							break;
+							if (channel->_clients[j]._nickName == param)
+							{
+								if (!channel->_clients[j]._isOperator)
+								{
+									channel->_clients[j]._isOperator = true;
+									std::string modeChangeMsg = ":" + client._nickName + "!" + client._userName + \
+										"@localhost MODE " + channelName + " +" + mode + " " + param + "\r\n";
+									broadcastMessageToChannel(modeChangeMsg, channelName);
+									continue;
+								}
+							}
 						}
-					}		
+					}
 				}
 				else
 				{
+					if (param.empty())
+					{
+						std::string errMsg = ":ircserver 461 " + client._nickName + " " + channelName + " o :Not enough parameters\r\n";
+						send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+						continue;
+					}
 					if (!checkIfClientInServerByNick(param))
 					{
 						std::string errMsg = ":ircserver 441 " + client._nickName + " " + param + " " + channelName + " :They aren't on that channel\r\n";
 						send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-						return false;
+						continue;
 					}
 					for (size_t j = 0; j < channel->_clients.size(); j++)
 					{
 						if (channel->_clients[j]._nickName == param)
 						{
-							channel->_clients[j]._isOperator = false;
-							break;
+							if (channel->_clients[j]._isOperator)
+							{
+								std::string modeChangeMsg = ":" + client._nickName + "!" + client._userName + \
+										"@localhost MODE " + channelName + " -" + mode + " " + param + "\r\n";
+								broadcastMessageToChannel(modeChangeMsg, channelName);
+								channel->_clients[j]._isOperator = false;
+								continue;
+							}
 						}
 					}
 				}
-				break;
+				continue;
 
 			case 'l': // Set user limit
 				if (adding)
 				{
 					paramStream >> param;
+
 					if (!param.empty() || std::atoi(param.c_str()) > 0)
 					{
 						channel->_maxUsers = std::atoi(param.c_str());
 						if (channel->_maxUsers > 0)
 						{
 							channel->_hasLimit = true;
+								std::string modeChangeMsg = ":" + client._nickName + "!" + client._userName + \
+									"@localhost MODE " + channelName + " +" + mode + " " + param + "\r\n";
+							broadcastMessageToChannel(modeChangeMsg, channelName);
 						}
 					}
 					else
 					{
-						std::string errMsg = ":ircserver 461 " + client._nickName + " " + channelName + " l :Not enough parameters\r\n";
-						send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-						return false;
+							std::string errMsg = ":ircserver 461 " + client._nickName + " " + channelName + " l :Not enough parameters\r\n";
+							send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 					}
 				}
 				else
 				{
-					channel->_maxUsers = -1;
-					channel->_hasLimit = false;
+					paramStream >> param;
+					if (channel->_hasLimit)
+					{
+						channel->_maxUsers = -1;
+						channel->_hasLimit = false;
+						std::string modeChangeMsg = ":" + client._nickName + "!" + client._userName + \
+									"@localhost MODE " + channelName + " -" + mode + " " + param + "\r\n";
+						broadcastMessageToChannel(modeChangeMsg, channelName);
+					}
 				}
-				break;
+				continue;
+	
 
 			default:
 				std::string errMsg = ":ircserver 472 " + client._nickName + " " + std::string(1, mode) + " :is unknown mode char to me\r\n";
 				send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 				break;
+			
 		}
 	}
 	return true;
