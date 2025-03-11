@@ -6,13 +6,12 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/10 15:48:57 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/11 12:08:23 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #pragma once
-
 
 #include <iostream>
 #include <sys/socket.h>
@@ -29,6 +28,8 @@
 #include <cerrno>
 #include <algorithm>
 #include <csignal>
+#include <climits>
+#include <stdexcept>
 
 
 // COLORS //
@@ -39,8 +40,6 @@
 #define magenta "\033[35m"
 #define cyan "\033[36m"
 #define reset "\033[0m"
-
-
 
 class Ircserv
 {
@@ -69,27 +68,28 @@ class Ircserv
 			_isOperator(false), bufferIsReady(false) {}
 		};
 		
-		struct channelsStruct
-		{
-			std::string			_channelName;
-			std::string			_channelTopic;
-			std::string			_channelPassword;
-			std::vector<Client> _clients;
-			std::vector<int>	_clientsFdInvite;
-			std::vector<int>	_clientsBanned;
-			bool				_isTopicLocked;
-			bool				_isPrivate;
-			bool				_hasPassword;
-			std::string			_topicSetter;
-			time_t				_topicSetTime;
-			int					_maxUsers;
+	struct channelsStruct
+	{
+		std::string			_channelName;
+		std::string			_channelTopic;
+		std::string			_channelPassword;
+		std::vector<Client> _clients;
+		std::vector<int>	_clientsFdInvite;
+		std::vector<int>	_clientsBanned;
+		bool				_isTopicLocked;
+		bool				_isPrivate;
+		bool				_hasPassword;
+		std::string			_topicSetter;
+		time_t				_topicSetTime;
+		int					_maxUsers;
 
-			channelsStruct() :_channelName(), _channelTopic(), _channelPassword(), \
+		channelsStruct()
+			:_channelName(), _channelTopic(), _channelPassword(), \
 			_clients(), _clientsFdInvite(), \
 			_clientsBanned(), _isTopicLocked(false), _isPrivate(false), \
 			_hasPassword(false), _topicSetter(), _topicSetTime(0), _maxUsers(-1) \
-			{}
-		};
+		{}
+	};
 
 	std::vector<channelsStruct> _channels;
 	std::map<std::string, std::string > _channelTopics;
@@ -103,16 +103,13 @@ class Ircserv
 	time_t			_startTimer;
 	std::tm*		now;
 
-
-	public:
+public:
 
 	// Main Functions
 	void createServer(const std::string& pass, unsigned int port);
 	void acceptClients();
 	void bufferReader(int clientFd, char *buffer);
-
 	bool _checkStartPass(const std::string& pass);
-	bool _checkStartPort(const unsigned int port);
 
 
 	// Help Functions
@@ -155,8 +152,8 @@ class Ircserv
 	bool commandUserCheck(const int &clientFd, const Client &client);
 
 	// Command Part
-	void commandPart(std::string &channelName); 
-	void checkCommandPart(std::istringstream &lineStream);
+	void commandPart(const std::string &channelName, std::string reason);
+	void checkCommandPart(const std::string &channels, std::string reason);
 
 	// Command Topic
 	void commandTopic(std::string &channelName, std::string &newTopic);
@@ -201,6 +198,8 @@ class Ircserv
 	void placeClientInChannelInvite(const int &clientFd, const std::string &channel);
 	void brodcastInviteMessage(const Client &clientTarget, const std::string &channels);
 	bool checkCommandInvite(const std::string &target, const std::string &channel);
+	bool checkIfClientIsInviteded(const int& clientFd, const std::string &channel);
+
 
 	// Command Unknown
 	void commandUnknown(const std::string &command);
