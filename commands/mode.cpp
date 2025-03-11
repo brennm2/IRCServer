@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 10:25:52 by diodos-s          #+#    #+#             */
-/*   Updated: 2025/03/11 17:44:19 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/11 18:37:22 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -357,14 +357,15 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 
 					if (!param.empty() || std::atoi(param.c_str()) > 0)
 					{
-						channel->_maxUsers = std::atoi(param.c_str());
-						if (channel->_maxUsers > 0)
-						{
-							channel->_hasLimit = true;
-								std::string modeChangeMsg = ":" + client._nickName + "!" + client._userName + \
-									"@localhost MODE " + channelName + " +" + mode + " " + param + "\r\n";
-							broadcastMessageToChannel(modeChangeMsg, channelName);
-						}
+						if (std::atoi(param.c_str()) > 100)
+							channel->_maxUsers = 100;
+						else
+							channel->_maxUsers = std::atoi(param.c_str());
+
+						channel->_hasLimit = true;
+						std::string modeChangeMsg = ":" + client._nickName + "!" + client._userName + \
+								"@localhost MODE " + channelName + " +" + mode + " " + to_string(channel->_maxUsers) + "\r\n";
+						broadcastMessageToChannel(modeChangeMsg, channelName);
 					}
 					else
 					{
@@ -380,7 +381,7 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 						channel->_maxUsers = -1;
 						channel->_hasLimit = false;
 						std::string modeChangeMsg = ":" + client._nickName + "!" + client._userName + \
-									"@localhost MODE " + channelName + " -" + mode + " " + param + "\r\n";
+									"@localhost MODE " + channelName + " -" + mode + "\r\n";
 						broadcastMessageToChannel(modeChangeMsg, channelName);
 					}
 				}

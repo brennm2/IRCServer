@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/29 17:14:04 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/18 20:23:45 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/11 17:47:51 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ void Ircserv::debugShowChannelsInfo()
 			{
 				std::cout << *fd << " - ";
 			}
+			std::cout << "\nChannel Limit: " << channel->_maxUsers << "\n";
 			std::cout << "\n";
 			std::cout << yellow << "-- Start Clients --" << "\n" << reset;
 			for (std::vector<Client>::const_iterator clients = channel->_clients.begin(); \
