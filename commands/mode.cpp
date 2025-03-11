@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 10:25:52 by diodos-s          #+#    #+#             */
-/*   Updated: 2025/03/06 18:58:04 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/03/11 13:20:03 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,9 +225,16 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 
 			case 'o': // Give or remove operator status
 				paramStream >> param;
-				if (!param.empty())
+				opFd = returnClientFd(param);
+				if (adding)
 				{
-					opFd = returnClientFd(param);
+					if (param.empty())
+					{
+						std::string errMsg = ":ircserver 461 " + client._nickName + " " + channelName + " o :Not enough parameters\r\n";
+						send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+						return false;
+					}
+					
 					if (opFd == -1 || !checkIfClientInChannel(channelName, opFd))
 					{
 						std::string errMsg = ":ircserver 441 " + client._nickName + " " + param + " " + channelName + " :They aren't on that channel\r\n";
@@ -240,16 +247,27 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 					{
 						if (channel->_clients[j]._fd == opFd)
 						{
-							channel->_clients[j]._isOperator = adding;
+							channel->_clients[j]._isOperator = true;
 							break;
 						}
-					}
+					}		
 				}
 				else
 				{
-					std::string errMsg = ":ircserv 461 " + client._nickName + " " + channelName + " o :Not enough parameters\r\n";
-					send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-                    return false;
+					if (opFd == -1 || !checkIfClientInChannel(channelName, opFd))
+					{
+						std::string errMsg = ":ircserver 441 " + client._nickName + " " + param + " " + channelName + " :They aren't on that channel\r\n";
+						send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+						return false;
+					}
+					for (size_t j = 0; j < channel->_clients.size(); j++)
+					{
+						if (channel->_clients[j]._fd == opFd)
+						{
+							channel->_clients[j]._isOperator = false;
+							break;
+						}
+					}
 				}
 				break;
 
