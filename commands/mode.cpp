@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 10:25:52 by diodos-s          #+#    #+#             */
-/*   Updated: 2025/03/11 13:20:03 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/03/11 14:53:32 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,12 +132,10 @@ void Ircserv::commandModeChannel(std::string &channelName, std::string &modes, s
 			{
 				modeResponse += " " + to_string(channelIt->_maxUsers);
 			}
-			modeResponse += "\r\n";
-			send(_clientFd, modeResponse.c_str(), modeResponse.size(), 0);
-			return;
 		}
-		else
-			return;
+		modeResponse += "\r\n";
+		send(_clientFd, modeResponse.c_str(), modeResponse.size(), 0);
+		return;
 	}
 	
 	// Check if client is operator for mode restricted commands
@@ -185,8 +183,6 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 	std::istringstream paramStream(parameters);
 	std::string param;
 
-	int opFd = -1;
-
 	for (size_t i = 0; i < modes.size(); i++)
 	{
 		char mode = modes[i];
@@ -225,7 +221,6 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 
 			case 'o': // Give or remove operator status
 				paramStream >> param;
-				opFd = returnClientFd(param);
 				if (adding)
 				{
 					if (param.empty())
@@ -235,7 +230,7 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 						return false;
 					}
 					
-					if (opFd == -1 || !checkIfClientInChannel(channelName, opFd))
+					if (!checkIfClientInServerByNick(param)) 
 					{
 						std::string errMsg = ":ircserver 441 " + client._nickName + " " + param + " " + channelName + " :They aren't on that channel\r\n";
 						send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
@@ -245,7 +240,7 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 					// Find the client in the channel
 					for (size_t j = 0; j < channel->_clients.size(); j++)
 					{
-						if (channel->_clients[j]._fd == opFd)
+						if (channel->_clients[j]._nickName == param)
 						{
 							channel->_clients[j]._isOperator = true;
 							break;
@@ -254,7 +249,7 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 				}
 				else
 				{
-					if (opFd == -1 || !checkIfClientInChannel(channelName, opFd))
+					if (!checkIfClientInServerByNick(param))
 					{
 						std::string errMsg = ":ircserver 441 " + client._nickName + " " + param + " " + channelName + " :They aren't on that channel\r\n";
 						send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
@@ -262,7 +257,7 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 					}
 					for (size_t j = 0; j < channel->_clients.size(); j++)
 					{
-						if (channel->_clients[j]._fd == opFd)
+						if (channel->_clients[j]._nickName == param)
 						{
 							channel->_clients[j]._isOperator = false;
 							break;
@@ -298,7 +293,7 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 				break;
 
 			default:
-				std::string errMsg = ":ircserver 472 " + client._nickName + std::string(1, mode) + " :is unknown mode char to me\r\n";
+				std::string errMsg = ":ircserver 472 " + client._nickName + " " + std::string(1, mode) + " :is unknown mode char to me\r\n";
 				send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 				break;
 		}

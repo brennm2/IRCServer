@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Ircserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/11 13:32:38 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/11 14:29:26 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ private:
 		channelsStruct()
 			:_channelName(), _channelTopic(), _channelPassword(), \
 			_clients(), _clientsFdInvite(), \
-			_clientsBanned(), _isPrivate(false), _isTopicLocked(false), \
+			_clientsBanned(), _isPrivate(false), _isTopicLocked(true), \
 			_hasPassword(false), _hasLimit(false), _topicSetter(), _topicSetTime(0), _maxUsers(-1) \
 			{}
 		};
