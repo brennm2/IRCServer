@@ -6,16 +6,11 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:56 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/03 15:05:03 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 14:52:20 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Ircserv.hpp"
-#include <climits>
-#include <stdexcept>
-
-//isprintable para password
-// talvez tamanho de 8
 
 bool isNumber(std::string &str)
 {
@@ -42,44 +37,18 @@ void checkIfValidPort(std::string arg)
 	
 }
 
+void checkIfValidPassWord(const std::string &pass)
+{
+	if (pass.size() > 8 || pass.size() < 3)
+		throw std::runtime_error ("Invalid Password (invalid size, min 3 or max 8)");
 
-// void server(void)
-// {
-// 	// creating socket
-//     int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-
-//     // specifying the address
-//     sockaddr_in serverAddress;
-//     serverAddress.sin_family = AF_INET;
-//     serverAddress.sin_port = htons(8080);
-//     serverAddress.sin_addr.s_addr = INADDR_ANY;
-
-//     // binding socket.
-//     bind(serverSocket, (struct sockaddr*)&serverAddress,
-//          sizeof(serverAddress));
-
-// 	while (1)
-// 	{
-// 		// listening to the assigned socket
-// 		listen(serverSocket, 5);
-
-// 		// accepting connection request
-// 		int clientSocket
-// 			= accept(serverSocket, NULL, NULL);
-
-// 		// recieving data
-// 		char buffer[1024] = { 0 };
-// 		recv(clientSocket, buffer, sizeof(buffer), 0);
-// 		std::cout << "Message from client: " << buffer
-// 				<< std::endl;
-
-// 	}
-//     // closing the socket.
-//     close(serverSocket);
-
-//     return ;
-// }
-
+	for(std::string::const_iterator it = pass.begin(); 
+		it != pass.end(); it++)
+	{
+		if (!std::isprint(*it) || *it == ' ')
+			throw std::runtime_error ("Invalid Password (invalid character)");
+	}
+}
 
 int main(int ac, char **av)
 {
@@ -89,17 +58,19 @@ int main(int ac, char **av)
 		try
 		{
 			checkIfValidPort(av[1]);
+			checkIfValidPassWord(av[2]);
+
 			Server.createServer(av[2], std::atoi(av[1]));
 			Server.acceptClients();
 		}
 		catch(const std::exception& e)
 		{
-			std::cerr << e.what() << '\n';
+			std::cerr << red << e.what() << '\n' << reset;
 		}
 	}
 	else
 	{
-		std::cout << "Wrong arguments!" << "\n";
+		std::cout << red << "Wrong arguments!" << "\n" << reset;
 		std::cout << "You need to use ./ircserv" << \
 			green << " <port> <password>"<< reset << "\n";
 	}

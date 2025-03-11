@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   mtdo.cpp                                           :+:      :+:    :+:   */
+/*   motd.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 16:38:58 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/11 18:17:01 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/06 15:33:27 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Ircserv.hpp"
 
-void Ircserv::commandMtdo()
+void Ircserv::commandMotd()
 {
 	std::vector<std::string> art;
     art.push_back("  .''. ");

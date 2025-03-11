@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 11:55:26 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/28 12:34:47 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/11 12:11:18 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,21 @@ void Ircserv::placeClientInChannelInvite(const int &clientFd, const std::string 
 	channelsStruct &channelStruct = returnChannelStruct(channel);
 
 	channelStruct._clientsFdInvite.push_back(clientFd);
+}
+
+bool Ircserv::checkIfClientIsInviteded(const int& clientFd, const std::string &channel)
+{
+	channelsStruct channelStruct = returnChannelStruct(channel);
+
+	std::vector<int>::const_iterator inviteFd = channelStruct._clientsFdInvite.begin();
+
+	while(inviteFd != channelStruct._clientsFdInvite.end())
+	{
+		if (*inviteFd == clientFd)
+			return (true);
+		inviteFd++;
+	}
+	return (false);
 }
 
 
@@ -64,7 +79,6 @@ bool Ircserv::checkCommandInvite(const std::string &target, const std::string &c
 	}
 	else if (checkIfClientInChannel(channel, returnClientFd(target)))
 	{
-		//#TODO Check if works like that, sending it to server not the channel
 		std::string errMsg = ":ircserver 443 :" + client._nickName + " " + \
 			target + " " + channel + " :is already on channel\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);

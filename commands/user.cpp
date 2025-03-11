@@ -6,23 +6,39 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 15:25:20 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/13 17:13:50 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 12:21:34 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Ircserv.hpp"
 
+bool Ircserv::commandUserCheck(const int &clientFd, const Client &client)
+{
+	std::string errMsg;
+	if (!client.hasPass)
+	{
+		errMsg = ":ircserver 451 * :You're not authenticated\r\n";
+		send(clientFd, errMsg.c_str(), errMsg.size(), 0);
+		return (false);
+	}
+	else if (client.hasUser)
+	{
+		errMsg = ":ircserver 462 " + client._nickName + " You may not reregister\r\n";
+		send(clientFd, errMsg.c_str(), errMsg.size(), 0);
+		return (false);
+	}
+
+	return (true);
+}
+
 void Ircserv::commandUser(std::istringstream &lineStream)
 {
 	Client client = _clientsMap[_clientFd];
-	if (client.hasUser)
-	{
-		std::string noNickMsg = ":ircserver 462 " + client._nickName + " You may not reregister\r\n";
-		send(_clientFd, noNickMsg.c_str(), noNickMsg.size(), 0);
-		return ;
-	}
 
-	// Separa as strings
+	if (!commandUserCheck(_clientFd, client))
+		return ;
+
+
 	std::string userName, realName, tempStr, tempStr2;
 	lineStream >> userName;
 	lineStream >> tempStr;

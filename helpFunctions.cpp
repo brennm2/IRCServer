@@ -6,13 +6,11 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/03 18:33:19 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/10 12:02:34 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Ircserv.hpp"
-
-
 
 bool Ircserv::checkIfChannelExist(std::string channel)
 {
@@ -125,7 +123,6 @@ void Ircserv::makeUserList(std::string channel)
 
 Ircserv::channelsStruct& Ircserv::returnChannelStruct(const std::string &channel)
 {
-	// Procura o cliente no mapa
 	std::vector<channelsStruct>::iterator it = _channels.begin();
 	
 	while(it != _channels.end())
@@ -135,47 +132,32 @@ Ircserv::channelsStruct& Ircserv::returnChannelStruct(const std::string &channel
 		else
 			it++;
 	}
-	// Lança uma exceção ou retorna um valor padrão se o cliente não for encontrado
 	throw std::runtime_error("Channel not found in returnChannelStruct");
 	
 }
 
 
-
-
 Ircserv::Client Ircserv::returnClientStruct(int clientFd)
 {
-	// Procura o cliente no mapa
 	std::map<int, Client>::iterator it = _clientsMap.find(clientFd);
 	
-	if (it != _clientsMap.end()) // Retorna a estrutura Client se encontrada
+	if (it != _clientsMap.end())
 		return it->second;
-	else // Lança uma exceção ou retorna um valor padrão se o cliente não for encontrado
+	else
 		throw std::runtime_error("Client not found in returnClientStruct");
 	
 }
 
 Ircserv::Client& Ircserv::returnClientStructToModify(int clientFd)
 {
-	// Procura o cliente no mapa
 	std::map<int, Client>::iterator it = _clientsMap.find(clientFd);
 
-	if (it != _clientsMap.end()) // Retorna a estrutura Client se encontrada
+	if (it != _clientsMap.end()) 
 		return it->second;
-	else // Lança uma exceção ou retorna um valor padrão se o cliente não for encontrado
+	else
 		throw std::runtime_error("Client not found in returnClientStruct");
 }
 
-// Ircserv::Client& Ircserv::returnClientStructToModifyInChannel(int clientFd, std::string channel)
-// {
-// 	// Procura o cliente no mapa
-// 	std::map<int, Client>::iterator it = _clientsMap.find(clientFd);
-	
-// 	if (it != _clientsMap.end()) // Retorna a estrutura Client se encontrada
-// 		return it->second;
-// 	else // Lança uma exceção ou retorna um valor padrão se o cliente não for encontrado
-// 		throw std::runtime_error("Client not found in returnClientStruct");
-// }
 
 int Ircserv::returnClientFd(std::string clientNick)
 {
@@ -189,7 +171,6 @@ int Ircserv::returnClientFd(std::string clientNick)
 				return(clientIt->second._fd);
 			clientIt++;
 		}
-		//Se nao encontrar nick name no ClientsMap, entao da throw
 		throw std::runtime_error("No nickName found in function returnClientFd, nick->" + clientNick + "<- End Nick");
 	}
 	else
@@ -209,7 +190,7 @@ void Ircserv::broadcastMessageToChannel(const std::string& message, std::string 
 			const std::vector<Client>& clients = channelIt->_clients;
 			for (std::vector<Client>::const_iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
 			{
-				int clientFd = clientIt->_fd; // Pega o file descriptor do cliente
+				int clientFd = clientIt->_fd;
 				send(clientFd, message.c_str(), message.size(), 0);
 			}
 			return;
@@ -245,7 +226,7 @@ void Ircserv::broadcastMessageToChannelExceptSender(const std::string& message, 
 void Ircserv::broadcastMessage(const std::string& message, int senderFd)
 {
 	(void) senderFd;
-	for (std::map<int, Client>::iterator it = _clientsMap.begin(); it != _clientsMap.end(); ++it) 
+	for (std::map<int, Client>::iterator it = _clientsMap.begin(); it != _clientsMap.end(); ++it)
 	{
 		int clientFd = it->first;				// Pega o file descriptor do cliente
 		Client client = it->second;				// Pega o objeto Client
@@ -264,60 +245,11 @@ void Ircserv::broadcastMessagePrivate(const std::string &message, const std::str
 	Client clientTarget = returnClientStruct(returnClientFd(target));
 
 	std::string nickNameSender = clientSender._nickName;
-
-	// std::cout << "MESSAGE: " << message << "\n";
 	std::string targetMessage = ":" + nickNameSender + " PRIVMSG " + target + " :" + message + "\r\n";
-	//	std::string senderMessage = ":" + clientTarget._nickName + " PRIVMSG " + target + " :" + message + "\r\n";
-
 	send(clientTarget._fd, targetMessage.c_str(), targetMessage.size(), 0);
-	//std::cout << "Mensagem enviada:" << "\n";
-	//std::cout << targetMessage << "\n";
-
-//	send(clientSender._fd, senderMessage.c_str(), senderMessage.size(), 0);
 }
 
 
-void Ircserv::nickReplyMsg001(std::string nickName, int clientFd)
-{
-	std::string msgConfirmation;
-	msgConfirmation = ":ircserver 001 " + nickName + " Welcome to the server, " + nickName + "!\r\n";
-	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
-}
-
-void Ircserv::nickReplyMsg002(std::string nickName, int clientFd)
-{
-	std::string msgConfirmation;
-	msgConfirmation = ":ircserver 002 " + nickName + " Your host is localhost, running version 1.0!\r\n";
-	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
-}
-
-void Ircserv::nickReplyMsg003(std::string nickName, int clientFd)
-{
-	std::string msgConfirmation;
-	std::string timer = to_string(now->tm_mday ) + '-' \
-		+ to_string(now->tm_mon + 1) + '-' \
-		+ to_string(now->tm_year + 1900) + " at " \
-		+ to_string(now->tm_hour) + ':' \
-		+ to_string(now->tm_min);
-	msgConfirmation = ":ircserver 003 " + nickName + " This server was created " + timer + " \r\n";
-	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
-}
-
-void Ircserv::nickReplyMsg004(std::string nickName, int clientFd)
-{
-	std::string msgConfirmation;
-
-	msgConfirmation = ":ircserver 004 " + nickName + ": localhost 1.0 o iklt\r\n";
-	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
-}
-
-void Ircserv::nickReplyMsg005(std::string nickName, int clientFd)
-{
-	std::string msgConfirmation;
-
-	msgConfirmation = ":ircserver 005 " + nickName + " I, T, K, O, L :are supported by this server\r\n";
-	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
-}
 
 std::string Ircserv::to_string(int value)
 {
@@ -330,12 +262,28 @@ void Ircserv::clientFinalRegistration(int clientFd)
 {
 	Client &client = _clientsMap[clientFd];
 
-	nickReplyMsg001(client._nickName, clientFd);
-	nickReplyMsg002(client._nickName, clientFd);
-	nickReplyMsg003(client._nickName, clientFd);
-	nickReplyMsg004(client._nickName, clientFd);
-	nickReplyMsg005(client._nickName, clientFd);
-	commandMtdo();
+	std::string msgConfirmation;
+	msgConfirmation = ":ircserver 001 " + client._nickName + " Welcome to the server, " + client._nickName + "!\r\n";
+	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
+
+	msgConfirmation = ":ircserver 002 " + client._nickName + " Your host is localhost, running version 1.0!\r\n";
+	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
+
+	std::string timer = to_string(now->tm_mday ) + '-' \
+		+ to_string(now->tm_mon + 1) + '-' \
+		+ to_string(now->tm_year + 1900) + " at " \
+		+ to_string(now->tm_hour) + ':' \
+		+ to_string(now->tm_min);
+	msgConfirmation = ":ircserver 003 " + client._nickName + " This server was created " + timer + " \r\n";
+	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
+
+	msgConfirmation = ":ircserver 004 " + client._nickName + ": localhost 1.0 o iklt\r\n";
+	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
+
+	msgConfirmation = ":ircserver 005 " + client._nickName + " I, T, K, O, L :are supported by this server\r\n";
+	send(clientFd, msgConfirmation.c_str(), msgConfirmation.size(), 0);
+
+	commandMotd();
 	client.hasFinalReg = true;
 }
 
@@ -347,31 +295,28 @@ void Ircserv::removeClientFromChannel(const std::string& channelName, int client
 	{
 		if (channelIt->_channelName == channelName)
 		{
-			// Encontra o cliente no vetor de clientes do canal
 			std::vector<Client>& clients = channelIt->_clients;
 			for (std::vector<Client>::iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
 			{
 				if (clientIt->_fd == clientFd)
 				{
-					// Remove o cliente do vetor
 					clients.erase(clientIt);
-					std::cout << "Cliente com FD " << clientFd << " removido do canal " << channelName << "\n";
+					std::cout << "Client with FD: " << clientFd << " removed from channel: " << channelName << "\n";
 
-					// Se o canal estiver vazio após a remoção, apaga o canal do vetor
 					if (clients.empty())
 					{
 						_channels.erase(channelIt);
-						std::cout << "Canal " << channelName << " removido pois está vazio\n";
+						std::cout << "Channel: " << channelName << " deleted because is empty\n";
 					}
 					return;
 				}
 			}
-			std::cerr << "Cliente com FD " << clientFd << " não encontrado no canal " << channelName << "\n";
+			std::cerr << "Client with FD: " << clientFd << " not found on the channel: " << channelName << "\n";
 			return;
 		}
 		++channelIt;
 	}
-	std::cerr << "Canal " << channelName << " não encontrado\n";
+	std::cerr << "Channel: " << channelName << " not found\n";
 }
 
 void Ircserv::removeClientFromEveryChannel(int clientFd)
@@ -379,19 +324,17 @@ void Ircserv::removeClientFromEveryChannel(int clientFd)
 	std::vector<channelsStruct>::iterator channelIt = _channels.begin();
 	while (channelIt != _channels.end())
 	{
-		// Encontra o cliente no vetor de clientes do canal
 		std::vector<Client>& clients = channelIt->_clients;
 		for (std::vector<Client>::iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
 		{
 			if (clientIt->_fd == clientFd)
 			{
-				std::cout << "Cliente: " << clientIt->_nickName << " removido do canal " << channelIt->_channelName << "\n";
+				std::cout << "Client: " << clientIt->_nickName << " removed from channel: " << channelIt->_channelName << "\n";
 				clients.erase(clientIt);
 
-				// Se o canal estiver vazio após a remoção, apaga o canal do vetor
 				if (clients.empty())
 				{
-					std::cout << "Canal " << channelIt->_channelName << " removido pois está vazio\n";
+					std::cout << "Channel: " << channelIt->_channelName << " deleted because is empty\n";
 					channelIt = _channels.erase(channelIt);
 				}
 				else
@@ -418,9 +361,39 @@ std::vector<std::string> Ircserv::splitString(const std::string &str, char delim
 			if (tempStr[tempStr.size() - 1] == '\r')
 				tempStr.erase(tempStr.size() - 1);
 			tokens.push_back(tempStr);
-			std::cout << green <<"Token pushback->" << tempStr << reset << "\n";
 		}
 	}
 	return (tokens);
+}
+
+std::string Ircserv::_getChannelTopic(std::string channel)
+{
+	std::vector<channelsStruct>::iterator It = _channels.begin();
+	
+	while (It != _channels.end())
+	{
+		if (It->_channelName == channel)
+			return It->_channelTopic;
+		It++;
+	}
+	return NULL;
+}
+
+
+void Ircserv::_changeChannelTopic(std::string &channel, std::string &newTopic)
+{
+	std::vector<channelsStruct>::iterator It = _channels.begin();
+	while (It != _channels.end())
+	{
+		if (It->_channelName == channel)
+		{
+			It->_channelTopic = newTopic;
+			It->_topicSetter = _clientsMap[_clientFd]._nickName; // Store who set the topic
+			It->_topicSetTime = time(NULL); // Store the current timestamp
+			return;
+		}
+		++It;
+	}
+
 }
 

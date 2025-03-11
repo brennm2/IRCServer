@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/05 18:49:33 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/11 13:14:55 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,9 @@ void Ircserv::createServer(const std::string& pass, unsigned int port)
 	_startTimer = std::time(0);
 	now = std::localtime(&_startTimer);
 
-	_password = "123";
-	(void) pass;
 	//visualLoadingServer();
-	// if (!_checkStartPass(pass))
-	// 	throw std::runtime_error("Wrong Password");
-
+	
+	_password = pass;
 	_port = port;
 	//Create server
 	this->_serverFd = socket(AF_INET, SOCK_STREAM, 0);
@@ -53,7 +50,6 @@ void Ircserv::createServer(const std::string& pass, unsigned int port)
 	sockaddr_in server_addr;
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_addr.s_addr = INADDR_ANY; //Aceita qualquer tipo de endereco
-	std::cout << _port << std::endl;
 	server_addr.sin_port = htons(_port);
 
 
@@ -130,13 +126,6 @@ void Ircserv::acceptClients()
 					}
 					
 					std::cout << green << "New client connected! FD: " << clientFd << "\n" << reset;
-					
-					//Mensagem de boas vindas
-					//"\x03" -> indica que e um codigo de cor
-					//"01,02Teste" -> primeiro numero e a cor da letra e o segundo e a cor de fundo
-					// obs: nao precisa ter cor de fundo
-					const char *welcomeMsg = "\x03""04,01Welcome test!\n";
-					send(clientFd, welcomeMsg, strlen(welcomeMsg), 0);
 
 					// Add new client to poll list
 					pollfd client_pollfd;
@@ -156,10 +145,12 @@ void Ircserv::acceptClients()
 					ssize_t bytes_received = recv(poll_fds[i].fd, buffer, sizeof(buffer) - 1, 0);
 					if (bytes_received <= 0)
 					{
+						int tempFd = poll_fds[i].fd;
 						std::cout << red << "Client disconnected: " << poll_fds[i].fd << "\n" << reset;
 						close(poll_fds[i].fd);
 						_clientsMap.erase(poll_fds[i].fd);
 						removeIndices.push_back(i);
+						removeClientFromEveryChannel(tempFd);
 						continue;
 					}
 
@@ -208,7 +199,6 @@ void betterPrint(std::string str)
 	{
 		str.erase(str.size() - 1);
 	}
-	//std::cout << red << "Teste->" << str << "\n" << reset;
 }
 
 void Ircserv::bufferReader(int clientFd, char *buffer)
@@ -246,7 +236,12 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 				{
 					if (!clientCanUseCommands(clientFd))
 						continue ;
-					checkCommandPart(lineStream); //do all that PART has to do
+					std::string channels, reason;
+
+					lineStream >> channels;
+					lineStream >> std::ws;
+					getline(lineStream, reason);
+					checkCommandPart(channels, reason);
 				}
 				else if (command == "TOPIC")
 				{
@@ -286,11 +281,11 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 					lineStream >> token;
 					commandPing(token);
 				}
-				else if (command == "MTDO")
+				else if (command == "MOTD")
 				{
 					if (!clientCanUseCommands(clientFd))
 						continue ;
-					commandMtdo();
+					commandMotd();
 				}
 				else if (command == "QUIT")
 					return commandQuit(lineStream);
@@ -320,12 +315,8 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 					lineStream >> channels;
 					commandInvite (clients, channels);
 				}
-				// else
-				// {
-				// 	std::string errorMsg = "Error: Unknown command " + command + "\n";
-				// 	send(clientFd, errorMsg.c_str(), errorMsg.length(), 0);
-				// }
-				//#TODO signals
+				else
+					commandUnknown(command);
 
 				lineStream.clear();
 				Client client = returnClientStruct(clientFd);
@@ -363,9 +354,6 @@ void Ircserv::visualLoadingServer(void)
 	sleep(1);
 	std::cout << "\n";
 }
-
-
-//#TODO ASCTIME LOCALTIME
 
 // 00 - Branco  
 // 01 - Preto  

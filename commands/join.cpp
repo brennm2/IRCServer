@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 15:40:35 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/05 18:51:21 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/11 13:14:39 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,6 @@ bool Ircserv::checkIfClientCanJoinPrivChannel(const int &clientFd, const std::st
 	channelsStruct channelTmp = returnChannelStruct(channel);
 	if (channelTmp._isPrivate)
 	{
-		std::cout << blue << "ENTROU AQUI" << "\n" << reset;
 		std::vector<int> clientsFdInvite = channelTmp._clientsFdInvite;
 		std::vector<int>::iterator it = std::find(clientsFdInvite.begin(), clientsFdInvite.end(), clientFd);
 		
@@ -116,9 +115,6 @@ bool Ircserv::commandJoinCheck(const std::string &channel)
 		return false;
 	}
 	return (true);
-
-	//#TODO RPL_TOPICWHOTIME (333)
-
 }
 
 bool Ircserv::commandJoinCheckExistingChannel(const std::string &tempChannel, \
@@ -141,7 +137,9 @@ bool Ircserv::commandJoinCheckExistingChannel(const std::string &tempChannel, \
 	}
 	else if (checkIfChannelHasPassword(tempChannel))
 	{
-		if (keyVecIt != endVec && \
+		if(checkIfClientIsInviteded(_clientFd, tempChannel))
+			return (true);
+		else if (keyVecIt != endVec && \
 			!emptyKeyFlag && \
 			checkIfChannelHasCorrectPassword(tempChannel, *keyVecIt))
 		{
@@ -171,6 +169,13 @@ void Ircserv::commandJoin(const std::string &channel, const std::string &key)
 	bool emptyKeyFlag = false;
 	keyVec = splitString(key, ',');
 
+	if (channelsVec.size() < 1)
+	{
+		std::string errMsg = ":ircserver 461 :" + client._nickName + " JOIN :Not enough parameters\r\n";
+		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+		return ;
+	}
+
 	if (!key.empty())
 		keyVecIt = keyVec.begin();
 	else
@@ -182,10 +187,9 @@ void Ircserv::commandJoin(const std::string &channel, const std::string &key)
 		std::string tempChannel = *it;
 		if (!commandJoinCheck(tempChannel))
 			return ;
-		//Se nao existir, cria um novo canal
 		if (!checkIfChannelExist(tempChannel))
 		{
-			std::cout << green << "Nao existe channel, criado um novo->" << tempChannel << "\n" << reset;
+			std::cout << green << "There is no channel, a new one has been created->" << tempChannel << "\n" << reset;
 			createNewChannel(tempChannel);
 			addClientToChannel(tempChannel, client);
 			changeClientToOperator(_clientFd, tempChannel);

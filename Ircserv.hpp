@@ -3,15 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Ircserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/06 17:44:59 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/03/11 13:32:38 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-
 
 #include <iostream>
 #include <sys/socket.h>
@@ -28,6 +27,8 @@
 #include <cerrno>
 #include <algorithm>
 #include <csignal>
+#include <climits>
+#include <stdexcept>
 
 
 // COLORS //
@@ -39,29 +40,24 @@
 #define cyan "\033[36m"
 #define reset "\033[0m"
 
-
-
-class Ircserv 
+class Ircserv
 {
-	
-	private:
-		// nome do canal - FDs dos usuarios
-		
-		struct Client
-		{
-			int			_fd;
-			std::string _nickName;
-			std::string _userName;
-			std::string _realName;
-			std::string outgoingBuffer;
-			std::string buffer;
-			bool		isFirstTime;
-			bool		hasPass;
-			bool		hasNick;
-			bool		hasUser;
-			bool		hasFinalReg;
-			bool		_isOperator;
-			bool		bufferIsReady;
+private:
+	struct Client
+	{
+		int			_fd;
+		std::string _nickName;
+		std::string _userName;
+		std::string _realName;
+		std::string outgoingBuffer;
+		std::string buffer;
+		bool		isFirstTime;
+		bool		hasPass;
+		bool		hasNick;
+		bool		hasUser;
+		bool		hasFinalReg;
+		bool		_isOperator;
+		bool		bufferIsReady;
 
 		Client() :_fd(-1), _nickName(), \
 		_userName(), _realName(), outgoingBuffer(), buffer(), \
@@ -87,7 +83,8 @@ class Ircserv
 			time_t				_topicSetTime;
 			int					_maxUsers;
 
-			channelsStruct() :_channelName(), _channelTopic(), _channelPassword(), \
+		channelsStruct()
+			:_channelName(), _channelTopic(), _channelPassword(), \
 			_clients(), _clientsFdInvite(), \
 			_clientsBanned(), _isPrivate(false), _isTopicLocked(false), \
 			_hasPassword(false), _hasLimit(false), _topicSetter(), _topicSetTime(0), _maxUsers(-1) \
@@ -101,87 +98,48 @@ class Ircserv
 	std::string		_password;
 	unsigned int	_port;
 	static bool		endServer;
-
-
-
 	int				_clientFd;
 	int				_serverFd;
 	time_t			_startTimer;
 	std::tm*		now;
 
+public:
 
-
-
-	bool _checkStartPass(const std::string& pass);
-	bool _checkStartPort(const unsigned int port);
-
-
-	std::string _getChannelTopic(std::string channel);
-	void 		_changeChannelTopic(std::string &channel, std::string &newTopic);
-
-	public:
-
-
+	// Main Functions
 	void createServer(const std::string& pass, unsigned int port);
 	void acceptClients();
-
-	//Lida com as mensagens
 	void bufferReader(int clientFd, char *buffer);
+	bool _checkStartPass(const std::string& pass);
 
 
-
-	//Commands
-	void commandUser(std::istringstream &lineStream);
-	//-------------------mudkip------------------
-	void commandPart(std::string &channelName); 
-	void checkCommandPart(std::istringstream &lineStream);
-	void commandTopic(std::string &channelName, std::string &newTopic);
-	void checkCommandTopic(std::istringstream &lineStream);
-	void commandPrivMSG(std::istringstream &lineStream);
-
-	//Help Functions
+	// Help Functions
 	bool checkIfClientInChannel(const std::string& channel, int clientFd);
 	bool checkIfClientInChannelByNick(const std::string& channel, \
 		const std::string& clientNick);
 	bool checkIfClientInServer(int clientFd);
 	bool checkIfClientInServerByNick(std::string clientNick);
-	void clientFinalRegistration(int clientFd);
 	bool checkIfChannelExist(std::string channel);
-	Client returnClientStruct(int clientFd);
-	Client& returnClientStructToModify(int clientFd);
-	Client& returnClientStructToModifyInChannel(int clientFd, std::string channel);
-	channelsStruct& returnChannelStruct(const std::string &channel);
-	int	returnClientFd(std::string clientNick);
 	void makeUserList(std::string channel);
 	void createNewChannel(const std::string& channelName);
 	void addClientToChannel(const std::string& channelName, const Client& client);
-	std::vector<std::string> splitString(const std::string &str, char delimiter);
-
-	
-
-
-	bool privMsgSintaxCheck(std::string firstWord, std::string target);
+	void clientFinalRegistration(int clientFd);
 	void removeClientFromChannel(const std::string& channelName, int clientFd);
 	void removeClientFromEveryChannel(int clientFd);
-
-
-
 	void broadcastMessageToChannel(const std::string& message, std::string channel);
 	void broadcastMessageToChannelExceptSender(const std::string& message, std::string channel, int senderFd);
 	void broadcastMessage(const std::string& message, int sender_fd);
 	void broadcastMessagePrivate(const std::string &message, const std::string &target);
-
+	int	returnClientFd(std::string clientNick);
+	Client returnClientStruct(int clientFd);
+	Client& returnClientStructToModify(int clientFd);
+	channelsStruct& returnChannelStruct(const std::string &channel);
 	std::string to_string(int value);
-
+	std::vector<std::string> splitString(const std::string &str, char delimiter);
 
 	//CommandNick----
 	void commandNick(int clientFd, const std::string &str);
 	bool commandNickCheck(const std::string &nickName);
-	void nickReplyMsg001(std::string nickName, int clientFd);
-	void nickReplyMsg002(std::string nickName, int clientFd);
-	void nickReplyMsg003(std::string nickName, int clientFd);
-	void nickReplyMsg004(std::string nickName, int clientFd);
-	void nickReplyMsg005(std::string nickName, int clientFd);
+	void changeNickNameInChannels(const int &clientFd, const std::string &newNickName);
 
 	//Command PASS
 	bool commandPass(std::string password);
@@ -189,6 +147,20 @@ class Ircserv
 
 	//Command Ping
 	void commandPing(std::string token);
+	
+	// Command User
+	void commandUser(std::istringstream &lineStream);
+	bool commandUserCheck(const int &clientFd, const Client &client);
+
+	// Command Part
+	void commandPart(const std::string &channelName, std::string reason);
+	void checkCommandPart(const std::string &channels, std::string reason);
+
+	// Command Topic
+	void commandTopic(std::string &channelName, std::string &newTopic);
+	void checkCommandTopic(std::istringstream &lineStream);
+	std::string _getChannelTopic(std::string channel);
+	void 		_changeChannelTopic(std::string &channel, std::string &newTopic);
 
 	//Command Join
 	void commandJoin(const std::string &channel, const std::string &key);
@@ -200,8 +172,13 @@ class Ircserv
 	bool checkIfClientCanJoinBannedChannel(const int &clientFd, const std::string &channel);
 	bool checkIfChannelHasPassword(const std::string &channel);
 	bool checkIfChannelHasCorrectPassword(const std::string &channel, const std::string &password);
-	//Command MTDO
-	void commandMtdo();
+	
+	//Command MOTD
+	void commandMotd();
+
+	// Command PrivMSG
+	void commandPrivMSG(std::istringstream &lineStream);
+	bool privMsgSintaxCheck(std::string firstWord, std::string target);
 
 	//Command Quit
 	void commandQuit(std::istringstream &lineStream);
@@ -222,8 +199,11 @@ class Ircserv
 	void placeClientInChannelInvite(const int &clientFd, const std::string &channel);
 	void brodcastInviteMessage(const Client &clientTarget, const std::string &channels);
 	bool checkCommandInvite(const std::string &target, const std::string &channel);
+	bool checkIfClientIsInviteded(const int& clientFd, const std::string &channel);
 
-	
+
+	// Command Unknown
+	void commandUnknown(const std::string &command);
 
 	//Debug
 	void debugShowChannelsInfo();
@@ -231,23 +211,17 @@ class Ircserv
 	void debugShowAllClients(void);
 	void debugShowSpecificClient(Client client);
 
-
 	//Visual Functions
 	void visualLoadingServer(void);
 
-	//utils diogo
-	std::vector<Client>::iterator LookClientInChannel(std::string channel);
-
-
-
-	static void signalHandler(int signal);
-	void signalCatcher(void);
+	// Signal Handler
 	bool eofChecker(const std::string &buffer);
 	bool checkIfBufferHasEnd(const std::string &line);
 	bool checkIfClientHasEndedBuffer(const int &clientFd);
-	std::string returnClientBuffer(const int &clientFd);
+	static void signalHandler(int signal);
 	void clientHasSendedBuffer(const int &clientFd);
+	void signalCatcher(void);
+	std::string returnClientBuffer(const int &clientFd);
 } ;
 
 void printAsciiValues(const std::string& str);
-// void signalHandler(int signal);
