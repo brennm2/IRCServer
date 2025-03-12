@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 15:40:35 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/12 14:37:45 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 14:46:59 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,19 +42,6 @@ void Ircserv::addClientToChannel(const std::string& channelName, const Client& c
 		++it;
 	}
 	throw std::runtime_error("Channel not found: " + channelName);
-}
-
-bool Ircserv::checkIfClientCanJoinBannedChannel(const int &clientFd, const std::string &channel)
-{
-	channelsStruct channelTmp = returnChannelStruct(channel);
-
-	std::vector<int> clientsBanned = channelTmp._clientsBanned;
-	std::vector<int>::iterator it = std::find(clientsBanned.begin(), clientsBanned.end(), clientFd);
-	
-	if (it != clientsBanned.end())
-		return (false);
-	else
-		return (true);
 }
 
 bool Ircserv::checkIfClientCanJoinPrivChannel(const int &clientFd, const std::string &channel)
@@ -126,12 +113,6 @@ bool Ircserv::commandJoinCheckExistingChannel(const std::string &tempChannel, \
 	if (!checkIfClientCanJoinPrivChannel(_clientFd, tempChannel))
 	{
 		std::string errMsg = ":ircserver 473 " + client._nickName + " " + tempChannel + " :Cannot join channel (+i)\r\n";
-		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-		return (false);
-	}
-	else if (!checkIfClientCanJoinBannedChannel(_clientFd, tempChannel))
-	{
-		std::string errMsg = ":ircserver 474 " + client._nickName + " " + tempChannel + " :Cannot join channel (+b)\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return (false);
 	}
