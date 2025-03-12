@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/12 00:08:59 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 21:17:10 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,7 +213,7 @@ void Ircserv::broadcastMessageToChannelExceptSender(const std::string& message, 
 				int clientFd = clientIt->_fd; // Pega o file descriptor do cliente
 				if (clientFd != senderFd)
 				{
-					send(clientFd, message.c_str(), message.size(), 0);
+					send(clientFd, message.c_str(), message.size(), MSG_NOSIGNAL);
 				}
 			}
 			return;
