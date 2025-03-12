@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:49:36 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/10 12:15:43 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 14:38:37 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,6 +107,4 @@ void Ircserv::commandNick(int clientFd, const std::string &nickName)
 		client.hasNick = true;
 	}
 	std::cout << "Client registration: " << green << nickName << reset << "\n";
-
-
 }

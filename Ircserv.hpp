@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/12 14:05:33 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 16:13:07 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,12 +61,13 @@ class Ircserv
 			bool		_isOperator;
 			bool		bufferIsReady;
 
-		Client() :_fd(-1), _nickName(), \
-		_userName(), _realName(), outgoingBuffer(), buffer(), \
-		isFirstTime(true), \
-		hasPass(false), hasNick(false), hasUser(false), hasFinalReg(false), \
-		_isOperator(false), bufferIsReady(false) {}
-};
+		Client()
+			:_fd(-1), _nickName(), \
+			_userName(), _realName(), outgoingBuffer(), buffer(), \
+			isFirstTime(true), \
+			hasPass(false), hasNick(false), hasUser(false), hasFinalReg(false), \
+			_isOperator(false), bufferIsReady(false) {}
+	};
 
 	private:
 		struct channelsStruct
@@ -76,7 +77,6 @@ class Ircserv
 			std::string			_channelPassword;
 			std::vector<Client> _clients;
 			std::vector<int>	_clientsFdInvite;
-			std::vector<int>	_clientsBanned;
 			bool				_isPrivate;
 			bool				_isTopicLocked;
 			bool				_hasPassword;
@@ -87,10 +87,9 @@ class Ircserv
 
 		channelsStruct()
 			:_channelName(), _channelTopic(), _channelPassword(), \
-			_clients(), _clientsFdInvite(), \
-			_clientsBanned(), _isPrivate(false), _isTopicLocked(true), \
-			_hasPassword(false), _hasLimit(false), _topicSetter(), _topicSetTime(0), _maxUsers(-1) \
-			{}
+			_clients(), _clientsFdInvite(), _isPrivate(false), _isTopicLocked(true), \
+			_hasPassword(false), _hasLimit(false), _topicSetter(), \
+			_topicSetTime(0), _maxUsers(-1) {}
 		};
 			
 	std::vector<channelsStruct> _channels;
@@ -171,7 +170,6 @@ public:
 		const Client &client, std::vector<std::string>::iterator &keyVecIt, \
 			const std::vector<std::string>::const_iterator &endVec, bool emptyKeyFlag);
 	bool checkIfClientCanJoinPrivChannel(const int &clientFd, const std::string &channel);
-	bool checkIfClientCanJoinBannedChannel(const int &clientFd, const std::string &channel);
 	bool checkIfChannelHasPassword(const std::string &channel);
 	bool checkIfChannelHasCorrectPassword(const std::string &channel, const std::string &password);
 	
@@ -227,7 +225,6 @@ public:
 	void visualLoadingServer(void);
 
 	// Signal Handler
-	bool eofChecker(const std::string &buffer);
 	bool checkIfBufferHasEnd(const std::string &line);
 	bool checkIfClientHasEndedBuffer(const int &clientFd);
 	static void signalHandler(int signal);
@@ -235,6 +232,3 @@ public:
 	void signalCatcher(void);
 	std::string returnClientBuffer(const int &clientFd);
 } ;
-
-void printAsciiValues(const std::string& str);
-std::string to_string(int value);
