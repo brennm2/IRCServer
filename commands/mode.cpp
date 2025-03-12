@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 10:25:52 by diodos-s          #+#    #+#             */
-/*   Updated: 2025/03/12 14:38:16 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 15:32:43 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -357,9 +357,11 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 				{
 					if (!(paramStream >> param))
 						param.clear();
-					if (!param.empty() || std::atoi(param.c_str()) > 0)
+					if (!param.empty())
 					{
-						if (std::atoi(param.c_str()) > 100)
+						if (std::atoi(param.c_str()) <= 0)
+							return true;
+						else if (std::atoi(param.c_str()) > 100)
 							channel->_maxUsers = 100;
 						else
 							channel->_maxUsers = std::atoi(param.c_str());
