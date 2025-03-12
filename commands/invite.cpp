@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/27 11:55:26 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/10 18:18:05 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/11 12:11:18 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,6 @@ bool Ircserv::checkCommandInvite(const std::string &target, const std::string &c
 	}
 	else if (checkIfClientInChannel(channel, returnClientFd(target)))
 	{
-		//#TODO Check if works like that, sending it to server not the channel
 		std::string errMsg = ":ircserver 443 :" + client._nickName + " " + \
 			target + " " + channel + " :is already on channel\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);

@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/10 15:28:24 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 14:05:08 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,7 +204,6 @@ void Ircserv::broadcastMessageToChannel(const std::string& message, std::string 
 void Ircserv::broadcastMessageToChannelExceptSender(const std::string& message, std::string channel, int senderFd)
 {
 	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
-
 	while (channelIt != _channels.end())
 	{
 		if (channelIt->_channelName == channel)
@@ -214,7 +213,9 @@ void Ircserv::broadcastMessageToChannelExceptSender(const std::string& message, 
 			{
 				int clientFd = clientIt->_fd; // Pega o file descriptor do cliente
 				if (clientFd != senderFd)
+				{
 					send(clientFd, message.c_str(), message.size(), 0);
+				}
 			}
 			return;
 		}
@@ -223,6 +224,8 @@ void Ircserv::broadcastMessageToChannelExceptSender(const std::string& message, 
 
 	throw std::runtime_error("No server found in the Broad Cast Message");
 }
+
+
 
 void Ircserv::broadcastMessage(const std::string& message, int senderFd)
 {
@@ -319,6 +322,38 @@ void Ircserv::removeClientFromChannel(const std::string& channelName, int client
 	}
 	std::cerr << "Channel: " << channelName << " not found\n";
 }
+
+
+void Ircserv::disconnectClientFromEveryChannel(int clientFd)
+{
+	Client client = returnClientStruct(clientFd);
+	std::vector<channelsStruct>::iterator channelIt = _channels.begin();
+	while(channelIt != _channels.end())
+	{
+		std::vector<Client>::iterator clientIt = channelIt->_clients.begin();
+		while(clientIt != channelIt->_clients.end())
+		{
+			if (clientIt->_fd == clientFd)
+			{
+				std::string leaveMsg = ":" + client._nickName + "!" + client._userName + \
+					"@localhost PART " + channelIt->_channelName + " :Leaving\r\n";
+				broadcastMessageToChannelExceptSender(leaveMsg, channelIt->_channelName, clientFd);
+				clientIt = channelIt->_clients.erase(clientIt);
+			}
+			else
+				clientIt++;
+		}
+		if (channelIt->_clients.empty())
+		{
+			std::cout << "Empty server: " << channelIt->_channelName << " - Deleting..." << "\n";
+			channelIt = _channels.erase(channelIt);
+		}
+		else
+			channelIt++;
+	}
+}
+
+
 
 void Ircserv::removeClientFromEveryChannel(int clientFd)
 {

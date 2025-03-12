@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:44:14 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/10 15:54:22 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 14:05:38 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ bool Ircserv::privMsgSintaxCheck(std::string firstWord, std::string target)
 	if (target[0] == ':' || target[0] == '\0')
 	{
 		Client client = returnClientStruct(_clientFd);
-		std::string errMsg = ":ircserver 411 " + client._nickName + " :" + "\x03" + "04No recipient given\r\n";
+		std::string errMsg = ":ircserver 411 " + client._nickName + " :" + "No recipient given\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return false;
 	}
@@ -25,7 +25,7 @@ bool Ircserv::privMsgSintaxCheck(std::string firstWord, std::string target)
 	else if (firstWord[0] != ':')
 	{
 		Client client = returnClientStruct(_clientFd);
-		std::string errMsg = ":ircserver 407 " + client._nickName + " :" + "\x03" + "04Sintax Error (/PRIVMSG NICK :MESSAGE)\r\n";
+		std::string errMsg = ":ircserver 407 " + client._nickName + " :"  + "Syntax Error (/PRIVMSG NICK :MESSAGE)\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return (false);
 	}
@@ -33,7 +33,7 @@ bool Ircserv::privMsgSintaxCheck(std::string firstWord, std::string target)
 	else if (firstWord[0] == ':' && firstWord[1] == '\0')
 	{
 		Client client = returnClientStruct(_clientFd);
-		std::string errMsg = ":ircserver 412 " + client._nickName + " :" + "\x03" + "04No text to send\r\n";
+		std::string errMsg = ":ircserver 412 " + client._nickName + " :" + "No text to send\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return (false);
 	}

@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/11 12:08:23 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 14:05:33 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,36 +61,38 @@ class Ircserv
 			bool		_isOperator;
 			bool		bufferIsReady;
 
-			Client() :_fd(-1), _msgCount(0), _nickName(), \
-			_userName(), _realName(), outgoingBuffer(), buffer(), \
-			isFirstTime(true), \
-			hasPass(false), hasNick(false), hasUser(false), hasFinalReg(false), \
-			_isOperator(false), bufferIsReady(false) {}
-		};
-		
-	struct channelsStruct
-	{
-		std::string			_channelName;
-		std::string			_channelTopic;
-		std::string			_channelPassword;
-		std::vector<Client> _clients;
-		std::vector<int>	_clientsFdInvite;
-		std::vector<int>	_clientsBanned;
-		bool				_isTopicLocked;
-		bool				_isPrivate;
-		bool				_hasPassword;
-		std::string			_topicSetter;
-		time_t				_topicSetTime;
-		int					_maxUsers;
+		Client() :_fd(-1), _nickName(), \
+		_userName(), _realName(), outgoingBuffer(), buffer(), \
+		isFirstTime(true), \
+		hasPass(false), hasNick(false), hasUser(false), hasFinalReg(false), \
+		_isOperator(false), bufferIsReady(false) {}
+};
+
+	private:
+		struct channelsStruct
+		{
+			std::string			_channelName;
+			std::string			_channelTopic;
+			std::string			_channelPassword;
+			std::vector<Client> _clients;
+			std::vector<int>	_clientsFdInvite;
+			std::vector<int>	_clientsBanned;
+			bool				_isPrivate;
+			bool				_isTopicLocked;
+			bool				_hasPassword;
+			bool				_hasLimit;
+			std::string			_topicSetter;
+			time_t				_topicSetTime;
+			int					_maxUsers;
 
 		channelsStruct()
 			:_channelName(), _channelTopic(), _channelPassword(), \
 			_clients(), _clientsFdInvite(), \
-			_clientsBanned(), _isTopicLocked(false), _isPrivate(false), \
-			_hasPassword(false), _topicSetter(), _topicSetTime(0), _maxUsers(-1) \
-		{}
-	};
-
+			_clientsBanned(), _isPrivate(false), _isTopicLocked(true), \
+			_hasPassword(false), _hasLimit(false), _topicSetter(), _topicSetTime(0), _maxUsers(-1) \
+			{}
+		};
+			
 	std::vector<channelsStruct> _channels;
 	std::map<std::string, std::string > _channelTopics;
 	std::map<int, Client> _clientsMap;
@@ -154,6 +156,7 @@ public:
 	// Command Part
 	void commandPart(const std::string &channelName, std::string reason);
 	void checkCommandPart(const std::string &channels, std::string reason);
+	void disconnectClientFromEveryChannel(int clientFd);
 
 	// Command Topic
 	void commandTopic(std::string &channelName, std::string &newTopic);

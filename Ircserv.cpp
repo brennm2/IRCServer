@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/11 12:07:39 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 14:05:16 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,14 +24,15 @@ void Ircserv::createServer(const std::string& pass, unsigned int port)
 	
 	_password = pass;
 	_port = port;
-	//Create server
+	
+	// Create a TCP socket
 	this->_serverFd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_serverFd == -1)
 	{
 		throw std::runtime_error("Error while creating the socket!");
 	}
 
-	// Set socket options
+	// Set socket options, SO_REUSEADDR allows the socket to reuse the address immediately after a restart
 	int opt = 1;
 	if (setsockopt(_serverFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
 	{
@@ -40,8 +41,8 @@ void Ircserv::createServer(const std::string& pass, unsigned int port)
 	}
 
 	// Set non-blocking mode for the server socket
-	int flags = fcntl(_serverFd, F_GETFL, 0);
-	if (flags == -1 || fcntl(_serverFd, F_SETFL, flags | O_NONBLOCK) == -1)
+	int flags = fcntl(_serverFd, F_SETFL, O_NONBLOCK);
+	if (flags == -1)
 	{
 		close(_serverFd);
 		throw std::runtime_error("Error setting server socket to non-blocking mode!");
@@ -49,12 +50,12 @@ void Ircserv::createServer(const std::string& pass, unsigned int port)
 
 	// Server config
 	sockaddr_in server_addr;
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_addr.s_addr = INADDR_ANY; //Aceita qualquer tipo de endereco
-	server_addr.sin_port = htons(_port);
+	server_addr.sin_family = AF_INET; // IPv4
+	server_addr.sin_addr.s_addr = INADDR_ANY; // Accepts any ip address
+	server_addr.sin_port = htons(_port); // Converts port number to network byte order
 
 
-	// Bind the server to the socket
+	// Assign the socket to the port, giving and address so that clients can use to find the server
 	if (bind(_serverFd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0)
 	{
 		close (_serverFd);
@@ -77,20 +78,20 @@ void Ircserv::acceptClients()
 {
 	Ircserv serv;
 	
-	
 	// Add server socket to poll list
-	pollfd server_pollfd;
+	pollfd server_pollfd; // Pollfd struct for the server socket
 	server_pollfd.fd = _serverFd;
 	server_pollfd.events = POLLIN; // Listen for incoming connections
 	server_pollfd.revents = 0;
-	poll_fds.push_back(server_pollfd);
+	poll_fds.push_back(server_pollfd); // poll_fds stores all the fds that poll will monitor
 
 	std::cout << green << "Server is listening for connections...\n" << reset;
 	
+	// Main loop
 	while (true && !endServer)
 	{
 		signalCatcher();
-		int poll_count = poll(poll_fds.data(), poll_fds.size(), -1);
+		int poll_count = poll(poll_fds.data(), poll_fds.size(), -1); // Wait for activity and handle multiple fds
 		if (poll_count == -1)
 		{
 			if (errno == EINTR)
@@ -103,11 +104,10 @@ void Ircserv::acceptClients()
 		std::vector<int> removeIndices;
 		for (size_t i = 0; i < poll_fds.size(); i++)
 		{
-			if (poll_fds[i].revents & POLLIN) // Check if there's incoming data
+			if (poll_fds[i].revents & POLLIN) // Handle incoming connections
 			{
-				if (poll_fds[i].fd == _serverFd)
+				if (poll_fds[i].fd == _serverFd) // Accept a new client
 				{
-					// Accept new client
 					sockaddr_in client_addr;
 					socklen_t client_len = sizeof(client_addr);
 					int clientFd = accept(_serverFd, (struct sockaddr*)&client_addr, &client_len);
@@ -119,7 +119,7 @@ void Ircserv::acceptClients()
 
 					// Set non-blocking mode for the client socket
 					int flags = fcntl(clientFd, F_SETFL, O_NONBLOCK);
-					if (flags == -1 || fcntl(clientFd, F_SETFL, flags | O_NONBLOCK) == -1)
+					if (flags == -1)
 					{
 						std::cerr << red << "Error setting client socket to non-blocking mode!\n" << reset;
 						close(clientFd);
@@ -143,33 +143,34 @@ void Ircserv::acceptClients()
 					// Existing client sent data
 					char buffer[512];
 					memset(buffer, 0, sizeof(buffer));
-					ssize_t bytes_received = recv(poll_fds[i].fd, buffer, sizeof(buffer) - 1, 0);
+					ssize_t bytes_received = recv(poll_fds[i].fd, buffer, sizeof(buffer) - 1, 0); // Receive data from client
+					
+					// Handle client disconncetion	
 					if (bytes_received <= 0)
 					{
+						//TODO apagar o client do mapClient
 						int tempFd = poll_fds[i].fd;
+						disconnectClientFromEveryChannel(tempFd);
 						std::cout << red << "Client disconnected: " << poll_fds[i].fd << "\n" << reset;
 						close(poll_fds[i].fd);
 						_clientsMap.erase(poll_fds[i].fd);
 						removeIndices.push_back(i);
-						removeClientFromEveryChannel(tempFd);
 						continue;
 					}
-
-					
 					// Process the message
 					bufferReader(poll_fds[i].fd, buffer);
 				}
 			}
 			
 			// Check if the client has data to send
-			if (poll_fds[i].revents & POLLOUT)
+			if (poll_fds[i].revents & POLLOUT) //Handle outgoing messages
 			{
 				Client &client = _clientsMap[poll_fds[i].fd];
-				if (!client.outgoingBuffer.empty())
+				if (!client.outgoingBuffer.empty()) // Send buffered messages
 				{
 					ssize_t bytesSent = send(poll_fds[i].fd, client.outgoingBuffer.c_str(), client.outgoingBuffer.size(), 0);
 					
-					if (bytesSent > 0)
+					if (bytesSent > 0) // Remove sent data from buffer
 					{
 						client.outgoingBuffer.erase(0, bytesSent); // Remove sent part
 						if (client.outgoingBuffer.empty())
@@ -177,7 +178,7 @@ void Ircserv::acceptClients()
 							poll_fds[i].events &= ~POLLOUT; //Disable POLLOUT if nothing left to send
 						}
 					}
-					else if (bytesSent < 0 && (errno != EAGAIN && errno != EWOULDBLOCK))
+					else if (bytesSent < 0 && (errno != EAGAIN && errno != EWOULDBLOCK)) // Handle send errors
 					{
 						std::cerr << red << "Error sending data to client: " << poll_fds[i].fd << "\n" << reset;
 						close(poll_fds[i].fd);
@@ -363,9 +364,6 @@ void Ircserv::visualLoadingServer(void)
 	sleep(1);
 	std::cout << "\n";
 }
-
-
-//#TODO ASCTIME LOCALTIME
 
 // 00 - Branco  
 // 01 - Preto  
