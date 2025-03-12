@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 12:05:50 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/11 18:56:31 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 18:27:37 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ void Ircserv::commandPart(const std::string &channelName, std::string reason)
 				+ tempChannel + " :" + reason +"\r\n";
 		}
 
-		broadcastMessageToChannelExceptSender(leaveMsg, tempChannel, _clientFd);
+		broadcastMessageToChannel(leaveMsg, tempChannel);
 		removeClientFromChannel(tempChannel, _clientFd);
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 15:40:35 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/12 14:46:59 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 18:49:33 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,8 +197,20 @@ void Ircserv::commandJoin(const std::string &channel, const std::string &key)
 			std::string testeMsg = ":" + _clientsMap[_clientFd]._nickName + "!" + _clientsMap[_clientFd]._userName + "@localhost JOIN " + tempChannel + "\r\n";
 			send(_clientFd, testeMsg.c_str(), testeMsg.size(), 0);
 			
-			std::string msgTopic = ":ircserver 332 " + _clientsMap[_clientFd]._nickName + " " + tempChannel + " :" + _getChannelTopic(tempChannel) + "\r\n";
-			send(_clientFd, msgTopic.c_str(), msgTopic.size(), 0);
+			std::string topic = _getChannelTopic(tempChannel);
+			if (topic.empty())
+			{
+				topic = "No topic is set.";
+				std::string emptyTopic = ":ircserver 331 " + _clientsMap[_clientFd]._nickName + " " + 
+					tempChannel + " :" + topic + "\r\n";
+				send(_clientFd, emptyTopic.c_str(), emptyTopic.size(), 0);
+			}
+			else
+			{
+				std::string msgTopic = ":ircserver 332 " + _clientsMap[_clientFd]._nickName + " " + tempChannel + " :" + _getChannelTopic(tempChannel) + "\r\n";
+				send(_clientFd, msgTopic.c_str(), msgTopic.size(), 0);
+			}
+
 			
 			makeUserList(tempChannel);
 		}

@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 10:25:52 by diodos-s          #+#    #+#             */
-/*   Updated: 2025/03/12 15:32:43 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 18:46:34 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,13 @@ void Ircserv::checkCommandMode(std::istringstream &lineStream)
 		return;
 	}
 	
+	if (!checkIfChannelExist(target))
+	{
+		std::string errMsg = ":ircserver 403 :" + client._nickName + " " + target + " :No such channel!\r\n";
+		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+		return ;
+	}
+		
 	std::vector<channelsStruct>::iterator It = _channels.begin();
 	while (It != _channels.end())
 	{
@@ -402,4 +409,3 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 	}
 	return true;
 }
-
