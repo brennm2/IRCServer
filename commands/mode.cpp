@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mode.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 10:25:52 by diodos-s          #+#    #+#             */
-/*   Updated: 2025/03/11 18:37:22 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 14:19:25 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,6 +219,7 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 					if (channel->_isPrivate)
 					{
 						channel->_isPrivate = false;
+						channel->_clientsFdInvite.clear();
 						std::string modeChangeMsg = ":" + client._nickName + "!" + client._userName + \
 											"@localhost MODE " + channelName + " -" + mode + "\r\n";
 						broadcastMessageToChannel(modeChangeMsg, channelName);
