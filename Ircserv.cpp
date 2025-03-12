@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/11 19:00:18 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 00:09:36 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,18 +148,12 @@ void Ircserv::acceptClients()
 						//TODO apagar o client do mapClient
 						int tempFd = poll_fds[i].fd;
 						disconnectClientFromEveryChannel(tempFd);
-						//removeClientFromEveryChannel(tempFd);
 						std::cout << red << "Client disconnected: " << poll_fds[i].fd << "\n" << reset;
 						close(poll_fds[i].fd);
 						_clientsMap.erase(poll_fds[i].fd);
 						removeIndices.push_back(i);
 						continue;
 					}
-
-					// PASS 123
-					// NICK bde
-					// USER a 0 * :bde
-					// JOIN #teste,#teste2,#teste3
 					// Process the message
 					bufferReader(poll_fds[i].fd, buffer);
 				}
