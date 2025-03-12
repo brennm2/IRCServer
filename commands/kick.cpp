@@ -6,29 +6,11 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 13:26:55 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/10 12:04:17 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 14:38:02 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Ircserv.hpp"
-
-void printAsciiValues(const std::string& str)
-{
-	for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
-	{
-		char c = *it;
-		std::cout << "Character: " << c << " ASCII: " << static_cast<int>(c) << std::endl;
-	}
-}
-
-void printVector(const std::vector<std::string>& vec)
-{
-	for (std::vector<std::string>::const_iterator it = vec.begin(); it != vec.end(); ++it)
-	{
-		std::cout << "vector->" << *it << std::endl;
-	}
-}
-
 
 bool Ircserv::checkCommandKick(const std::string &channel, \
 	const std::vector<std::string> &clientsVec)

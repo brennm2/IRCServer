@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 15:40:35 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/11 13:14:39 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 14:37:45 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,7 +189,7 @@ void Ircserv::commandJoin(const std::string &channel, const std::string &key)
 			return ;
 		if (!checkIfChannelExist(tempChannel))
 		{
-			std::cout << green << "There is no channel, a new one has been created->" << tempChannel << "\n" << reset;
+			std::cout << green << "There is no channel, a new one has been created-> " << tempChannel << "\n" << reset;
 			createNewChannel(tempChannel);
 			addClientToChannel(tempChannel, client);
 			changeClientToOperator(_clientFd, tempChannel);

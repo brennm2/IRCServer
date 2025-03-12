@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:44:14 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/11 18:11:31 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 14:38:37 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,6 @@ void Ircserv::commandPrivMSG(std::istringstream &lineStream)
 	std::getline(lineStream, message);
 	std::vector<std::string> targetsVec = splitString(target, ',');
 
-	std::cout << "MESSAGE->" << message << "\n";
 	if (!privMsgSintaxCheck(message, target))
 		return;
 	

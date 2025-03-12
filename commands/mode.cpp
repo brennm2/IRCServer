@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 10:25:52 by diodos-s          #+#    #+#             */
-/*   Updated: 2025/03/12 11:52:53 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 14:38:16 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,7 +205,6 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 			{
 				if (adding)
 				{
-					std::cout << red << "ENTROU AQUI" << "\n" << reset;
 					if (!channel->_isPrivate)
 					{
 						channel->_isPrivate = true; // Reset invite list
@@ -219,6 +218,7 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 					if (channel->_isPrivate)
 					{
 						channel->_isPrivate = false;
+						channel->_clientsFdInvite.clear();
 						std::string modeChangeMsg = ":" + client._nickName + "!" + client._userName + \
 											"@localhost MODE " + channelName + " -" + mode + "\r\n";
 						broadcastMessageToChannel(modeChangeMsg, channelName);
