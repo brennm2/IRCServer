@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:49:36 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/12 14:38:37 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 16:21:13 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ void Ircserv::commandNick(int clientFd, const std::string &nickName)
 		client._fd = clientFd;
 
 		std::string nickUpdate;
-		nickUpdate = ":" + oldNick + "!~b@localhost NICK :" + nickName +"\r\n";
+		nickUpdate = ":" + oldNick + "!~" + client._userName + "@localhost NICK :" + nickName +"\r\n";
 		broadcastMessage(nickUpdate, 0);
 		changeNickNameInChannels(clientFd, nickName);
 	}
