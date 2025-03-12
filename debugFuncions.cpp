@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/29 17:14:04 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/11 17:47:51 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 14:45:54 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,12 +28,6 @@ void Ircserv::debugShowChannelsInfo()
 			std::cout << "Clients Fd how can join: ";
 			for (std::vector<int>::const_iterator fd = channel->_clientsFdInvite.begin(); \
 				fd != channel->_clientsFdInvite.end(); ++fd)
-			{
-				std::cout << *fd << " - ";
-			}
-			std::cout << "\nClients Fd how is banned: ";
-			for (std::vector<int>::const_iterator fd = channel->_clientsBanned.begin(); \
-				fd != channel->_clientsBanned.end(); ++fd)
 			{
 				std::cout << *fd << " - ";
 			}

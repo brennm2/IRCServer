@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 12:10:19 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/10 12:02:08 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/12 14:39:54 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,15 +25,6 @@ void Ircserv::signalHandler(int signal)
 	else if (signal == SIGQUIT)
 		std::cout << red << "\nCtrl + \\ pressed. Closing the server..." << "\n" << reset;
 	endServer = true;
-}
-
-bool Ircserv::eofChecker(const std::string &buffer)
-{
-	printAsciiValues(buffer);
-	if (buffer.find('\04') != std::string::npos)
-		return (true);
-	else
-		return (false);
 }
 
 bool Ircserv::checkIfClientHasEndedBuffer(const int &clientFd)

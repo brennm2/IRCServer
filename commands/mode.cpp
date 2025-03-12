@@ -6,7 +6,7 @@
 /*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 10:25:52 by diodos-s          #+#    #+#             */
-/*   Updated: 2025/03/12 14:19:25 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/03/12 15:38:25 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,7 +205,6 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 			{
 				if (adding)
 				{
-					std::cout << red << "ENTROU AQUI" << "\n" << reset;
 					if (!channel->_isPrivate)
 					{
 						channel->_isPrivate = true; // Reset invite list
@@ -257,7 +256,8 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 			case 'k':
 				if (adding)
 				{
-					paramStream >> param;
+					if (!(paramStream >> param))
+						param.clear();
 					if (param.empty())
 					{
 						std::string errMsg = ":ircserver 461 " + client._nickName + " " + channelName + " k :Not enough parameters\r\n";
@@ -285,7 +285,8 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 				continue;
 
 			case 'o': // Give or remove operator status
-				paramStream >> param;
+				if (!(paramStream >> param)) 
+						param.clear();
 
 				if (adding)
 				{
@@ -354,11 +355,13 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 			case 'l': // Set user limit
 				if (adding)
 				{
-					paramStream >> param;
-
-					if (!param.empty() || std::atoi(param.c_str()) > 0)
+					if (!(paramStream >> param))
+						param.clear();
+					if (!param.empty())
 					{
-						if (std::atoi(param.c_str()) > 100)
+						if (std::atoi(param.c_str()) <= 0)
+							return true;
+						else if (std::atoi(param.c_str()) > 100)
 							channel->_maxUsers = 100;
 						else
 							channel->_maxUsers = std::atoi(param.c_str());
@@ -376,7 +379,8 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 				}
 				else
 				{
-					paramStream >> param;
+					// if (!(paramStream >> param))
+					// 	param.clear();
 					if (channel->_hasLimit)
 					{
 						channel->_maxUsers = -1;
