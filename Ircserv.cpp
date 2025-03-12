@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Ircserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/12 12:22:47 by diodos-s         ###   ########.fr       */
+/*   Updated: 2025/03/12 13:14:21 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,17 +147,15 @@ void Ircserv::acceptClients()
 					// Handle client disconncetion	
 					if (bytes_received <= 0)
 					{
+						//TODO apagar o client do mapClient
 						int tempFd = poll_fds[i].fd;
+						disconnectClientFromEveryChannel(tempFd);
 						std::cout << red << "Client disconnected: " << poll_fds[i].fd << "\n" << reset;
 						close(poll_fds[i].fd);
 						_clientsMap.erase(poll_fds[i].fd);
 						removeIndices.push_back(i);
-						//TODO dar part de todos os canais
-						removeClientFromEveryChannel(tempFd);
 						continue;
 					}
-
-					
 					// Process the message
 					bufferReader(poll_fds[i].fd, buffer);
 				}
