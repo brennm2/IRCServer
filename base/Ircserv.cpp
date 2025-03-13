@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/12 13:14:21 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 12:18:04 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,7 +147,6 @@ void Ircserv::acceptClients()
 					// Handle client disconncetion	
 					if (bytes_received <= 0)
 					{
-						//TODO apagar o client do mapClient
 						int tempFd = poll_fds[i].fd;
 						disconnectClientFromEveryChannel(tempFd);
 						std::cout << red << "Client disconnected: " << poll_fds[i].fd << "\n" << reset;
@@ -355,20 +354,3 @@ void Ircserv::visualLoadingServer(void)
 	sleep(1);
 	std::cout << "\n";
 }
-
-// 00 - Branco  
-// 01 - Preto  
-// 02 - Azul Marinho  
-// 03 - Verde  
-// 04 - Vermelho  
-// 05 - Marrom  
-// 06 - Roxo  
-// 07 - Laranja  
-// 08 - Amarelo  
-// 09 - Verde Claro  
-// 10 - Azul Claro  
-// 11 - Ciano  
-// 12 - Azul  
-// 13 - Rosa  
-// 14 - Cinza  
-// 15 - Cinza Claro  

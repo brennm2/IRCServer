@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/12 21:17:10 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 12:20:06 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,19 @@ bool Ircserv::checkIfChannelExist(std::string channel)
 {
 	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
 
+
+	std::string channelCpy = channel;
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), tolower);
+
 	while (channelIt != _channels.end())
 	{
-		if (channelIt->_channelName == channel)
+		std::string channelCpyU = channelIt->_channelName;
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), tolower);
+
+		if (channelCpyU == channelCpy)
+		{
 			return (true);
+		}
 		channelIt++;
 	}
 	return (false);
@@ -93,9 +102,13 @@ bool Ircserv::checkIfClientInChannelByNick(const std::string& channel, const std
 void Ircserv::makeUserList(std::string channel)
 {
 	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
+	std::string channelCpy = channel;
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), tolower);
 	while (channelIt != _channels.end())
 	{
-		if (channelIt->_channelName == channel)
+		std::string channelCpyU = channelIt->_channelName;
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), tolower);
+		if (channelCpyU == channelCpy)
 		{
 			const std::vector<Client>& clients = channelIt->_clients;
 
@@ -124,10 +137,14 @@ void Ircserv::makeUserList(std::string channel)
 Ircserv::channelsStruct& Ircserv::returnChannelStruct(const std::string &channel)
 {
 	std::vector<channelsStruct>::iterator it = _channels.begin();
+	std::string channelCpy = channel;
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), tolower);
 	
 	while(it != _channels.end())
 	{
-		if (it->_channelName == channel)
+		std::string channelCpyU = it->_channelName;
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), tolower);
+		if (channelCpyU == channelCpy)
 			return *it;
 		else
 			it++;
@@ -182,10 +199,14 @@ int Ircserv::returnClientFd(std::string clientNick)
 void Ircserv::broadcastMessageToChannel(const std::string& message, std::string channel)
 {
 	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
+	std::string channelCpy = channel;
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), tolower);
 
 	while (channelIt != _channels.end())
 	{
-		if (channelIt->_channelName == channel)
+		std::string channelCpyU = channelIt->_channelName;
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), tolower);
+		if (channelCpyU == channelCpy)
 		{
 			const std::vector<Client>& clients = channelIt->_clients;
 			for (std::vector<Client>::const_iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
@@ -210,7 +231,7 @@ void Ircserv::broadcastMessageToChannelExceptSender(const std::string& message, 
 			const std::vector<Client>& clients = channelIt->_clients;
 			for (std::vector<Client>::const_iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
 			{
-				int clientFd = clientIt->_fd; // Pega o file descriptor do cliente
+				int clientFd = clientIt->_fd; 
 				if (clientFd != senderFd)
 				{
 					send(clientFd, message.c_str(), message.size(), MSG_NOSIGNAL);
@@ -220,8 +241,7 @@ void Ircserv::broadcastMessageToChannelExceptSender(const std::string& message, 
 		}
 		++channelIt;
 	}
-
-	throw std::runtime_error("No server found in the Broad Cast Message");
+	throw std::runtime_error("No server found in the Broadcast Message");
 }
 
 
@@ -231,13 +251,9 @@ void Ircserv::broadcastMessage(const std::string& message, int senderFd)
 	(void) senderFd;
 	for (std::map<int, Client>::iterator it = _clientsMap.begin(); it != _clientsMap.end(); ++it)
 	{
-		int clientFd = it->first;				// Pega o file descriptor do cliente
-		Client client = it->second;				// Pega o objeto Client
+		int clientFd = it->first;
+		Client client = it->second;
 
-		// if (clientFd != senderFd)			// Não envia para o próprio cliente
-		// {
-			// send(clientFd, message.c_str(), message.size(), 0);
-		// }
 		send(clientFd, message.c_str(), message.size(), 0);
 	}
 }
@@ -292,7 +308,6 @@ void Ircserv::clientFinalRegistration(int clientFd)
 
 void Ircserv::removeClientFromChannel(const std::string& channelName, int clientFd)
 {
-	// Itera sobre o vetor de canais
 	std::vector<channelsStruct>::iterator channelIt = _channels.begin();
 	while (channelIt != _channels.end())
 	{
@@ -404,10 +419,14 @@ std::vector<std::string> Ircserv::splitString(const std::string &str, char delim
 std::string Ircserv::_getChannelTopic(std::string channel)
 {
 	std::vector<channelsStruct>::iterator It = _channels.begin();
+	std::string channelCpy = channel;
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), tolower);
 	
 	while (It != _channels.end())
 	{
-		if (It->_channelName == channel)
+		std::string channelCpyU = It->_channelName;
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), tolower);
+		if (channelCpyU == channelCpy)
 			return It->_channelTopic;
 		It++;
 	}

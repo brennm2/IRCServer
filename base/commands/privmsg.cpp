@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:44:14 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/12 14:38:37 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 12:18:32 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ bool Ircserv::privMsgSintaxCheck(std::string firstWord, std::string target)
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return false;
 	}
-	//Se a primeira letra nao for ':', entao retorna error de sintax (esse error nao existe no IRC, error 407 (too many targets))
 	else if (firstWord[0] != ':')
 	{
 		Client client = returnClientStruct(_clientFd);
@@ -29,7 +28,6 @@ bool Ircserv::privMsgSintaxCheck(std::string firstWord, std::string target)
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return (false);
 	}
-	//Se a primeira letra for ':' e nao existir mais nada a frente, entao nao existe texto (error 412)
 	else if (firstWord[0] == ':' && firstWord[1] == '\0')
 	{
 		Client client = returnClientStruct(_clientFd);

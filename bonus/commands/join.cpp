@@ -6,11 +6,12 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 15:40:35 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/12 18:49:33 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 12:20:23 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Ircserv.hpp"
+
 
 
 void Ircserv::createNewChannel(const std::string& channelName)
@@ -32,9 +33,13 @@ void Ircserv::createNewChannel(const std::string& channelName)
 void Ircserv::addClientToChannel(const std::string& channelName, const Client& client)
 {
 	std::vector<channelsStruct>::iterator it = _channels.begin();
+	std::string channelCpy = channelName;
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), tolower);
 	while (it != _channels.end())
 	{
-		if (it->_channelName == channelName)
+		std::string channelCpyU = it->_channelName;
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), tolower);
+		if (channelCpyU == channelCpy)
 		{
 			it->_clients.push_back(client);
 			return;
@@ -84,7 +89,6 @@ bool Ircserv::commandJoinCheck(const std::string &channel)
 	Client client = returnClientStruct(_clientFd);
 	if (channel[0] == '\0')
 	{
-		//Not enough parameters
 		std::string errMsg = ":ircserver 461 " + client._nickName + " JOIN " + channel + " :Not enough parameters\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return false;
@@ -168,6 +172,7 @@ void Ircserv::commandJoin(const std::string &channel, const std::string &key)
 		std::string tempChannel = *it;
 		if (!commandJoinCheck(tempChannel))
 			return ;
+		
 		if (!checkIfChannelExist(tempChannel))
 		{
 			std::cout << green << "There is no channel, a new one has been created-> " << tempChannel << "\n" << reset;
@@ -189,14 +194,13 @@ void Ircserv::commandJoin(const std::string &channel, const std::string &key)
 			
 			if (!commandJoinCheckExistingChannel(tempChannel, client, keyVecIt, keyVec.end() ,emptyKeyFlag))
 				continue;
-			//Verifica se ja existe o clientFd igual no canal, caso nao tenha, coloque na lista
 			if (!checkIfClientInChannel(tempChannel, _clientFd))
 				addClientToChannel(tempChannel, client);
-			
-			//Mensagem de confirmacao para dar JOIN
+			tempChannel = returnRealNameOfChannel(channel);
 			std::string testeMsg = ":" + _clientsMap[_clientFd]._nickName + "!" + _clientsMap[_clientFd]._userName + "@localhost JOIN " + tempChannel + "\r\n";
 			send(_clientFd, testeMsg.c_str(), testeMsg.size(), 0);
 			
+			std::cout << "CHANNEL :" << returnRealNameOfChannel(channel) << "\n";
 			std::string topic = _getChannelTopic(tempChannel);
 			if (topic.empty())
 			{
@@ -215,5 +219,26 @@ void Ircserv::commandJoin(const std::string &channel, const std::string &key)
 			makeUserList(tempChannel);
 		}
 	}
+}
+
+std::string Ircserv::returnRealNameOfChannel(const std::string &channel)
+{
+	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
+
+	std::string channelCpy = channel;
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), tolower);
+
+	while (channelIt != _channels.end())
+	{
+		std::string channelCpyU = channelIt->_channelName;
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), tolower);
+
+		if (channelCpyU == channelCpy)
+		{
+			return channelIt->_channelName;
+		}
+		channelIt++;
+	}
+	return "No channel found";
 }
 

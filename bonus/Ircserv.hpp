@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/12 17:01:11 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 12:22:15 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,6 +172,7 @@ public:
 	bool checkIfClientCanJoinPrivChannel(const int &clientFd, const std::string &channel);
 	bool checkIfChannelHasPassword(const std::string &channel);
 	bool checkIfChannelHasCorrectPassword(const std::string &channel, const std::string &password);
+	std::string returnRealNameOfChannel(const std::string &channel);
 	
 	//Command MOTD
 	void commandMotd();

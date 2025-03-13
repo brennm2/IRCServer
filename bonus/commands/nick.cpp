@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:49:36 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/12 16:21:13 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 12:20:50 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,13 @@ bool Ircserv::commandNickCheck(const std::string &nickName)
 	for (std::map<int, Client>::const_iterator it = _clientsMap.begin(); it != _clientsMap.end(); ++it)
 	{
 		const Client& clientIt = it->second;
-		if (clientIt._nickName == nickName)
+		
+		std::string nickNameCpy = nickName;
+		std::string nickNameCpyU = clientIt._nickName;
+		std::transform(nickNameCpy.begin(), nickNameCpy.end(), nickNameCpy.begin(), tolower);
+		std::transform(nickNameCpyU.begin(), nickNameCpyU.end(), nickNameCpyU.begin(), tolower);
+		
+		if (nickNameCpy == nickNameCpyU)
 		{
 			if (client.hasNick)
 				errMsg = ":ircserver 433 " + client._nickName + " " + nickName + " :Nickname is already in use\r\n";
@@ -54,12 +60,10 @@ bool Ircserv::commandNickCheck(const std::string &nickName)
 
 			send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 
-			// std::string changeNickMsg = ":" + _clientsMap[clientFd]._nickName + "!" +  _clientsMap[clientFd]._userName + "@localhost NICK" + nickName +  "\r\n";
 			return (false);
 		}
 	}
 
-	//If nothing is bad, return true
 	return (true);
 }
 
