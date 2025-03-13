@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/13 13:54:33 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 17:07:51 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 bool Ircserv::checkIfChannelExist(std::string channel)
 {
 	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
-
 
 	std::string channelCpy = channel;
 	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), ::tolower);
@@ -50,10 +49,17 @@ bool Ircserv::checkIfClientInServer(int clientFd)
 bool Ircserv::checkIfClientInServerByNick(std::string clientNick)
 {
 	std::map<int, Client>::const_iterator clientIt = _clientsMap.begin();
+
+	std::string nickCpy = clientNick;
+	std::transform(nickCpy.begin(), nickCpy.end(), nickCpy.begin(), ::tolower);
+
 	while (clientIt != _clientsMap.end())
 	{
 		Client tempclient = clientIt->second;
-		if (tempclient._nickName == clientNick)
+
+		std::string nickCpyU = tempclient._nickName;
+		std::transform(nickCpyU.begin(), nickCpyU.end(), nickCpyU.begin(), ::tolower);
+		if (nickCpyU == nickCpy)
 			return (true);
 		clientIt++;
 	}
@@ -63,9 +69,15 @@ bool Ircserv::checkIfClientInServerByNick(std::string clientNick)
 bool Ircserv::checkIfClientInChannel(const std::string& channel, int clientFd)
 {
 	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
+
+	std::string channelCpy = channel;
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), ::tolower);
+
 	while (channelIt != _channels.end())
 	{
-		if (channelIt->_channelName == channel)
+		std::string channelCpyU = channelIt->_channelName;
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), ::tolower);
+		if (channelCpyU == channelCpy)
 		{
 			const std::vector<Client>& clients = channelIt->_clients;
 			for (std::vector<Client>::const_iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
@@ -83,14 +95,27 @@ bool Ircserv::checkIfClientInChannel(const std::string& channel, int clientFd)
 bool Ircserv::checkIfClientInChannelByNick(const std::string& channel, const std::string& clientNick)
 {
 	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
+
+	std::string channelCpy = channel;
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), ::tolower);
+
 	while (channelIt != _channels.end())
 	{
-		if (channelIt->_channelName == channel)
+		std::string channelCpyU = channelIt->_channelName;
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), ::tolower);
+
+		if (channelCpyU == channelCpy)
 		{
 			const std::vector<Client>& clients = channelIt->_clients;
+			
+			std::string nickCpy = clientNick;
+			std::transform(nickCpy.begin(), nickCpy.end(), nickCpy.begin(), ::tolower);
+
 			for (std::vector<Client>::const_iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
 			{
-				if (clientIt->_nickName == clientNick)
+				std::string nickCpyU = clientIt->_nickName;
+				std::transform(nickCpyU.begin(), nickCpyU.end(), nickCpyU.begin(), ::tolower);
+				if (nickCpyU == nickCpy)
 					return true;
 			}
 		}
@@ -179,12 +204,17 @@ Ircserv::Client& Ircserv::returnClientStructToModify(int clientFd)
 int Ircserv::returnClientFd(std::string clientNick)
 {
 	std::map<int, Client>::iterator clientIt = _clientsMap.begin();
+	std::string nickCpy = clientNick;
+	std::transform(nickCpy.begin(), nickCpy.end(), nickCpy.begin(), ::tolower);
 
 	if (clientIt != _clientsMap.end())
 	{
 		while(clientIt != _clientsMap.end())
 		{
-			if (clientNick == clientIt->second._nickName)
+			std::string nickCpyU = clientIt->second._nickName;
+			std::transform(nickCpyU.begin(), nickCpyU.end(), nickCpyU.begin(), ::tolower);
+
+			if (nickCpyU == nickCpy)
 				return(clientIt->second._fd);
 			clientIt++;
 		}
@@ -224,9 +254,15 @@ void Ircserv::broadcastMessageToChannel(const std::string& message, std::string 
 void Ircserv::broadcastMessageToChannelExceptSender(const std::string& message, std::string channel, int senderFd)
 {
 	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
+
+	std::string channelCpy = channel;
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), ::tolower);
 	while (channelIt != _channels.end())
 	{
-		if (channelIt->_channelName == channel)
+		std::string channelCpyU = channelIt->_channelName;
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), ::tolower);
+
+		if (channelCpyU == channelCpy)
 		{
 			const std::vector<Client>& clients = channelIt->_clients;
 			for (std::vector<Client>::const_iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
@@ -270,7 +306,7 @@ void Ircserv::broadcastMessagePrivate(const std::string &message, const std::str
 
 
 
-std::string to_string(int value)
+std::string Ircserv::to_string(int value)
 {
 	std::ostringstream oss;
 	oss << value;
@@ -437,9 +473,15 @@ std::string Ircserv::_getChannelTopic(std::string channel)
 void Ircserv::_changeChannelTopic(std::string &channel, std::string &newTopic)
 {
 	std::vector<channelsStruct>::iterator It = _channels.begin();
+
+	std::string channelCpy = channel;
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), ::tolower);
+
 	while (It != _channels.end())
 	{
-		if (It->_channelName == channel)
+		std::string channelCpyU = It->_channelName;
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), ::tolower);
+		if (channelCpyU == channelCpy)
 		{
 			It->_channelTopic = newTopic;
 			It->_topicSetter = _clientsMap[_clientFd]._nickName; // Store who set the topic

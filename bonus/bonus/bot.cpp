@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 20:11:46 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/12 17:06:07 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 17:10:17 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ void tellQuoteOption(const int &clientFd)
 	send(clientFd, msgQuote.c_str(), msgQuote.size(), 0);
 }
 
-void tellMsg(const int &clientFd, const int &msgCount)
+void Ircserv::tellMsg(const int &clientFd, const int &msgCount)
 {
 	std::string msgResponse = "\x03" "03Current count of messages sent: " + to_string(msgCount) + "\r\n";
 	send(clientFd, msgResponse.c_str(), msgResponse.size(), 0);

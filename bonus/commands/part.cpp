@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 12:05:50 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/12 18:50:16 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 16:35:48 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ void Ircserv::commandPart(const std::string &channelName, std::string reason)
 		}
 		else if (!checkIfClientInChannel(tempChannel, _clientFd))
 		{
-			std::string errMsg = ":ircserver 442 " + tempChannel + " :User is not in the channel!\r\n";
+			std::string errMsg = ":ircserver 442 " + returnRealNameOfChannel(tempChannel) + " :User is not in the channel!\r\n";
 			send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 			return ;
 		}
@@ -49,13 +49,13 @@ void Ircserv::commandPart(const std::string &channelName, std::string reason)
 		std::string leaveMsg;
 		if (reason.empty())
 			leaveMsg = ":" + client._nickName + "!" + client._userName + \
-				"@localhost PART " + tempChannel + " :Leaving\r\n";
+				"@localhost PART " + returnRealNameOfChannel(tempChannel) + " :Leaving\r\n";
 		else
 		{
 			if (reason[0] == ':')
 				reason.erase(0, 1);
 			leaveMsg = ":" + client._nickName + "!" + client._userName + "@localhost PART " \
-				+ tempChannel + " :" + reason +"\r\n";
+				+ returnRealNameOfChannel(tempChannel) + " :" + reason +"\r\n";
 		}
 
 		broadcastMessageToChannel(leaveMsg, tempChannel);

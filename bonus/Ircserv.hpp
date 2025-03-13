@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/13 12:22:15 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 17:10:12 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,6 +187,7 @@ public:
 	//Command Kick
 	void commandKick(std::istringstream &lineStream);
 	bool checkCommandKick(const std::string &channel, const std::vector<std::string> &clientsVec);
+	std::string returnRealNameOfClient(const std::string &nickName);
 
 	// Command Mode
 	void checkCommandMode(std::istringstream &lineStream);
@@ -208,11 +209,8 @@ public:
 
 	// Command Bot
 	void commandBot(const std::string &option);
-	void checkMsgForBot(const std::string &msg, \
-		const std::string &channel, const int &clientFd);
+	void tellMsg(const int &clientFd, const int &msgCount);
 	void tellTimeOption(const int &clientFd);
-	void tellTimeOptionChannel(const std::string &channel);
-
 
 	
 
@@ -232,6 +230,6 @@ public:
 	void clientHasSendedBuffer(const int &clientFd);
 	void signalCatcher(void);
 	std::string returnClientBuffer(const int &clientFd);
+	std::string to_string(int value);
 } ;
 
-std::string to_string(int value);

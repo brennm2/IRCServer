@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 13:26:55 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/12 14:38:02 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 15:05:15 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,10 +84,12 @@ void Ircserv::commandKick(std::istringstream &lineStream)
 			target.erase(0, 1);
 
 		std::string kickMsg;
+		target = returnRealNameOfClient(target);
 		if (reason.empty())
 		{
+			reason = target;
 			kickMsg = ":" + client._nickName + "!" + client._userName + "@localhost KICK " \
-				+ channel + " " + target + "\r\n";
+				+ channel + " " + target + " :" + reason + "\r\n";
 		}
 		else
 		{
@@ -99,4 +101,25 @@ void Ircserv::commandKick(std::istringstream &lineStream)
 		broadcastMessageToChannel(kickMsg, channel);
 		removeClientFromChannel(channel, returnClientFd(target));
 	}
+}
+
+std::string Ircserv::returnRealNameOfClient(const std::string &nickName)
+{
+	std::map<int, Client>::const_iterator clientIt = _clientsMap.begin();
+
+		std::string nickCpy = nickName;
+		std::transform(nickCpy.begin(), nickCpy.end(), nickCpy.begin(), ::tolower);
+
+	while (clientIt != _clientsMap.end())
+	{
+		std::string nickCpyU = clientIt->second._nickName;
+		std::transform(nickCpyU.begin(), nickCpyU.end(), nickCpyU.begin(), ::tolower);
+
+		if (nickCpyU == nickCpy)
+		{
+			return clientIt->second._nickName;
+		}
+		clientIt++;
+	}
+	return "No channel found";
 }
