@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   nick.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diodos-s <diodos-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:49:36 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/12 14:38:37 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 10:19:35 by diodos-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,13 @@ bool Ircserv::commandNickCheck(const std::string &nickName)
 	for (std::map<int, Client>::const_iterator it = _clientsMap.begin(); it != _clientsMap.end(); ++it)
 	{
 		const Client& clientIt = it->second;
-		if (clientIt._nickName == nickName)
+		
+		std::string nickNameCpy = nickName;
+		std::string nickNameCpyU = clientIt._nickName;
+		std::transform(nickNameCpy.begin(), nickNameCpy.end(), nickNameCpy.begin(), tolower);
+		std::transform(nickNameCpyU.begin(), nickNameCpyU.end(), nickNameCpyU.begin(), tolower);
+		
+		if (nickNameCpy == nickNameCpyU)
 		{
 			if (client.hasNick)
 				errMsg = ":ircserver 433 " + client._nickName + " " + nickName + " :Nickname is already in use\r\n";
