@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:49:36 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/13 12:31:01 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 13:54:33 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,8 @@ bool Ircserv::commandNickCheck(const std::string &nickName)
 		
 		std::string nickNameCpy = nickName;
 		std::string nickNameCpyU = clientIt._nickName;
-		std::transform(nickNameCpy.begin(), nickNameCpy.end(), nickNameCpy.begin(), ::::tolower);
-		std::transform(nickNameCpyU.begin(), nickNameCpyU.end(), nickNameCpyU.begin(), ::::tolower);
+		std::transform(nickNameCpy.begin(), nickNameCpy.end(), nickNameCpy.begin(), ::tolower);
+		std::transform(nickNameCpyU.begin(), nickNameCpyU.end(), nickNameCpyU.begin(), ::tolower);
 		
 		if (nickNameCpy == nickNameCpyU)
 		{

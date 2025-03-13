@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 12:06:41 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/12 18:49:09 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 14:39:49 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,10 +66,15 @@ void Ircserv::checkCommandTopic(std::istringstream &lineStream)
 		std::string currentTopic = ":ircserver 332 " + _clientsMap[_clientFd]._nickName + " " + channelName + " :" + topic + "\r\n";
 		send(_clientFd, currentTopic.c_str(), currentTopic.size(), 0);
 
+		std::string channelCpy = channelName;
+		std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), ::tolower);
+
 		// Find the channel to get topicSetter and topicSetTime
 		for (std::vector<channelsStruct>::iterator it = _channels.begin(); it != _channels.end(); ++it)
 		{
-			if (it->_channelName == channelName)
+			std::string channelCpyU = it->_channelName;
+			std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), ::tolower);
+			if (channelCpyU == channelCpy)
 			{
 				if (!it->_topicSetter.empty())
 				{
@@ -96,14 +101,8 @@ void Ircserv::commandTopic(std::string &channelName, std::string &newTopic)
 	Client client = returnClientStruct(_clientFd);
 	// Find the channel
 	std::vector<channelsStruct>::iterator It = _channels.begin();
-	while (It != _channels.end())
-	{
-		if (It->_channelName == channelName)
-			break;
-		++It;
-	}
 
-	if (channelName.empty() || channelName[0] != '#' || It == _channels.end())
+	if (channelName.empty() || channelName[0] != '#')
 	{
 		std::string errMsg;
 		if (channelName[0] != '#')

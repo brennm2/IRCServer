@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/13 12:31:01 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 13:54:33 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,12 @@ bool Ircserv::checkIfChannelExist(std::string channel)
 
 
 	std::string channelCpy = channel;
-	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), ::::tolower);
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), ::tolower);
 
 	while (channelIt != _channels.end())
 	{
 		std::string channelCpyU = channelIt->_channelName;
-		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), ::::tolower);
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), ::tolower);
 
 		if (channelCpyU == channelCpy)
 		{
