@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/13 12:18:04 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 12:31:23 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,7 +221,7 @@ void Ircserv::bufferReader(int clientFd, char *buffer)
 
 				std::string command;
 				lineStream >> command;
-
+				std::transform(command.begin(), command.end(), command.begin(), ::toupper);
 				if (command == "JOIN")
 				{
 					if (!clientCanUseCommands(clientFd))

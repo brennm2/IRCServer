@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 15:40:35 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/13 12:20:04 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 12:31:01 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,11 +34,11 @@ void Ircserv::addClientToChannel(const std::string& channelName, const Client& c
 {
 	std::vector<channelsStruct>::iterator it = _channels.begin();
 	std::string channelCpy = channelName;
-	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), tolower);
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), ::::tolower);
 	while (it != _channels.end())
 	{
 		std::string channelCpyU = it->_channelName;
-		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), tolower);
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), ::::tolower);
 		if (channelCpyU == channelCpy)
 		{
 			it->_clients.push_back(client);
@@ -226,12 +226,12 @@ std::string Ircserv::returnRealNameOfChannel(const std::string &channel)
 	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
 
 	std::string channelCpy = channel;
-	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), tolower);
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), ::::tolower);
 
 	while (channelIt != _channels.end())
 	{
 		std::string channelCpyU = channelIt->_channelName;
-		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), tolower);
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), ::::tolower);
 
 		if (channelCpyU == channelCpy)
 		{

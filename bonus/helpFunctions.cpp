@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/13 12:22:45 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 12:31:01 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,12 @@ bool Ircserv::checkIfChannelExist(std::string channel)
 
 
 	std::string channelCpy = channel;
-	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), tolower);
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), ::::tolower);
 
 	while (channelIt != _channels.end())
 	{
 		std::string channelCpyU = channelIt->_channelName;
-		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), tolower);
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), ::::tolower);
 
 		if (channelCpyU == channelCpy)
 		{
@@ -103,11 +103,11 @@ void Ircserv::makeUserList(std::string channel)
 {
 	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
 	std::string channelCpy = channel;
-	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), tolower);
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), ::tolower);
 	while (channelIt != _channels.end())
 	{
 		std::string channelCpyU = channelIt->_channelName;
-		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), tolower);
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), ::tolower);
 		if (channelCpyU == channelCpy)
 		{
 			const std::vector<Client>& clients = channelIt->_clients;
@@ -138,12 +138,12 @@ Ircserv::channelsStruct& Ircserv::returnChannelStruct(const std::string &channel
 {
 	std::vector<channelsStruct>::iterator it = _channels.begin();
 	std::string channelCpy = channel;
-	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), tolower);
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), ::tolower);
 	
 	while(it != _channels.end())
 	{
 		std::string channelCpyU = it->_channelName;
-		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), tolower);
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), ::tolower);
 		if (channelCpyU == channelCpy)
 			return *it;
 		else
@@ -200,12 +200,12 @@ void Ircserv::broadcastMessageToChannel(const std::string& message, std::string 
 {
 	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
 	std::string channelCpy = channel;
-	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), tolower);
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), ::tolower);
 
 	while (channelIt != _channels.end())
 	{
 		std::string channelCpyU = channelIt->_channelName;
-		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), tolower);
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), ::tolower);
 		if (channelCpyU == channelCpy)
 		{
 			const std::vector<Client>& clients = channelIt->_clients;
@@ -420,12 +420,12 @@ std::string Ircserv::_getChannelTopic(std::string channel)
 {
 	std::vector<channelsStruct>::iterator It = _channels.begin();
 	std::string channelCpy = channel;
-	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), tolower);
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), ::tolower);
 	
 	while (It != _channels.end())
 	{
 		std::string channelCpyU = It->_channelName;
-		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), tolower);
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), ::tolower);
 		if (channelCpyU == channelCpy)
 			return It->_channelTopic;
 		It++;
