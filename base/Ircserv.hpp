@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:49 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/13 12:04:59 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 14:58:14 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,6 +186,7 @@ public:
 	//Command Kick
 	void commandKick(std::istringstream &lineStream);
 	bool checkCommandKick(const std::string &channel, const std::vector<std::string> &clientsVec);
+	std::string returnRealNameOfClient(const std::string &nickName);
 
 	// Command Mode
 	void checkCommandMode(std::istringstream &lineStream);

@@ -75,11 +75,11 @@ $(NAME_BONUS): $(OBJBONUS)
 	
 govalgrind:
 	make;
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --tool=memcheck ./ircserv 6667 123
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --tool=memcheck ./ircserv 6667 1234
 
 govalgrindbonus:
 	make bonus;
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --tool=memcheck ./ircserv_bonus 6667 123
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --tool=memcheck ./ircserv_bonus 6667 1234
 clean: 
 	$(RM) $(RMFLAGS) $(OBJ)
 	$(RM) $(RMFLAGS) -r

@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 17:42:06 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/13 14:33:37 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 16:11:52 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,14 +95,27 @@ bool Ircserv::checkIfClientInChannel(const std::string& channel, int clientFd)
 bool Ircserv::checkIfClientInChannelByNick(const std::string& channel, const std::string& clientNick)
 {
 	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
+
+	std::string channelCpy = channel;
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), ::tolower);
+
 	while (channelIt != _channels.end())
 	{
-		if (channelIt->_channelName == channel)
+		std::string channelCpyU = channelIt->_channelName;
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), ::tolower);
+
+		if (channelCpyU == channelCpy)
 		{
 			const std::vector<Client>& clients = channelIt->_clients;
+			
+			std::string nickCpy = clientNick;
+			std::transform(nickCpy.begin(), nickCpy.end(), nickCpy.begin(), ::tolower);
+
 			for (std::vector<Client>::const_iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)
 			{
-				if (clientIt->_nickName == clientNick)
+				std::string nickCpyU = clientIt->_nickName;
+				std::transform(nickCpyU.begin(), nickCpyU.end(), nickCpyU.begin(), ::tolower);
+				if (nickCpyU == nickCpy)
 					return true;
 			}
 		}
@@ -241,9 +254,15 @@ void Ircserv::broadcastMessageToChannel(const std::string& message, std::string 
 void Ircserv::broadcastMessageToChannelExceptSender(const std::string& message, std::string channel, int senderFd)
 {
 	std::vector<channelsStruct>::const_iterator channelIt = _channels.begin();
+
+	std::string channelCpy = channel;
+	std::transform(channelCpy.begin(), channelCpy.end(), channelCpy.begin(), ::tolower);
 	while (channelIt != _channels.end())
 	{
-		if (channelIt->_channelName == channel)
+		std::string channelCpyU = channelIt->_channelName;
+		std::transform(channelCpyU.begin(), channelCpyU.end(), channelCpyU.begin(), ::tolower);
+
+		if (channelCpyU == channelCpy)
 		{
 			const std::vector<Client>& clients = channelIt->_clients;
 			for (std::vector<Client>::const_iterator clientIt = clients.begin(); clientIt != clients.end(); ++clientIt)

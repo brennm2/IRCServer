@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 12:06:41 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/13 14:39:49 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/13 16:39:07 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ void Ircserv::checkCommandTopic(std::istringstream &lineStream)
 	{
 		channelsStruct &channel = returnChannelStruct(channelName);
 		channel._channelTopic.clear();
-		std::string topicChange = ":" + client._nickName + "!" + client._userName + "@localhost TOPIC " + channelName + " :" + "" + "\r\n";
+		std::string topicChange = ":" + client._nickName + "!" + client._userName + "@localhost TOPIC " + returnRealNameOfChannel(channelName) + " :" + "" + "\r\n";
 		broadcastMessageToChannel(topicChange, channelName);
 		return ;
 	}
@@ -58,12 +58,12 @@ void Ircserv::checkCommandTopic(std::istringstream &lineStream)
 		if (topic.empty())
 		{
 			topic = "No topic is set.";
-			std::string emptyTopic = ":ircserver 331 " + _clientsMap[_clientFd]._nickName + " " + channelName + " :" + topic + "\r\n";
+			std::string emptyTopic = ":ircserver 331 " + _clientsMap[_clientFd]._nickName + " " + returnRealNameOfChannel(channelName) + " :" + topic + "\r\n";
 			send(_clientFd, emptyTopic.c_str(), emptyTopic.size(), 0);
 			return;
 		}
 		
-		std::string currentTopic = ":ircserver 332 " + _clientsMap[_clientFd]._nickName + " " + channelName + " :" + topic + "\r\n";
+		std::string currentTopic = ":ircserver 332 " + _clientsMap[_clientFd]._nickName + " " + returnRealNameOfChannel(channelName) + " :" + topic + "\r\n";
 		send(_clientFd, currentTopic.c_str(), currentTopic.size(), 0);
 
 		std::string channelCpy = channelName;
@@ -80,7 +80,7 @@ void Ircserv::checkCommandTopic(std::istringstream &lineStream)
 				{
 					std::ostringstream oss;
 					oss << ":ircserver 333 " << _clientsMap[_clientFd]._nickName
-						<< " " << channelName
+						<< " " << returnRealNameOfChannel(channelName)
 						<< " " << it->_topicSetter
 						<< " " << it->_topicSetTime
 						<< "\r\n";
@@ -116,7 +116,7 @@ void Ircserv::commandTopic(std::string &channelName, std::string &newTopic)
 	// Check if client is in the channel
 	if (!checkIfClientInChannel(channelName, _clientFd))
 	{
-		std::string errMsg = ":ircserver 442 " + client._nickName + channelName + " :User is not in the channel!\r\n";
+		std::string errMsg = ":ircserver 442 " + client._nickName + returnRealNameOfChannel(channelName) + " :User is not in the channel!\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return;
 	}
@@ -127,14 +127,14 @@ void Ircserv::commandTopic(std::string &channelName, std::string &newTopic)
 		// If +t is set and user is not operator, deny topic change
 		if (!isOperator(_clientFd, channelName))
 		{
-			std::string errMsg = ":ircserver 482 " + client._nickName + " " + channelName + " :You're not channel operator\r\n";
+			std::string errMsg = ":ircserver 482 " + client._nickName + " " + returnRealNameOfChannel(channelName) + " :You're not channel operator\r\n";
 			send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 			return;
 		}
 	}
 
 	newTopic.erase(0, 1);
-	std::string topicChange = ":" + client._nickName + "!" + client._userName + "@localhost TOPIC " + channelName + " :" + newTopic + "\r\n";
+	std::string topicChange = ":" + client._nickName + "!" + client._userName + "@localhost TOPIC " + returnRealNameOfChannel(channelName) + " :" + newTopic + "\r\n";
 	broadcastMessageToChannel(topicChange, channelName);
 	_changeChannelTopic(channelName, newTopic);
 }
