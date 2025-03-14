@@ -57,7 +57,7 @@ void Ircserv::checkCommandMode(std::istringstream &lineStream)
 	lineStream >> std::ws;
 	std::getline(lineStream, parameters);
 
-	if (target.empty() || modes.empty())
+	if (target.empty())
 	{
 		std::string errMsg = ":ircserver 461 " + client._nickName + " " + modes + "MODE :Not enough parameters\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
