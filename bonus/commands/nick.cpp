@@ -25,7 +25,7 @@ bool Ircserv::commandNickCheck(const std::string &nickName)
 	else if (nickName.find_first_of("#: &") != std::string::npos)
 	{
 		if (client.hasNick)
-			errMsg = ":ircserver 432 " + nickName + " " + nickName + " :Erroneus nickname\r\n";
+			errMsg = ":ircserver 432 " + client._nickName + " " + nickName + " :Erroneus nickname\r\n";
 		else
 			errMsg = ":ircserver 432 * " + nickName + " :Erroneus nickname\r\n";
 
