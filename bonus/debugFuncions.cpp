@@ -25,7 +25,7 @@ void Ircserv::debugShowChannelsInfo()
 			std::cout << "Channel: " << channel->_channelName << std::endl;
 			std::cout << "Channel Topic: " << channel->_channelTopic << std::endl;
 			std::cout << "Channel is Private: " << channel->_isPrivate << std::endl;
-			std::cout << "Clients Fd how can join: ";
+			std::cout << "Clients Fd who can join: ";
 			for (std::vector<int>::const_iterator fd = channel->_clientsFdInvite.begin(); \
 				fd != channel->_clientsFdInvite.end(); ++fd)
 			{

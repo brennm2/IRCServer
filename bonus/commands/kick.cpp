@@ -36,13 +36,13 @@ bool Ircserv::checkCommandKick(const std::string &channel, \
 	}
 	else if (!checkIfClientInChannel(channel, _clientFd))
 	{
-		std::string errMsg = ":ircserver 442 :" + client._nickName + " " + channel + " :You're not on that channel\r\n";
+		std::string errMsg = ":ircserver 442 :" + client._nickName + " " + returnRealNameOfChannel(channel) + " :You're not on that channel\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return (false);
 	}
 	else if(!isOperator(_clientFd, channel))
 	{
-		std::string errMsg = ":ircserver 482 " + client._nickName + " " + channel + " :You're not channel operator\r\n";
+		std::string errMsg = ":ircserver 482 " + client._nickName + " " + returnRealNameOfChannel(channel) + " :You're not channel operator\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return (false);
 	}
@@ -54,7 +54,7 @@ bool Ircserv::checkCommandKick(const std::string &channel, \
 			if(!checkIfClientInChannelByNick(channel, *it))
 			{
 				std::string errMsg = ":ircserver 441 :" + client._nickName + " " \
-					 + channel + " " + *it + " :They aren't on that channel\r\n";
+					 + returnRealNameOfChannel(channel) + " " + *it + " :They aren't on that channel\r\n";
 				send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 				return (false);
 			}
