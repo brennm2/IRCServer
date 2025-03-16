@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:44:14 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/13 16:24:46 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/16 00:53:07 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,14 @@ bool Ircserv::privMsgSintaxCheck(std::string firstWord, std::string target)
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return false;
 	}
-	else if (firstWord[0] != ':')
+	else if (firstWord.empty())
 	{
 		Client client = returnClientStruct(_clientFd);
-		std::string errMsg = ":ircserver 407 " + client._nickName + " :"  + "Syntax Error (/PRIVMSG NICK :MESSAGE)\r\n";
+		std::string errMsg = ":ircserver 412 " + client._nickName + " :" + "No text to send\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return (false);
 	}
-	else if (firstWord[0] == ':' && firstWord[1] == '\0')
+	else if (firstWord[0] == ':' && (firstWord[1] == '\0' || firstWord[1] == '\r'))
 	{
 		Client client = returnClientStruct(_clientFd);
 		std::string errMsg = ":ircserver 412 " + client._nickName + " :" + "No text to send\r\n";

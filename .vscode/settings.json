@@ -58,6 +58,7 @@
 		"stop_token": "cpp",
 		"thread": "cpp",
 		"semaphore": "cpp",
-		"iomanip": "cpp"
+		"iomanip": "cpp",
+		"cinttypes": "cpp"
 	}
 }

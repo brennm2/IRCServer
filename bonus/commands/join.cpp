@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/11 15:40:35 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/13 13:54:33 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/16 00:55:59 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,15 +93,21 @@ bool Ircserv::commandJoinCheck(const std::string &channel)
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return false;
 	}
-	if (channel[0] != '#' && channel[0] != '\0')
+	else if (channel == "0")
 	{
-			std::string errMsg = ":ircserver 476 : " + channel + " :Bad Channel Mask\r\n";
-			send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
-			return false;
+		disconnectClientFromEveryChannel(_clientFd);
+		removeClientFromEveryChannel(_clientFd);
+		return (false);
 	}
-	else if (channel[0] == '\0')
+	else if (channel[0] != '#' && channel[0] != '\0')
 	{
-		std::string errMsg = ":ircserver 461 " + client._nickName + " JOIN " + channel + " :Not enough parameters\r\n";
+		std::string errMsg = ":ircserver 476 : " + channel + " :Bad Channel Mask\r\n";
+		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
+		return false;
+	}
+	else if (channel[0] == '#' && channel.size() > 50)
+	{
+		std::string errMsg = ":ircserver 479 : " + channel + " :Illegal channel names\r\n";
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return false;
 	}
@@ -196,11 +202,12 @@ void Ircserv::commandJoin(const std::string &channel, const std::string &key)
 				continue;
 			if (!checkIfClientInChannel(tempChannel, _clientFd))
 				addClientToChannel(tempChannel, client);
-			tempChannel = returnRealNameOfChannel(channel);
+			else
+				return;
+			tempChannel = returnRealNameOfChannel(tempChannel);
 			std::string testeMsg = ":" + _clientsMap[_clientFd]._nickName + "!" + _clientsMap[_clientFd]._userName + "@localhost JOIN " + tempChannel + "\r\n";
 			send(_clientFd, testeMsg.c_str(), testeMsg.size(), 0);
 			
-			std::cout << "CHANNEL :" << returnRealNameOfChannel(channel) << "\n";
 			std::string topic = _getChannelTopic(tempChannel);
 			if (topic.empty())
 			{

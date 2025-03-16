@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:56 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/12 21:10:18 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/16 00:57:57 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,9 +52,9 @@ void checkIfValidPassWord(const std::string &pass)
 
 int main(int ac, char **av)
 {
-	signal(SIGPIPE, SIG_IGN);
 	if (ac == 3)
 	{
+		signal(SIGPIPE, SIG_IGN);
 		Ircserv Server;
 		try
 		{

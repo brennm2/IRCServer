@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:56 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/13 12:18:11 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/15 21:59:45 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ int main(int ac, char **av)
 {
 	if (ac == 3)
 	{
+		signal(SIGPIPE, SIG_IGN);
 		Ircserv Server;
 		try
 		{
