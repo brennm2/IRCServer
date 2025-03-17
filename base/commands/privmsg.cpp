@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:44:14 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/16 00:52:52 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/17 11:32:27 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,8 +63,12 @@ void Ircserv::commandPrivMSG(std::istringstream &lineStream)
 			}
 			else
 			{
+				std::istringstream lineTmp (message);
 				if (message[0] == ':')
 					message.erase(0, 1);
+				else
+					lineTmp >> message;
+
 				broadcastMessagePrivate(message, *it);
 			}
 		}
@@ -84,8 +88,11 @@ void Ircserv::commandPrivMSG(std::istringstream &lineStream)
 			else
 			{
 				Client client = returnClientStruct(_clientFd);
+				std::istringstream lineTmp (message);
 				if(message[0] == ':')
 					message.erase(0, 1);
+				else
+					lineTmp >> message;
 				std::string channelMessage = ":" + client._nickName + "!" + client._userName + "@" + "localhost" + " PRIVMSG " \
 					+ returnRealNameOfChannel(*it) + " :" + message + "\r\n";
 				broadcastMessageToChannelExceptSender(channelMessage, *it, _clientFd);
