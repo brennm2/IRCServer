@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 12:05:50 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/13 16:35:48 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/17 12:19:46 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,17 @@ void Ircserv::commandPart(const std::string &channelName, std::string reason)
 	Client client = returnClientStruct(_clientFd);
 	std::vector<std::string> channelVec = splitString(channelName, ',');
 
+	bool reasonEmpty = true;
+	if (!reason.empty())
+	{
+		reasonEmpty = false;
+		std::istringstream lineTmp (reason);
+		if (reason[0] == ':')
+			reason.erase(0, 1);
+		else
+			lineTmp >> reason;
+	}
+	
 	for (std::vector<std::string>::const_iterator channelIt = channelVec.begin(); \
 			channelIt != channelVec.end(); channelIt++)
 	{
@@ -47,13 +58,11 @@ void Ircserv::commandPart(const std::string &channelName, std::string reason)
 		}
 		
 		std::string leaveMsg;
-		if (reason.empty())
+		if (reasonEmpty)
 			leaveMsg = ":" + client._nickName + "!" + client._userName + \
 				"@localhost PART " + returnRealNameOfChannel(tempChannel) + " :Leaving\r\n";
 		else
 		{
-			if (reason[0] == ':')
-				reason.erase(0, 1);
 			leaveMsg = ":" + client._nickName + "!" + client._userName + "@localhost PART " \
 				+ returnRealNameOfChannel(tempChannel) + " :" + reason +"\r\n";
 		}

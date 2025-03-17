@@ -6,12 +6,11 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/10 15:38:00 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/02/13 17:14:37 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/17 12:19:59 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Ircserv.hpp"
-
 
 bool Ircserv::clientCanUseCommands(int clientFd)
 {
@@ -36,7 +35,6 @@ bool Ircserv::commandPass(std::string password)
 {
 	Client &client = _clientsMap[_clientFd];
 
-	// debugShowSpecificClient(client);
 	if (client.hasPass == true)
 	{
 		std::string errorMsg = ":ircserver 462 :" + client._nickName + " You may not reregister\r\n";

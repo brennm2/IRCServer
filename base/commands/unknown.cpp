@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/06 18:11:22 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/06 18:41:08 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/17 12:18:24 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 void Ircserv::commandUnknown(const std::string &command)
 {
-	// printAsciiValues(command);
 	if (command == "WHO" || command == "CAP" || command.empty())
 		return ;
 	Client client = returnClientStruct(_clientFd);

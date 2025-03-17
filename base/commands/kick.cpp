@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 13:26:55 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/13 15:05:15 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/17 12:00:45 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,14 @@ void Ircserv::commandKick(std::istringstream &lineStream)
 	if (!checkCommandKick(channel, clientsVec))
 		return ;
 
+	if (!reason.empty())
+	{
+		std::istringstream lineTmp (reason);
+		if (reason[0] == ':')
+			reason.erase(0, 1);
+		else
+			lineTmp >> reason;
+	}
 	for (std::vector<std::string>::const_iterator it = clientsVec.begin(); \
 			it != clientsVec.end(); it++)
 	{
@@ -93,8 +101,6 @@ void Ircserv::commandKick(std::istringstream &lineStream)
 		}
 		else
 		{
-			if (reason[0] == ':')
-				reason.erase(0,1);
 			kickMsg = ":" + client._nickName + "!" + client._userName + "@localhost KICK " \
 				+ channel + " " + target + " :" + reason + "\r\n";
 		}

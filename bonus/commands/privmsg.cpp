@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:44:14 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/17 11:33:15 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/17 12:20:44 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,12 @@ void Ircserv::commandPrivMSG(std::istringstream &lineStream)
 
 	if (!privMsgSintaxCheck(message, target))
 		return;
+
+	std::istringstream lineTmp (message);
+	if (message[0] == ':')
+		message.erase(0, 1);
+	else
+		lineTmp >> message;
 	
 	for(std::vector<std::string>::const_iterator it = targetsVec.begin(); \
 			it != targetsVec.end(); it++)
@@ -62,15 +68,7 @@ void Ircserv::commandPrivMSG(std::istringstream &lineStream)
 				send(_clientFd, noNickMsg.c_str(), noNickMsg.size(), 0);
 			}
 			else
-			{
-				std::istringstream lineTmp (message);
-				if (message[0] == ':')
-					message.erase(0, 1);
-				else
-					lineTmp >> message;
-
 				broadcastMessagePrivate(message, *it);
-			}
 		}
 		else
 		{
@@ -88,11 +86,6 @@ void Ircserv::commandPrivMSG(std::istringstream &lineStream)
 			else
 			{
 				Client client = returnClientStruct(_clientFd);
-				std::istringstream lineTmp (message);
-				if(message[0] == ':')
-					message.erase(0, 1);
-				else
-					lineTmp >> message;
 				std::string channelMessage = ":" + client._nickName + "!" + client._userName + "@" + "localhost" + " PRIVMSG " \
 					+ returnRealNameOfChannel(*it) + " :" + message + "\r\n";
 				broadcastMessageToChannelExceptSender(channelMessage, *it, _clientFd);

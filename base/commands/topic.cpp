@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 12:06:41 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/13 16:39:07 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/17 11:48:35 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,8 +132,11 @@ void Ircserv::commandTopic(std::string &channelName, std::string &newTopic)
 			return;
 		}
 	}
-
-	newTopic.erase(0, 1);
+	std::istringstream lineTmp (newTopic);
+	if(newTopic[0] == ':')
+		newTopic.erase(0, 1);
+	else
+		lineTmp >> newTopic;
 	std::string topicChange = ":" + client._nickName + "!" + client._userName + "@localhost TOPIC " + returnRealNameOfChannel(channelName) + " :" + newTopic + "\r\n";
 	broadcastMessageToChannel(topicChange, channelName);
 	_changeChannelTopic(channelName, newTopic);
