@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:44:14 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/17 12:20:44 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/17 18:51:50 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ void Ircserv::commandPrivMSG(std::istringstream &lineStream)
 	else
 		lineTmp >> message;
 	
+	Client &client = returnClientStructToModify(_clientFd);
 	for(std::vector<std::string>::const_iterator it = targetsVec.begin(); \
 			it != targetsVec.end(); it++)
 	{
@@ -68,11 +69,13 @@ void Ircserv::commandPrivMSG(std::istringstream &lineStream)
 				send(_clientFd, noNickMsg.c_str(), noNickMsg.size(), 0);
 			}
 			else
+			{
 				broadcastMessagePrivate(message, *it);
+				client._msgCount += 1;
+			}
 		}
 		else
 		{
-			Client client = returnClientStruct(_clientFd);
 			if (!checkIfChannelExist(*it))
 			{
 				std::string errMsg = ":ircserver 402 " + client._nickName + " " + *it + " :No such server\r\n";
@@ -85,10 +88,11 @@ void Ircserv::commandPrivMSG(std::istringstream &lineStream)
 			}
 			else
 			{
-				Client client = returnClientStruct(_clientFd);
 				std::string channelMessage = ":" + client._nickName + "!" + client._userName + "@" + "localhost" + " PRIVMSG " \
 					+ returnRealNameOfChannel(*it) + " :" + message + "\r\n";
 				broadcastMessageToChannelExceptSender(channelMessage, *it, _clientFd);
+				client._msgCount += 1;
+				std::cout << "client._msgCount: " << client._msgCount << "\n";
 			}
 		}
 	}

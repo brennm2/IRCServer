@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 10:25:52 by diodos-s          #+#    #+#             */
-/*   Updated: 2025/03/13 17:02:17 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/17 18:38:36 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,7 +173,6 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 	static bool lastSignal = false;
 	bool hasSignal = false;
 	bool adding = true;
-	std::cout << "MODE:" << modes << "\n";
 	for (size_t i = 0; i < modes.size(); i++)
 	{
 		char mode = modes[i];
@@ -280,8 +279,6 @@ bool Ircserv::applyChannelModes(std::string &channelName, std::string &modes, st
 			case 'o': // Give or remove operator status
 				if (!(paramStream >> param)) 
 						param.clear();
-
-				std::cout << "PARAM:" << param << "\n";
 
 				if (adding)
 				{
