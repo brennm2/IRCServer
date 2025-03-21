@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:49:36 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/20 15:32:13 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/21 10:41:21 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ bool Ircserv::commandNickCheck(const std::string &nickName)
 		send(_clientFd, errMsg.c_str(), errMsg.size(), 0);
 		return (false);
 	}
-	else if (nickName.find_first_of("#: &+-*/.%^&()=!@$'\";[]{},") != std::string::npos || nickName.size() <= 1)
+	else if (nickName.find_first_of("#: &+*/.%^&()=!@$'\";,") != std::string::npos || (nickName.size() <= 1 || nickName.size() > 9))
 	{
 		if (client.hasNick)
 			errMsg = ":ircserver 432 " + client._nickName + " " + nickName + " :Erroneus nickname\r\n";
