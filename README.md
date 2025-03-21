@@ -137,31 +137,65 @@ Here are some examples:
 | `join and JOIN`    | Commands should be interpreted as the same. Ex: JOIN and join |
 </div>
 <br>
-
 <h3>
-  
+<br>
+<br>
 - SIGPIPES
 </h3>
 
 >[!IMPORTANT]
 >No one likes broken pipes!.
 
-This can happen if you send a message to a 'closed Fd', you can easly do this with a scipt in shell that closes multiple clients at once (ex Ctrl + C)
+This can happen if you send a message to a `closed Fd`, you can easly do this with a scipt in shell that closes multiple clients at once (ex Ctrl + C)
 
 <div align="center">
-here are some quick solutions:
+Here are some quick solutions:
 
 | Solutions        | Description                                                                 |
 |:----------------:|:-------------------------------------------------------------------------:|
 | `signal(SIGPIPE, SIG_IGN)`    | Use signal to ignore the SIGPIPE throw.        |
 | `send(clientFd, message, message.size, MSG_NOSIGNAL)`    | Enable the MSG_NOSIGNAL flag to disable throws of send().|
-| `do not send`    | Well... find a way to not send the message to that FD ¯\\_(ツ)_/¯ |
+| `do not send`    | Well... find a way to not send the message to that FD ¯\\\_(ツ)\_/¯ |
 </div>
-
-
-
-
+<h3>
 <br>
+<br>
+- Arguments and Texts
+</h3>
+
+>[!TIP]
+>Dots, dots and dots....
+
+Be careful, text are represented with `:`, so what happens if you don't put it? It should be considered an argument!
+So... with should only consider the first word
+
+<div align="center">
+Here are some examples:
+  
+| Example        | Output                                                                |
+|:----------------:|:-------------------------------------------------------------------------:|
+| `privmsg #channel :Hello World :D`    | bde-souz: Hello World :D       |
+| `privmsg #channel Hello World :D`    | bde-souz: Hello     |
+| `kick #channel bde-souz :You behaved bad!`    | bde-souz has been kicked from #teste (You behaved bad!) |
+| `kick #channel bde-souz You behaved bad!`    | bde-souz has been kicked from #teste (You) |
+| `etc`    | You got the idea :) |
+</div>
+<br>
+<br>
+<h3>
+- HexChat and Netcat
+</h3>
+
+>[!NOTE]
+>Hexchat autocompletes things and Netcat accepts everything!.
+
+You need to be careful with Hexchat and Netcat!<br>
+
+In the case of Hexchat, he usually autocompletes the commands, for example, if you send `/privmsg Hello World` in the Hexchat he autocompletes the command,
+as in the Netcat, he accepts every response, even if is it syntax is wrong, use the Hexchat to check it!
+
+<p>You can see that you need to use both of them to verify if everthing is good
+
 <div align="center">
 <h3>--------- 42 Rules ---------</h3>
 </div>
