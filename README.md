@@ -80,13 +80,13 @@ nick brendon 0 * :Brendon Vianna
 
 
 | Command        | Description                                                                 |
-|----------------|-----------------------------------------------------------------------------|
-| `/join <#channel1,#chenel2...> <password>`    | Joins the specified channel.                                                 |
-| `/part <#channel1,#channel2...>`    | Leaves the specified channel.                                               |
+|:----------------|-----------------------------------------------------------------------------|
+| `/join <#channel1,#chennel2...> <password> or /join 0`    | Joins the specified channel or leaves all channels             |
+| `/part <#channel1,#channel2...> [reason]`    | Leaves the specified channel.                                               |
 | `/nick <nickname>`    | Changes your nickname to the specified one.                                  |
 | `/privmsg <user1,user2...> [message]` | Sends a private message to the specified user.                              |
 | `/topic <#channel> or <#channel> [topic]`    | Displays or sets the topic for a channel.                                    |
-| `/quit [message]`     | Quits the IRC server with an optional message.                               |
+| `/quit [reason]`     | Quits the IRC server with an optional message.                               |
 | `/invite <nickname> <#channel>` | Invite a user to a channel.                                               |
 | `/kick <#channel> <nickname1,nickname2...> [reason]` | Kick a user from the channel.                                               |
 | `/invite <nickname> <#channel>` | Invite a user to a channel.                                               |
@@ -100,7 +100,7 @@ nick brendon 0 * :Brendon Vianna
 
 
 | Modes        | Description                                                                 |
-|----------------|-----------------------------------------------------------------------------|
+|:----------------|-----------------------------------------------------------------------------|
 | `/mode <#channel> +o or -o <target>`    | Gives or remove operator to a user.                                                 |
 | `/mode <#channel> +i or -i`    | Change or remove the channel to Invite Only.                                                 |
 | `/mode <#channel> +k or -k <option>`    | Put or remove a password to a channel.                                                 |
@@ -108,6 +108,33 @@ nick brendon 0 * :Brendon Vianna
 | `/mode <#channel> +l or -l <option>`    | Set or unset a limit of user to a channel.                                                 |
 </div>
 <br>
+
+<div align="center">
+<h3>--------- Important Notes! ---------</h3>
+</div>
+
+<h3>
+  
+- IRC Protocol **[is case-insensitive](https://www.seobility.net/en/wiki/images/c/c5/Case-sensitivity.png)**
+</h3>
+
+>[!WARNING]
+>Becareful with the letters!.
+
+Yes, this is **VERY** important, if you enter a nick like `bde-souz` and then other user joins with `BDE-SOUZ`, it can steal the identity of the first user,
+and that is a **VERY** big problem! Same with the channel, that can leave to pretty bad problems!
+
+Here are some examples:
+| Example        | Description                                                                 |
+|:----------------:|:-------------------------------------------------------------------------:|
+| `bde-souz and BDE-SOUZ`    | It should give a 433 error (Nickname is already in use).        |
+| `#channel and #CHANNEL`    | It should JOIN in the first version that was created! Ex: #channel.|
+| `join and JOIN`    | Commands should be interpreted as the same. Ex: JOIN and join |
+
+<br>
+
+
+
 
 <br>
 <div align="center">
@@ -130,8 +157,9 @@ nick brendon 0 * :Brendon Vianna
 
 * My awesome duo in this project: [Diogo](https://github.com/diogocorreia71)
 * [IRC Protocol]
-*   - [IRC Docs](https://modern.ircdocs.horse/)
+    - [IRC Docs](https://modern.ircdocs.horse/)
     - [IRC Horse](https://dd.ircdocs.horse/)
+    - [Robert Ecker](https://bop.unibe.ch/linguistik-online/article/download/317/467)
 * All my friends who helped me do this project
 
 
