@@ -75,19 +75,37 @@ nick brendon 0 * :Brendon Vianna
 <div align="center">
   <h1>Considerations and Explanations</h1>
 </div>
+<div align="center">
+<h3>--------- Commands ---------</h3>
+
 
 | Command        | Description                                                                 |
 |----------------|-----------------------------------------------------------------------------|
-| `/join <#channel1,#chenel2...>`    | Joins the specified channel.                                                 |
+| `/join <#channel1,#chenel2...> <password>`    | Joins the specified channel.                                                 |
 | `/part <#channel1,#channel2...>`    | Leaves the specified channel.                                               |
 | `/nick <nickname>`    | Changes your nickname to the specified one.                                  |
-| `/privmsg <user1,user2...> <message>` | Sends a private message to the specified user.                              |
-| `/topic <#channel> or <#channel> <topic>`    | Displays or sets the topic for a channel.                                    |
+| `/privmsg <user1,user2...> [message]` | Sends a private message to the specified user.                              |
+| `/topic <#channel> or <#channel> [topic]`    | Displays or sets the topic for a channel.                                    |
 | `/quit [message]`     | Quits the IRC server with an optional message.                               |
-| `/msg <channel> <message>` | Sends a message to a channel.                                               |
-
+| `/invite <nickname> <#channel>` | Invite a user to a channel.                                               |
+| `/kick <#channel> <nickname1,nickname2...> [reason]` | Kick a user from the channel.                                               |
+| `/invite <nickname> <#channel>` | Invite a user to a channel.                                               |
+| `/mode <#channel> <mode> <target or option>` | Set a mode to a channel.                                               |
+| `/motd` | Tells the message of the day.                                               |
+| `/BOT [HELP]` | Shows commands for the bot (**ONLY IN BONUS**)                                               |
+</div>
+<br>
 <div align="center">
-<h3>--------- The Map ---------</h3>
+<h3>--------- The Modes ---------</h3>
+
+
+| Modes        | Description                                                                 |
+|----------------|-----------------------------------------------------------------------------|
+| `/mode <#channel> +o or -o <target>`    | Gives or remove operator to a user.                                                 |
+| `/mode <#channel> +i or -i`    | Change or remove the channel to Invite Only.                                                 |
+| `/mode <#channel> +k or -k <option>`    | Put or remove a password to a channel.                                                 |
+| `/mode <#channel> +t or -t`    | Lock or unlock the topic of channel.                                                 |
+| `/mode <#channel> +l or -l`    | Set or unset a limit of user to a channel.                                                 |
 </div>
 <br>
 <p>The map can be modified, altered or even created in a simple and functional way, as long as it follows these rules:</p>
