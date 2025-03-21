@@ -119,19 +119,44 @@ nick brendon 0 * :Brendon Vianna
 </h3>
 
 >[!WARNING]
->Becareful with the letters!.
+>Be careful with the letters!.
 
-Yes, this is **VERY** important, if you enter a nick like `bde-souz` and then other user joins with `BDE-SOUZ`, it can steal the identity of the first user,
+Yes, this is **VERY** important, if you enter a nick like `bde-souz` and then other an user joins with `BDE-SOUZ`, it can steal the identity of the first user,
 and that is a **VERY** big problem! Same with the channel, that can leave to pretty bad problems!
 
+<div align="center">
 Here are some examples:
+
+<br>
+<br>
+
 | Example        | Description                                                                 |
 |:----------------:|:-------------------------------------------------------------------------:|
 | `bde-souz and BDE-SOUZ`    | It should give a 433 error (Nickname is already in use).        |
 | `#channel and #CHANNEL`    | It should JOIN in the first version that was created! Ex: #channel.|
 | `join and JOIN`    | Commands should be interpreted as the same. Ex: JOIN and join |
-
+</div>
 <br>
+
+<h3>
+  
+- SIGPIPES
+</h3>
+
+>[!IMPORTANT]
+>No one likes broken pipes!.
+
+This can happen if you send a message to a 'closed Fd', you can easly do this with a scipt in shell that closes multiple clients at once (ex Ctrl + C)
+
+<div align="center">
+here are some quick solutions:
+
+| Solutions        | Description                                                                 |
+|:----------------:|:-------------------------------------------------------------------------:|
+| `signal(SIGPIPE, SIG_IGN)`    | Use signal to ignore the SIGPIPE throw.        |
+| `send(clientFd, message, message.size, MSG_NOSIGNAL)`    | Enable the MSG_NOSIGNAL flag to disable throws of send().|
+| `do not send`    | Well... find a way to not send the message to that FD ¯\\_(ツ)_/¯ |
+</div>
 
 
 
