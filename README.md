@@ -105,41 +105,10 @@ nick brendon 0 * :Brendon Vianna
 | `/mode <#channel> +i or -i`    | Change or remove the channel to Invite Only.                                                 |
 | `/mode <#channel> +k or -k <option>`    | Put or remove a password to a channel.                                                 |
 | `/mode <#channel> +t or -t`    | Lock or unlock the topic of channel.                                                 |
-| `/mode <#channel> +l or -l`    | Set or unset a limit of user to a channel.                                                 |
+| `/mode <#channel> +l or -l <option>`    | Set or unset a limit of user to a channel.                                                 |
 </div>
 <br>
-<p>The map can be modified, altered or even created in a simple and functional way, as long as it follows these rules:</p>
 
-```bash
-- Only have ONE Player and depending on the letter, which direction will you look when you start the game ([N][S][W][E])
-- It has to got a valid RGB value for Floor[F] and Ceiling[C] (No duplicated or invalid RGB value)
-- It has to got a valid texture PATH (No duplicated paths or invalid path)
-- It has to be enclosed by Walls (1)
-- And it needs to be filled with floors (0)
-- It can be on any shape, but it HAS to be closed by wall
-- The map can only use the following characters: 1, 0, [SPACE], [N,S,W,E] and D -> (D is for Doors only in bonus)
-- The map extension must be ".cub"
-```
-<br>
-<br>
-<p>Here's a simple example:</p>
-
-```bash
-NO assets/sprites/default/north_wall.xpm
-SO assets/sprites/default/south_wall.xpm
-WE assets/sprites/default/west_wall.xpm
-EA assets/sprites/default/east_wall.xpm
-
-F 18,53,25
-C 153,204,255
-
-111111111
-100000001
-1000W0001
-100000001
-111111111
-```
-<br>
 <br>
 <div align="center">
 <h3>--------- 42 Rules ---------</h3>
@@ -149,11 +118,7 @@ C 153,204,255
 
 ```bash
 - The project must not have memory leaks
-- The project must use the flags -Wall -Wextra -Werror
-- Each function can have a maximum of 25 lines
-- Each file should only have 5 functions
-- We should keep the code as clean as possible, for example, declarations should be on separate lines
-- We cannot use "for", "do...while", "switch", "case", "goto", ternary operators, or variable-length arrays
+- The project must use the flags -Wall -Wextra -Werror and use C++98
 ```
 
 <br>
@@ -163,11 +128,10 @@ C 153,204,255
 <h3>--------- Credits ---------</h3>
 </div>
 
-* My awesome duo in this project: [Bruno](https://github.com/Bruno0798)
-* [Textures](https://little-martian.itch.io/retro-texture-pack) and little of handwork of me
-* [Ray-Casting]
-*   - [Ahmed Fatir](https://medium.com/@afatir.ahmedfatir/cub3d-tutorial-af5dd31d2fcf) (Cub3d Tutorial)
-    - [Lode's Computer Graphics Tutorial](https://lodev.org/cgtutor/raycasting.html#The_Basic_Idea_)
+* My awesome duo in this project: [Diogo](https://github.com/diogocorreia71)
+* [IRC Protocol]
+*   - [IRC Docs](https://modern.ircdocs.horse/)
+    - [IRC Horse](https://dd.ircdocs.horse/)
 * All my friends who helped me do this project
 
 
