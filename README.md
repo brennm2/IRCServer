@@ -199,8 +199,8 @@ Here are some examples:
 
 You need to be careful with Hexchat and Netcat!<br>
 
-In the case of Hexchat, he usually autocompletes the commands, for example, if you send `/privmsg Hello World` in the Hexchat he autocompletes the command,
-as in the Netcat, he accepts every response, even if is it syntax is wrong, use the Hexchat to check it!
+In the case of the Hexchat, it usually autocompletes the commands, for example, if you send `/privmsg Hello World` in the Hexchat, it will autocomplete the command,
+as in netcat, it will accept any reply, even if the syntax is wrong, use the hexchat to check it!
 
 <p>You can see that you need to use both of them to verify if everything is good
 
