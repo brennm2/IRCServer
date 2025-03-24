@@ -22,6 +22,14 @@ By building this project, you will learn about handling multiple client connecti
 
 Whether you're new to networking, C++, or just want to build something practical, this project gives you a hands-on experience with the IRC protocol and lays the foundation for more complex server-client applications.
 
+<br>
+<br>
+
+>[!NOTE]
+>This repository is open and you are encouraged to contribute. <br>
+>If you have something to add or a tip to give, feel free to do so.
+
+
 
 <div align="center">
   <h1>How can I test it?</h1>
@@ -186,7 +194,7 @@ Here are some examples:
 - HexChat and Netcat
 </h3>
 
->[!NOTE]
+>[!TIP]
 >Hexchat autocompletes things and Netcat accepts everything!.
 
 You need to be careful with Hexchat and Netcat!<br>
@@ -195,6 +203,16 @@ In the case of Hexchat, he usually autocompletes the commands, for example, if y
 as in the Netcat, he accepts every response, even if is it syntax is wrong, use the Hexchat to check it!
 
 <p>You can see that you need to use both of them to verify if everything is good
+
+| Input        | Model  | Output in the Server  |
+|:-------------------:|:-------:|:---------------------------:|
+| `/mode +o #bde-souz`| Hexchat | _mode #general +o #bde-souz_ |
+| `ola mundo` (in channel)| Hexchat | _PRIVMSG #teste :ola mundo_ |
+| `/part` (in channel)| Hexchat | _PART #teste :Leaving_ |
+| `/nick brendon` | Netcat | :brendon!~Brendon@localhost NICK :brendon  **(WRONG SYNTAX)**|
+| `/nick bde-souz` | Netcat | : 433 bde-souz :Nickname is already in use  **(WRONG SYNTAX)**|
+
+
 
 <div align="center">
 <h3>--------- 42 Rules ---------</h3>
