@@ -207,7 +207,7 @@ as in netcat, it will accept any reply, even if the syntax is wrong, use the hex
 | Input        | Model  | Output in the Server  |
 |:-------------------:|:-------:|:---------------------------:|
 | `/mode +o #bde-souz`| Hexchat | _mode #general +o #bde-souz_ |
-| `ola mundo` (in channel)| Hexchat | _PRIVMSG #teste :ola mundo_ |
+| `hello world` (in channel)| Hexchat | _PRIVMSG #teste :hello world_ |
 | `/part` (in channel)| Hexchat | _PART #teste :Leaving_ |
 | `/nick brendon` | Netcat | :brendon!~Brendon@localhost NICK :brendon  **(WRONG SYNTAX)**|
 | `/nick bde-souz` | Netcat | : 433 bde-souz :Nickname is already in use  **(WRONG SYNTAX)**|
