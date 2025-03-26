@@ -6,7 +6,7 @@
 /*   By: bde-souz <bde-souz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 14:43:54 by bde-souz          #+#    #+#             */
-/*   Updated: 2025/03/17 18:53:45 by bde-souz         ###   ########.fr       */
+/*   Updated: 2025/03/26 16:03:34 by bde-souz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,6 +190,10 @@ void Ircserv::acceptClients()
 		for (int i = removeIndices.size() - 1; i >= 0; --i)
 			poll_fds.erase(poll_fds.begin() + removeIndices[i]);
 	}
+	for (size_t i = 0; i < poll_fds.size(); ++i)
+		if (poll_fds[i].fd > 0)
+			close(poll_fds[i].fd);
+
 	return ;
 }
 
